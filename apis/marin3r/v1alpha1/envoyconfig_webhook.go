@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/3scale-ops/basereconciler/util"
@@ -41,10 +42,10 @@ func (r *EnvoyConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 //+kubebuilder:webhook:path=/validate-marin3r-3scale-net-v1alpha1-envoyconfig,mutating=false,failurePolicy=fail,sideEffects=None,groups=marin3r.3scale.net,resources=envoyconfigs,verbs=create;update,versions=v1alpha1,name=envoyconfig.marin3r.3scale.net-v1alpha1,admissionReviewVersions=v1
 
-var _ webhook.Validator = &EnvoyConfig{}
+var _ webhook.CustomValidator = &EnvoyConfig{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *EnvoyConfig) ValidateCreate() (admission.Warnings, error) {
+func (r *EnvoyConfig) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	validationlog.Info("ValidateCreate", "type", "EnvoyConfig", "resource", util.ObjectKey(r).String())
 	if err := r.Validate(); err != nil {
 		return nil, err
@@ -53,7 +54,7 @@ func (r *EnvoyConfig) ValidateCreate() (admission.Warnings, error) {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *EnvoyConfig) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
+func (r *EnvoyConfig) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	validationlog.Info("validateUpdate", "type", "EnvoyConfig", "resource", util.ObjectKey(r).String())
 	if err := r.Validate(); err != nil {
 		return nil, err
@@ -62,7 +63,9 @@ func (r *EnvoyConfig) ValidateUpdate(old runtime.Object) (admission.Warnings, er
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *EnvoyConfig) ValidateDelete() (admission.Warnings, error) { return nil, nil }
+func (r *EnvoyConfig) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+	return nil, nil
+}
 
 // Validates the EnvoyConfig resource
 func (r *EnvoyConfig) Validate() error {

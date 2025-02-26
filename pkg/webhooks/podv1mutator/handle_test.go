@@ -24,8 +24,8 @@ func init() {
 
 func TestPodMutator_Handle(t *testing.T) {
 	type fields struct {
-		Client  client.Client
-		decoder *admission.Decoder
+		client  client.Client
+		decoder admission.Decoder
 	}
 	type args struct {
 		ctx context.Context
@@ -40,7 +40,7 @@ func TestPodMutator_Handle(t *testing.T) {
 		{
 			name: "Mutates pod",
 			fields: fields{
-				Client: fake.NewClientBuilder().WithScheme(scheme.Scheme).WithObjects(
+				client: fake.NewClientBuilder().WithScheme(scheme.Scheme).WithObjects(
 					&operatorv1alpha1.DiscoveryService{ObjectMeta: metav1.ObjectMeta{Name: "instance", Namespace: "default"}},
 				).WithStatusSubresource(&operatorv1alpha1.DiscoveryService{}).Build(),
 				decoder: admission.NewDecoder(scheme.Scheme),
@@ -92,7 +92,7 @@ func TestPodMutator_Handle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &PodMutator{
-				Client:  tt.fields.Client,
+				Client:  tt.fields.client,
 				Decoder: tt.fields.decoder,
 			}
 			got := a.Handle(tt.args.ctx, tt.args.req)
@@ -113,11 +113,11 @@ func TestPodMutator_Handle(t *testing.T) {
 
 func TestPodMutator_InjectDecoder(t *testing.T) {
 	type fields struct {
-		Client  client.Client
-		decoder *admission.Decoder
+		client  client.Client
+		decoder admission.Decoder
 	}
 	type args struct {
-		d *admission.Decoder
+		d admission.Decoder
 	}
 	tests := []struct {
 		name    string
@@ -128,7 +128,7 @@ func TestPodMutator_InjectDecoder(t *testing.T) {
 		{
 			name: "Injects decoder",
 			fields: fields{
-				Client:  fake.NewFakeClient(),
+				client:  fake.NewFakeClient(),
 				decoder: nil,
 			},
 			args: args{
@@ -140,7 +140,7 @@ func TestPodMutator_InjectDecoder(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &PodMutator{
-				Client:  tt.fields.Client,
+				Client:  tt.fields.client,
 				Decoder: tt.fields.decoder,
 			}
 			if err := a.InjectDecoder(tt.args.d); (err != nil) != tt.wantErr {

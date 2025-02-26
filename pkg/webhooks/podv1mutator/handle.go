@@ -23,7 +23,7 @@ const (
 // PodMutator injects envoy containers into Pods
 type PodMutator struct {
 	Client  client.Client
-	Decoder *admission.Decoder
+	Decoder admission.Decoder
 }
 
 // PodMutator Iimplements admission.Handler.
@@ -35,7 +35,8 @@ var _ admission.Handler = &PodMutator{}
 func (a *PodMutator) Handle(ctx context.Context, req admission.Request) admission.Response {
 	pod := &corev1.Pod{}
 
-	err := a.Decoder.Decode(req, pod)
+	err := admission.NewDecoder(a.Client.Scheme()).Decode(req, pod)
+
 	if err != nil {
 		return admission.Errored(http.StatusBadRequest, err)
 	}
@@ -79,7 +80,7 @@ func (a *PodMutator) Handle(ctx context.Context, req admission.Request) admissio
 // A decoder will be automatically injected.
 
 // InjectDecoder injects the decoder.
-func (a *PodMutator) InjectDecoder(d *admission.Decoder) error {
+func (a *PodMutator) InjectDecoder(d admission.Decoder) error {
 	a.Decoder = d
 	return nil
 }
