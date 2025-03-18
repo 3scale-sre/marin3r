@@ -35,9 +35,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/webhooks/podv1mutator"
+	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
+	webhookmarin3rv1alpha1 "github.com/3scale-ops/marin3r/internal/webhook/marin3r/v1alpha1"
+	webhookoperatormarin3rv1alpha1 "github.com/3scale-ops/marin3r/internal/webhook/operator.marin3r/v1alpha1"
+	webhookpodv1 "github.com/3scale-ops/marin3r/internal/webhook/pod/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -130,21 +132,21 @@ func runWebhook(cmd *cobra.Command, args []string) {
 	// Register the Pod mutating webhook
 	hookServer := mgr.GetWebhookServer()
 	ctrl.Log.Info("registering the pod mutating webhook with webhook server")
-	hookServer.Register(podv1mutator.MutatePath, &webhook.Admission{
-		Handler: &podv1mutator.PodMutator{
+	hookServer.Register(webhookpodv1.MutatePath, &webhook.Admission{
+		Handler: &webhookpodv1.PodMutator{
 			Client:  mgr.GetClient(),
 			Decoder: admission.NewDecoder(mgr.GetScheme()),
 		},
 	})
 
 	// Register the EnvoyConfig v1alpha1 webhooks
-	if err = (&marin3rv1alpha1.EnvoyConfigCustomValidator{}).SetupWebhookWithManager(mgr); err != nil {
+	if err = webhookmarin3rv1alpha1.SetupEnvoyConfigWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "EnvoyConfig", "version", "v1alpha1")
 		os.Exit(1)
 	}
 
 	// Register the EnvoyDeployment validating webhook
-	if err = (&operatorv1alpha1.EnvoyDeploymentCustomValidator{}).SetupWebhookWithManager(mgr); err != nil {
+	if err = webhookoperatormarin3rv1alpha1.SetupEnvoyDeploymentWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "EnvoyDeployment")
 		os.Exit(1)
 	}

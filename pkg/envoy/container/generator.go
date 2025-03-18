@@ -3,7 +3,7 @@ package container
 import (
 	"fmt"
 
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-ops/marin3r/pkg/envoy/container/defaults"
 	"github.com/3scale-ops/marin3r/pkg/envoy/container/shutdownmanager"
 	"github.com/3scale-ops/marin3r/pkg/util/pointer"

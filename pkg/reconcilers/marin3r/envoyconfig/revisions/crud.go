@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
+	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
 	"github.com/3scale-ops/marin3r/pkg/reconcilers/marin3r/envoyconfig/filters"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

@@ -27,9 +27,9 @@ import (
 	"time"
 
 	"github.com/3scale-ops/basereconciler/reconciler"
-	marin3rv1alpha1 "github.com/3scale-ops/marin3r/apis/marin3r/v1alpha1"
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
-	marin3rcontroller "github.com/3scale-ops/marin3r/controllers/marin3r"
+	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
+	marin3rcontroller "github.com/3scale-ops/marin3r/internal/controller/marin3r"
 	"github.com/3scale-ops/marin3r/pkg/discoveryservice"
 	envoy "github.com/3scale-ops/marin3r/pkg/envoy"
 	"github.com/go-logr/logr"

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	reconcilerutil "github.com/3scale-ops/basereconciler/util"
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-ops/marin3r/pkg/util/pki"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"

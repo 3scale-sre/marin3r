@@ -6,7 +6,7 @@ import (
 	"time"
 
 	reconcilerutil "github.com/3scale-ops/basereconciler/util"
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/apis/operator.marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-ops/marin3r/pkg/reconcilers/operator/discoveryservicecertificate/providers"
 	internal_provider "github.com/3scale-ops/marin3r/pkg/reconcilers/operator/discoveryservicecertificate/providers/marin3r"
 	"github.com/3scale-ops/marin3r/pkg/util/clock"
