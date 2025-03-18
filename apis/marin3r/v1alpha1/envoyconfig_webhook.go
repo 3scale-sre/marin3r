@@ -34,52 +34,49 @@ import (
 // log is for logging in this package.
 var validationlog = logf.Log.WithName("v1alpha1 validation")
 
-func (r *EnvoyConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
-		Complete()
-}
+// +kubebuilder:webhook:path=/validate-marin3r-3scale-net-v1alpha1-envoyconfig,mutating=false,failurePolicy=fail,sideEffects=None,groups=marin3r.3scale.net,resources=envoyconfigs,verbs=create;update,versions=v1alpha1,name=envoyconfig.marin3r.3scale.net-v1alpha1,admissionReviewVersions=v1
+type EnvoyConfigCustomValidator struct{}
 
-//+kubebuilder:webhook:path=/validate-marin3r-3scale-net-v1alpha1-envoyconfig,mutating=false,failurePolicy=fail,sideEffects=None,groups=marin3r.3scale.net,resources=envoyconfigs,verbs=create;update,versions=v1alpha1,name=envoyconfig.marin3r.3scale.net-v1alpha1,admissionReviewVersions=v1
-
-var _ webhook.CustomValidator = &EnvoyConfig{}
+var _ webhook.CustomValidator = &EnvoyConfigCustomValidator{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *EnvoyConfig) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
-	validationlog.Info("ValidateCreate", "type", "EnvoyConfig", "resource", util.ObjectKey(r).String())
-	if err := r.Validate(); err != nil {
+func (validator *EnvoyConfigCustomValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+	ec := obj.(*EnvoyConfig)
+	validationlog.Info("ValidateCreate", "type", "EnvoyConfig", "resource", util.ObjectKey(ec).String())
+	if err := ec.Validate(); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *EnvoyConfig) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
-	validationlog.Info("validateUpdate", "type", "EnvoyConfig", "resource", util.ObjectKey(r).String())
-	if err := r.Validate(); err != nil {
+func (validator *EnvoyConfigCustomValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+	ec := newObj.(*EnvoyConfig)
+	validationlog.Info("validateUpdate", "type", "EnvoyConfig", "resource", util.ObjectKey(ec).String())
+	if err := ec.Validate(); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *EnvoyConfig) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+func (validator *EnvoyConfigCustomValidator) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	return nil, nil
 }
 
 // Validates the EnvoyConfig resource
-func (r *EnvoyConfig) Validate() error {
-	if (r.Spec.EnvoyResources == nil && r.Spec.Resources == nil) || (r.Spec.EnvoyResources != nil && r.Spec.Resources != nil) {
+func (ec *EnvoyConfig) Validate() error {
+	if (ec.Spec.EnvoyResources == nil && ec.Spec.Resources == nil) || (ec.Spec.EnvoyResources != nil && ec.Spec.Resources != nil) {
 		return fmt.Errorf("one and only one of 'spec.EnvoyResources', 'spec.Resources' must be set")
 	}
 
-	if r.Spec.EnvoyResources != nil {
-		if err := r.ValidateEnvoyResources(); err != nil {
+	if ec.Spec.EnvoyResources != nil {
+		if err := ec.ValidateEnvoyResources(); err != nil {
 			return err
 		}
 
 	} else {
-		if err := r.ValidateResources(); err != nil {
+		if err := ec.ValidateResources(); err != nil {
 			return err
 		}
 	}
@@ -88,10 +85,10 @@ func (r *EnvoyConfig) Validate() error {
 }
 
 // Validate Envoy Resources against schema
-func (r *EnvoyConfig) ValidateResources() error {
+func (ec *EnvoyConfig) ValidateResources() error {
 	errList := []error{}
 
-	for _, res := range r.Spec.Resources {
+	for _, res := range ec.Spec.Resources {
 
 		switch res.Type {
 
@@ -114,7 +111,7 @@ func (r *EnvoyConfig) ValidateResources() error {
 				errList = append(errList, fmt.Errorf("one of 'generateFromEndpointSlice', 'value' must be set for type '%s'", envoy.Secret))
 			}
 			if res.Value != nil {
-				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, r.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
+				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, ec.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
 					errList = append(errList, err)
 				}
 			}
@@ -136,7 +133,7 @@ func (r *EnvoyConfig) ValidateResources() error {
 				errList = append(errList, fmt.Errorf("'blueprint' cannot be empty for type '%s'", envoy.Secret))
 			}
 			if res.Value != nil {
-				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, r.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
+				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, ec.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
 					errList = append(errList, err)
 				}
 			} else {
@@ -153,47 +150,47 @@ func (r *EnvoyConfig) ValidateResources() error {
 }
 
 // Validate EnvoyResources against schema
-func (r *EnvoyConfig) ValidateEnvoyResources() error {
+func (ec *EnvoyConfig) ValidateEnvoyResources() error {
 	errList := []error{}
 
-	for _, endpoint := range r.Spec.EnvoyResources.Endpoints {
-		if err := envoy_resources.Validate(endpoint.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Endpoint); err != nil {
+	for _, endpoint := range ec.Spec.EnvoyResources.Endpoints {
+		if err := envoy_resources.Validate(endpoint.Value, ec.GetSerialization(), ec.GetEnvoyAPIVersion(), envoy.Endpoint); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
-	for _, cluster := range r.Spec.EnvoyResources.Clusters {
-		if err := envoy_resources.Validate(cluster.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Cluster); err != nil {
+	for _, cluster := range ec.Spec.EnvoyResources.Clusters {
+		if err := envoy_resources.Validate(cluster.Value, ec.GetSerialization(), ec.GetEnvoyAPIVersion(), envoy.Cluster); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
-	for _, route := range r.Spec.EnvoyResources.Routes {
-		if err := envoy_resources.Validate(route.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Route); err != nil {
+	for _, route := range ec.Spec.EnvoyResources.Routes {
+		if err := envoy_resources.Validate(route.Value, ec.GetSerialization(), ec.GetEnvoyAPIVersion(), envoy.Route); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
-	for _, route := range r.Spec.EnvoyResources.ScopedRoutes {
-		if err := envoy_resources.Validate(route.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.ScopedRoute); err != nil {
+	for _, route := range ec.Spec.EnvoyResources.ScopedRoutes {
+		if err := envoy_resources.Validate(route.Value, ec.GetSerialization(), ec.GetEnvoyAPIVersion(), envoy.ScopedRoute); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
-	for _, listener := range r.Spec.EnvoyResources.Listeners {
-		if err := envoy_resources.Validate(listener.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Listener); err != nil {
+	for _, listener := range ec.Spec.EnvoyResources.Listeners {
+		if err := envoy_resources.Validate(listener.Value, ec.GetSerialization(), ec.GetEnvoyAPIVersion(), envoy.Listener); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
-	for _, runtime := range r.Spec.EnvoyResources.Runtimes {
-		if err := envoy_resources.Validate(runtime.Value, r.GetSerialization(), r.GetEnvoyAPIVersion(), envoy.Runtime); err != nil {
+	for _, runtime := range ec.Spec.EnvoyResources.Runtimes {
+		if err := envoy_resources.Validate(runtime.Value, ec.GetSerialization(), ec.GetEnvoyAPIVersion(), envoy.Runtime); err != nil {
 			errList = append(errList, err)
 		}
 	}
 
-	for _, secret := range r.Spec.EnvoyResources.Secrets {
-		if err := secret.Validate(r.GetNamespace()); err != nil {
+	for _, secret := range ec.Spec.EnvoyResources.Secrets {
+		if err := secret.Validate(ec.GetNamespace()); err != nil {
 			errList = append(errList, err)
 		}
 	}
@@ -202,4 +199,11 @@ func (r *EnvoyConfig) ValidateEnvoyResources() error {
 		return NewMultiError(errList)
 	}
 	return nil
+}
+
+func (validator *EnvoyConfigCustomValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewWebhookManagedBy(mgr).
+		For(&EnvoyConfig{}).
+		WithValidator(&EnvoyConfigCustomValidator{}).
+		Complete()
 }

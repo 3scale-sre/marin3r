@@ -138,13 +138,13 @@ func runWebhook(cmd *cobra.Command, args []string) {
 	})
 
 	// Register the EnvoyConfig v1alpha1 webhooks
-	if err = (&marin3rv1alpha1.EnvoyConfig{}).SetupWebhookWithManager(mgr); err != nil {
+	if err = (&marin3rv1alpha1.EnvoyConfigCustomValidator{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "EnvoyConfig", "version", "v1alpha1")
 		os.Exit(1)
 	}
 
 	// Register the EnvoyDeployment validating webhook
-	if err = (&operatorv1alpha1.EnvoyDeployment{}).SetupWebhookWithManager(mgr); err != nil {
+	if err = (&operatorv1alpha1.EnvoyDeploymentCustomValidator{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "EnvoyDeployment")
 		os.Exit(1)
 	}

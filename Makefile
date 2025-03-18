@@ -211,11 +211,11 @@ CRD_REFDOCS ?= $(LOCALBIN)/crd-ref-docs
 KIND ?= $(LOCALBIN)/kind
 
 ## Tool Versions
-KUSTOMIZE_VERSION ?= v5.3.0
-CONTROLLER_TOOLS_VERSION ?= v0.14.0
-GINKGO_VERSION ?= v2.14.0
+KUSTOMIZE_VERSION ?= v5.6.0
+CONTROLLER_TOOLS_VERSION ?= v0.17.1
+GINKGO_VERSION ?= v2.22.2
 CRD_REFDOCS_VERSION ?= v0.0.8
-KIND_VERSION ?= v0.24.0
+KIND_VERSION ?= v0.27.0
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
