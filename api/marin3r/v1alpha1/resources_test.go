@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
-	k8sutil "github.com/3scale-ops/marin3r/pkg/util/k8s"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	envoy_serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
+	k8sutil "github.com/3scale-ops/marin3r/internal/pkg/util/k8s"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 )
 
 func TestEnvoyResources_Resources(t *testing.T) {

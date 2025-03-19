@@ -21,8 +21,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/3scale-ops/marin3r/pkg/image"
-	"github.com/3scale-ops/marin3r/pkg/version"
+	"github.com/3scale-ops/marin3r/internal/pkg/image"
+	"github.com/3scale-ops/marin3r/internal/pkg/version"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"

@@ -55,6 +55,9 @@ var (
 )
 
 func TestAPIs(t *testing.T) {
+	if os.Getenv("RUN_ENVTEST") == "0" {
+		t.Skip("Skipping envtest tests")
+	}
 	RegisterFailHandler(Fail)
 
 	RunSpecs(t, "Webhook Suite")

@@ -114,7 +114,7 @@ go-generate: gen-pkg-version gen-pkg-image gen-pkg-envoy-proto
 .PHONY: test
 test: generate fmt vet manifests go-generate unit-test integration-test e2e-test ## Run tests and coverage
 
-COVERPKGS = ./internal/...,./api/...,./pkg/...
+COVERPKGS = ./internal/...,./api/...
 COVER_OUTPUT_DIR = tmp/coverage
 COVERPROFILE = total.coverprofile
 TEST_CPUS ?= $(shell nproc)
@@ -133,7 +133,7 @@ unit-test: export COVERPROFILE=$(COVER_OUTPUT_DIR)/$(UNIT_COVERPROFILE)
 unit-test: export RUN_ENVTEST=0
 unit-test: $(COVER_OUTPUT_DIR) ## Run unit tests
 	mkdir -p $(shell dirname $(COVERPROFILE))
-	go test -p $(TEST_CPUS) ./api/... ./pkg/... -race -coverpkg="$(COVERPKGS)" -coverprofile=$(COVERPROFILE)
+	go test -p $(TEST_CPUS) ./api/... ./internal/... -race -coverpkg="$(COVERPKGS)" -coverprofile=$(COVERPROFILE)
 
 OPERATOR_COVERPROFILE = operator.coverprofile
 MARIN3R_COVERPROFILE = marin3r.coverprofile

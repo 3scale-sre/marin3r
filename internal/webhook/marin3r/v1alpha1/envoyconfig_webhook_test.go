@@ -20,9 +20,9 @@ import (
 	"testing"
 
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	envoy_serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )

@@ -21,8 +21,8 @@ import (
 	"time"
 
 	"github.com/3scale-ops/basereconciler/reconciler"
-	defaults "github.com/3scale-ops/marin3r/pkg/envoy/container/defaults"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	defaults "github.com/3scale-ops/marin3r/internal/pkg/envoy/container/defaults"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"

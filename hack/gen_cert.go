@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/3scale-ops/marin3r/pkg/util/pki"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pki"
 	"github.com/spf13/cobra"
 )
 

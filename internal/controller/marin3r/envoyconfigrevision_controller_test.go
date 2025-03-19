@@ -6,9 +6,9 @@ import (
 
 	"github.com/3scale-ops/basereconciler/reconciler"
 	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
-	xdss_v3 "github.com/3scale-ops/marin3r/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	xdss_v3 "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss/v3"
+	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

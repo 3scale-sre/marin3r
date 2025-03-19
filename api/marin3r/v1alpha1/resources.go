@@ -3,10 +3,10 @@ package v1alpha1
 import (
 	"fmt"
 
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
-	errorutil "github.com/3scale-ops/marin3r/pkg/util/error"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	envoy_serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
+	errorutil "github.com/3scale-ops/marin3r/internal/pkg/util/error"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

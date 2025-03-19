@@ -21,9 +21,9 @@ import (
 	"testing"
 
 	reconcilerutil "github.com/3scale-ops/basereconciler/util"
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	envoy_serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )

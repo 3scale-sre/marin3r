@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/3scale-ops/marin3r/pkg/image"
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	"github.com/3scale-ops/marin3r/internal/pkg/image"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/resource"

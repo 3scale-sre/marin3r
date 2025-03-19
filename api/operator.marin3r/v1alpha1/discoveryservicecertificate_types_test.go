@@ -19,7 +19,7 @@ package v1alpha1
 import (
 	"testing"
 
-	"github.com/3scale-ops/marin3r/pkg/util/pointer"
+	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
 	"k8s.io/apimachinery/pkg/api/equality"
 )
 

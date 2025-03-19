@@ -21,8 +21,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/3scale-ops/marin3r/pkg/envoy"
-	serializer "github.com/3scale-ops/marin3r/pkg/envoy/serializer"
+	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
