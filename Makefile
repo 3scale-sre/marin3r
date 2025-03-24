@@ -102,7 +102,7 @@ go-generate: gen-pkg-version gen-pkg-image gen-pkg-envoy-proto
 
 ##@ Test
 
-test: generate fmt vet manifests go-generate unit-test integration-test e2e-test coverprofile ## Run tests and coverage
+test: generate fmt vet manifests go-generate unit-test integration-test e2e-test ## Run tests and coverage
 
 
 COVERPKGS = ./controllers/...,./apis/...,./pkg/...
