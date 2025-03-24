@@ -23,3 +23,49 @@ webhooks:
     resources:
     - pods
   sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-marin3r-3scale-net-v1alpha1-envoyconfig
+  failurePolicy: Fail
+  name: envoyconfig.marin3r.3scale.net-v1alpha1
+  rules:
+  - apiGroups:
+    - marin3r.3scale.net
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - envoyconfigs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-operator-marin3r-3scale-net-v1alpha1-envoydeployment
+  failurePolicy: Fail
+  name: envoydeployment.operator.marin3r.3scale.net
+  rules:
+  - apiGroups:
+    - operator.marin3r.3scale.net
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - envoydeployments
+  sideEffects: None

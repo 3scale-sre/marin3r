@@ -77,6 +77,9 @@ var _ = BeforeSuite(func() {
 
 	// +kubebuilder:scaffold:scheme
 
+	seed := time.Now().UTC().UnixNano()
+	nameGenerator = namegenerator.NewNameGenerator(seed)
+
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
 		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "..", "config", "crd", "bases")},

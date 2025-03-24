@@ -77,7 +77,7 @@ var _ = Describe("EnvoyDeployment webhook", func() {
 	})
 
 	Context("resource validation", func() {
-		FIt("fails for an EnvoyDeployment with both static and dynamic replicas configuration", func() {
+		It("fails for an EnvoyDeployment with both static and dynamic replicas configuration", func() {
 			ec := &operatorv1alpha1.EnvoyDeployment{
 				ObjectMeta: metav1.ObjectMeta{Name: "test", Namespace: namespace},
 				Spec: operatorv1alpha1.EnvoyDeploymentSpec{

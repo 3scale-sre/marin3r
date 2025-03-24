@@ -38,10 +38,11 @@ func SetupEnvoyDeploymentWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// +kubebuilder:webhook:path=/validate-operator-marin3r-3scale-net-v1alpha1-envoydeployment,mutating=false,failurePolicy=fail,sideEffects=None,groups=operator.marin3r.3scale.net,resources=envoydeployments,verbs=create;update,versions=v1alpha1,name=envoydeployment.operator.marin3r.3scale.net,admissionReviewVersions=v1
 type EnvoyDeploymentCustomValidator struct{}
 
 var _ webhook.CustomValidator = &EnvoyDeploymentCustomValidator{}
+
+// +kubebuilder:webhook:path=/validate-operator-marin3r-3scale-net-v1alpha1-envoydeployment,mutating=false,failurePolicy=fail,sideEffects=None,groups=operator.marin3r.3scale.net,resources=envoydeployments,verbs=create;update,versions=v1alpha1,name=envoydeployment.operator.marin3r.3scale.net,admissionReviewVersions=v1
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (validator *EnvoyDeploymentCustomValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {

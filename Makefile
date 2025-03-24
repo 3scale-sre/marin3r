@@ -105,67 +105,6 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-.PHONY: go-generate
-go-generate: gen-pkg-version gen-pkg-image gen-pkg-envoy-proto
-	IMAGE=$(IMG) VERSION=$(VERSION) PATH=$$PATH:$$PWD/bin go generate ./...
-
-##@ Test
-
-.PHONY: test
-test: generate fmt vet manifests go-generate unit-test integration-test e2e-test ## Run tests and coverage
-
-COVERPKGS = ./internal/...,./api/...
-COVER_OUTPUT_DIR = tmp/coverage
-COVERPROFILE = total.coverprofile
-TEST_CPUS ?= $(shell nproc)
-
-$(COVER_OUTPUT_DIR):
-	mkdir -p $(COVER_OUTPUT_DIR)
-
-.PHONY: fix-cover
-fix-cover:
-	tmpfile=$$(mktemp) && grep -v "_generated.deepcopy.go" $(COVERPROFILE) > $${tmpfile} && cat $${tmpfile} > $(COVERPROFILE) && rm -f $${tmpfile}
-
-
-UNIT_COVERPROFILE = unit.coverprofile
-.PHONY: unit-test
-unit-test: export COVERPROFILE=$(COVER_OUTPUT_DIR)/$(UNIT_COVERPROFILE)
-unit-test: export RUN_ENVTEST=0
-unit-test: $(COVER_OUTPUT_DIR) ## Run unit tests
-	mkdir -p $(shell dirname $(COVERPROFILE))
-	go test -p $(TEST_CPUS) ./api/... ./internal/... -race -coverpkg="$(COVERPKGS)" -coverprofile=$(COVERPROFILE)
-
-OPERATOR_COVERPROFILE = operator.coverprofile
-MARIN3R_COVERPROFILE = marin3r.coverprofile
-OPERATOR_WEBHOOK_COVERPROFILE = operator.webhook.coverprofile
-.PHONY: integration-test
-integration-test: export ACK_GINKGO_DEPRECATIONS=1.16.4
-integration-test: envtest ginkgo $(COVER_OUTPUT_DIR) ## Run integration tests
-		KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" $(GINKGO) -p -r -race -cover -coverpkg=$(COVERPKGS) -output-dir=$(COVER_OUTPUT_DIR) -coverprofile=$(OPERATOR_COVERPROFILE) ./controllers/operator.marin3r
-		KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" $(GINKGO) -p -r -race -cover -coverpkg=$(COVERPKGS) -output-dir=$(COVER_OUTPUT_DIR) -coverprofile=$(OPERATOR_WEBHOOK_COVERPROFILE) ./apis/operator.marin3r
-		KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" $(GINKGO) -p -r -race -cover -coverpkg=$(COVERPKGS) -output-dir=$(COVER_OUTPUT_DIR) -coverprofile=$(MARIN3R_COVERPROFILE) ./controllers/marin3r
-
-.PHONY: coverprofile
-coverprofile: unit-test integration-test gocovmerge ## Calculates test  coverage from unit and integration tests
-	$(GOCOVMERGE) \
-		$(COVER_OUTPUT_DIR)/$(UNIT_COVERPROFILE) \
-		$(COVER_OUTPUT_DIR)/$(OPERATOR_COVERPROFILE) \
-		$(COVER_OUTPUT_DIR)/$(MARIN3R_COVERPROFILE) \
-		$(COVER_OUTPUT_DIR)/$(OPERATOR_WEBHOOK_COVERPROFILE) \
-		> $(COVER_OUTPUT_DIR)/$(COVERPROFILE)
-	$(MAKE) fix-cover COVERPROFILE=$(COVER_OUTPUT_DIR)/$(COVERPROFILE)
-	go tool cover -func=$(COVER_OUTPUT_DIR)/$(COVERPROFILE) | awk '/total/{print $$3}'
-
-.PHONY: e2e-test
-e2e-test: export KUBECONFIG = $(PWD)/kubeconfig
-e2e-test: kind-create ## Runs e2e test suite
-	$(MAKE) e2e-envtest-suite
-	$(MAKE) kind-delete
-
-.PHONY: e2e-envtest-suite
-e2e-envtest-suite: export KUBECONFIG = $(PWD)/kubeconfig
-e2e-envtest-suite: docker-build kind-load-image manifests ginkgo deploy-test
-	$(GINKGO) -r -p ./test/e2e
 
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter
@@ -178,6 +117,51 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 .PHONY: lint-config
 lint-config: golangci-lint ## Verify golangci-lint linter configuration
 	$(GOLANGCI_LINT) config verify
+
+.PHONY: go-generate
+go-generate: gen-pkg-version gen-pkg-image gen-pkg-envoy-proto
+	IMAGE=$(IMG) VERSION=$(VERSION) PATH=$$PATH:$$PWD/bin go generate ./...
+
+.PHONY=gen-pkg-envoy-proto
+gen-pkg-envoy-proto: export TARGET_PATH = $(PWD)/bin
+gen-pkg-envoy-proto: ## builds the gen-pkg-envoy-proto binary
+	 cd generators/pkg-envoy-proto && go build -o $${TARGET_PATH}/gen-pkg-envoy-proto main.go
+
+.PHONY=gen-pkg-version
+gen-pkg-version: export TARGET_PATH = $(PWD)/bin
+gen-pkg-version: ## builds the gen-pkg-version binary
+	 cd generators/pkg-version && go build -o $${TARGET_PATH}/gen-pkg-version main.go
+
+.PHONY=gen-pkg-image
+gen-pkg-image: export TARGET_PATH = $(PWD)/bin
+gen-pkg-image: ## builds the gen-pkg-image binary
+	 cd generators/pkg-image && go build -o $${TARGET_PATH}/gen-pkg-image main.go
+
+##@ Test
+
+TEST_PKG = ./api/... ./internal/...
+COVERPROFILE = coverprofile.out
+
+.PHONY: test-new
+test: manifests generate fmt vet envtest ginkgo ## Run tests.
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
+		$(GINKGO) -p -procs=$(shell nproc) -coverprofile=$(COVERPROFILE) -coverpkg=$(COVERPKGS) $(TEST_PKG)
+	$(MAKE) fix-cover && go tool cover -func=$(COVERPROFILE) | awk '/total/{print $$3}'
+
+.PHONY: fix-cover
+fix-cover:
+	tmpfile=$$(mktemp) && grep -v "_generated.deepcopy.go" $(COVERPROFILE) > $${tmpfile} && cat $${tmpfile} > $(COVERPROFILE) && rm -f $${tmpfile}
+
+.PHONY: e2e-test
+e2e-test: export KUBECONFIG = $(PWD)/kubeconfig
+e2e-test: kind-create ## Runs e2e test suite
+	$(MAKE) e2e-envtest-suite
+	$(MAKE) kind-delete
+
+.PHONY: e2e-envtest-suite
+e2e-envtest-suite: export KUBECONFIG = $(PWD)/kubeconfig
+e2e-envtest-suite: docker-build kind-load-image manifests ginkgo deploy-test
+	$(GINKGO) -r -p ./test/e2e
 
 ##@ Build
 
@@ -271,7 +255,6 @@ setup-envtest: envtest ## Download the binaries required for ENVTEST in the loca
 		exit 1; \
 	}
 
-
 .PHONY: envtest
 envtest: $(ENVTEST) ## Download setup-envtest locally if necessary.
 $(ENVTEST): $(LOCALBIN)
@@ -300,7 +283,7 @@ $(GOLANGCI_LINT): $(LOCALBIN)
 KIND = $(shell pwd)/bin/kind
 kind: $(KIND) ## Download kind locally if necessary
 $(KIND):
-	$(call go-install-tool,$(KIND),install sigs.k8s.io/kind,$(KIND_VERSION))
+	$(call go-install-tool,$(KIND),sigs.k8s.io/kind,$(KIND_VERSION))
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary
@@ -401,7 +384,7 @@ catalog-push: ## Push a catalog image.
 ##@ Kind Deployment
 
 kind-create: export KUBECONFIG = $(PWD)/kubeconfig
-kind-create: tmp docker-build kind ## Runs a k8s kind cluster with a local registry in "localhost:5000" and ports 1080 and 1443 exposed to the host
+kind-create: docker-build kind ## Runs a k8s kind cluster with a local registry in "localhost:5000" and ports 1080 and 1443 exposed to the host
 	$(KIND) create cluster --wait 5m --config test/kind.yaml --image kindest/node:v1.27.10
 	$(MAKE) deploy-cert-manager
 	$(KIND) load docker-image quay.io/3scale/marin3r:test --name kind
@@ -448,27 +431,27 @@ catalog-retag-latest:
 	$(MAKE) docker-push IMG=$(IMAGE_TAG_BASE)-catalog:latest
 
 ##@ Run components locally
-tmp/certs:
+$(TMP)/certs:
 	hack/gen-certs.sh
 
 ENVOY_VERSION ?= v1.23.2
 
 run-ds: ## locally starts a discovery service
-run-ds: manifests generate fmt vet go-generate tmp/certs
+run-ds: manifests generate fmt vet go-generate $(TMP)/certs
 	WATCH_NAMESPACE="default" go run main.go \
 		discovery-service \
-		--server-certificate-path tmp/certs/server \
-		--ca-certificate-path tmp/certs/ca \
-		--client-certificate-path tmp/certs/client \
+		--server-certificate-path $(TMP)/certs/server \
+		--ca-certificate-path $(TMP)/certs/ca \
+		--client-certificate-path $(TMP)/certs/client \
 		--metrics-bind-address :8383
 		--debug
 
 run-envoy: ## runs an envoy process in a container that will try to connect to a local discovery service
-run-envoy: tmp/certs
+run-envoy: $(TMP)/certs
 	docker run -ti --rm \
 		--network=host \
 		--add-host marin3r.default.svc:127.0.0.1 \
-		-v $$(pwd)/tmp/certs/client:/etc/envoy/tls \
+		-v $$(pwd)/$(TMP)/certs/client:/etc/envoy/tls \
 		-v $$(pwd)/examples/local:/config \
 		envoyproxy/envoy:$(ENVOY_VERSION) \
 		envoy -c /config/envoy-client-bootstrap.yaml $(ARGS)
@@ -502,20 +485,9 @@ refdocs: crd-ref-docs
 		--renderer=asciidoctor \
 		--output-path=docs/api-reference/reference.asciidoc
 
-gen-pkg-envoy-proto: export TARGET_PATH = $(PWD)/bin
-gen-pkg-envoy-proto: ## builds the gen-pkg-envoy-proto binary
-	 cd generators/pkg-envoy-proto && go build -o $${TARGET_PATH}/gen-pkg-envoy-proto main.go
-
-gen-pkg-version: export TARGET_PATH = $(PWD)/bin
-gen-pkg-version: ## builds the gen-pkg-version binary
-	 cd generators/pkg-version && go build -o $${TARGET_PATH}/gen-pkg-version main.go
-
-tmp: ## Create project tmp directory
+TMP = tmp
+$(TMP): ## Create project local tmp directory
 	mkdir tmp
 
-gen-pkg-image: export TARGET_PATH = $(PWD)/bin
-gen-pkg-image: ## builds the gen-pkg-image binary
-	 cd generators/pkg-image && go build -o $${TARGET_PATH}/gen-pkg-image main.go
-
 clean: ## Clean project directory
-	rm -rf tmp bin kubeconfig
+	rm -rf $(TMP) $(LOCALBIN) $(COVERPROFILE) kubeconfig
