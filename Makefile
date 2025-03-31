@@ -224,6 +224,7 @@ endef
 .PHONY: container-build
 container-build:
 	$(call container-build-multiplatform,$(IMG),$(CONTAINER_TOOL),Dockerfile,.,$(shell go env GOARCH))
+	$(CONTAINER_TOOL) tag $(IMG) $(IMAGE_TAG_BASE):test
 
 .PHONY: container-push
 container-push:
@@ -461,11 +462,13 @@ catalog-add-bundle-to-stable: opm ## Adds a bundle to a file based catalog
 
 ##@ Kind Deployment
 
+export KIND_EXPERIMENTAL_PROVIDER=$(CONTAINER_TOOL)
+
 kind-create: export KUBECONFIG = $(PWD)/kubeconfig
 kind-create: container-build kind ## Runs a k8s kind cluster with a local registry in "localhost:5000" and ports 1080 and 1443 exposed to the host
 	$(KIND) create cluster --wait 5m --config test/kind.yaml --image kindest/node:v1.27.10
 	$(MAKE) deploy-cert-manager
-	$(KIND) load docker-image quay.io/3scale/marin3r:test --name kind
+	$(MAKE) kind-load-image
 
 kind-deploy: export KUBECONFIG = $(PWD)/kubeconfig
 kind-deploy: manifests kustomize ## Deploy operator to the Kind K8s cluster
@@ -476,8 +479,11 @@ kind-undeploy: ## Undeploy controller from the Kind K8s cluster
 	$(KUSTOMIZE) build config/test | $(KUBECTL) delete -f -
 
 kind-load-image: export KUBECONFIG = $(PWD)/kubeconfig
-kind-load-image: kind ## Reload the marin3r:test image into the cluster
-	$(KIND) load docker-image quay.io/3scale/marin3r:test --name kind
+kind-load-image: kind ## Load the marin3r:test image into the cluster
+	tmpfile=$$(mktemp) && \
+		$(CONTAINER_TOOL) save -o $${tmpfile}  $(IMAGE_TAG_BASE):test && \
+		$(KIND) load image-archive $${tmpfile} --name kind && \
+		rm $${tmpfile}
 
 kind-refresh-image: export KUBECONFIG = ${PWD}/kubeconfig
 kind-refresh-image: manifests kind container-build ## Reloads the image into the K8s cluster and deletes the old pods
