@@ -7,17 +7,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.22.8"
+      - uses: actions/checkout@v4
 
       - name: Build image
-        run: make docker-build
+        run: make container-buildx CONTAINER_TOOL=docker
 
       - name: Export release name
         run: |
@@ -25,7 +20,7 @@ jobs:
 
       - name: Login to quay.io/3scale
         if: ${{ env.NEW_RELEASE != '' }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USER }}
@@ -33,11 +28,11 @@ jobs:
 
       - name: Push new operator image
         if: ${{ env.NEW_RELEASE != '' }}
-        run: make docker-push
+        run: make container-pushx CONTAINER_TOOL=docker
 
       - name: Publish new bundle image in marin3r index
         if: ${{ env.NEW_RELEASE != '' }}
-        run: make bundle-publish
+        run: make bundle-publish CONTAINER_TOOL=docker
 
       - name: Create a new draft-release in github
         if: ${{ env.NEW_RELEASE != '' }}

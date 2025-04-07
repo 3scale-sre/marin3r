@@ -9,16 +9,20 @@ on:
       - main
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.22.8"
+          go-version: "1.24.0"
 
       - name: Run tests
         run: |
           make test
+
+      - name: Run e2e tests
+        run: |
+          make e2e-test CONTAINER_TOOL=docker
