@@ -11,6 +11,8 @@ spec:
           args:
             - operator
             - --leader-elect
+            - --health-probe-bind-address=:8081
+            - --metrics-bind-address=:8080
             - --debug
           env:
             - name: MARIN3R_IMAGE

@@ -1,32 +1,21 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    control-plane: controller-manager
-    app.kubernetes.io/name: marin3r
-    app.kubernetes.io/managed-by: kustomize
-  name: system
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: controller-manager
+  name: controller-webhook
   namespace: system
   labels:
-    control-plane: controller-manager
-    app.kubernetes.io/name: marin3r
-    app.kubernetes.io/managed-by: kustomize
+    control-plane: controller-webhook
 spec:
   selector:
     matchLabels:
-      control-plane: controller-manager
-  replicas: 1
+      control-plane: controller-webhook
+  replicas: 2
   template:
     metadata:
-      annotations:
-        kubectl.kubernetes.io/default-container: manager
       labels:
-        control-plane: controller-manager
+        control-plane: controller-webhook
+        app.kubernetes.io/name: marin3r
+        app.kubernetes.io/managed-by: kustomize
     spec:
       # TODO(user): Uncomment the following code to configure the nodeAffinity expression
       # according to the platforms which are supported by your solution.
@@ -60,16 +49,25 @@ spec:
       containers:
         - command:
             - /manager
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
           args:
-            - --leader-elect
-            - --health-probe-bind-address=:8081
+            - webhook
+            - --tls-dir=/tmp/k8s-webhook-server/serving-certs
+            - --tls-cert-name=tls.crt
+            - --tls-key-name=tls.key
           image: controller:latest
-          name: manager
+          name: webhook
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - "ALL"
+          ports:
+            - containerPort: 9443
+              name: webhook-server
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /healthz
@@ -91,5 +89,14 @@ spec:
             requests:
               cpu: 10m
               memory: 64Mi
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: cert
+              readOnly: true
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
+      volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: webhook-server-cert

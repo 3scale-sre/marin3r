@@ -1,7 +1,0 @@
-- op: replace
-  path: /spec/ports
-  value:
-    - name: metrics
-      port: 8080
-      protocol: TCP
-      targetPort: metrics

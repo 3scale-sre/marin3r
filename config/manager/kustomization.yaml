@@ -1,19 +1,11 @@
-resources:
-- manager.yaml
-
-generatorOptions:
-  disableNameSuffixHash: true
-
-configMapGenerator:
-- files:
-  - controller_manager_config.yaml
-  name: manager-config
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
 - name: controller
   newName: quay.io/3scale/marin3r
   newTag: v0.13.2-alpha.2
+resources:
+- manager.yaml
 
-patchesStrategicMerge:
-- custom/manager_patch.yaml
+patches:
+- path: custom/manager_patch.yaml

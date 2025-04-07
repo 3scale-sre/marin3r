@@ -11,12 +11,12 @@ metadata:
   labels:
     app.kubernetes.io/name: marin3r
     app.kubernetes.io/managed-by: kustomize
-  name: marin3r-envoyconfig-editor-role
+  name: marin3r-envoyconfigrevision-editor-role
 rules:
 - apiGroups:
   - marin3r.3scale.net
   resources:
-  - envoyconfigs
+  - envoyconfigrevisions
   verbs:
   - create
   - delete
@@ -28,6 +28,6 @@ rules:
 - apiGroups:
   - marin3r.3scale.net
   resources:
-  - envoyconfigs/status
+  - envoyconfigrevisions/status
   verbs:
   - get

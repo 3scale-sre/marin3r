@@ -5,19 +5,6 @@ resources:
 images:
   - name: quay.io/3scale/marin3r
     newTag: test
-patchesStrategicMerge:
-  - manager_patch.yaml
-  - webhook_patch.yaml
 patches:
-  - path: clusterrole_patch.yaml
-    target:
-      group: rbac.authorization.k8s.io
-      kind: Role
-      name: manager-role
-      version: v1
-  - path: clusterrolebinding_patch.yaml
-    target:
-      group: rbac.authorization.k8s.io
-      kind: RoleBinding
-      name: manager-rolebinding
-      version: v1
+  - path: manager_patch.yaml
+  - path: webhook_patch.yaml

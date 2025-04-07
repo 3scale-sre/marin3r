@@ -1,9 +1,9 @@
 # This rule is not used by the project marin3r itself.
 # It is provided to allow the cluster admin to help manage permissions for users.
 #
-# Grants permissions to create, update, and delete resources within the marin3r.3scale.net.
-# This role is intended for users who need to manage these resources
-# but should not control RBAC or manage permissions for others.
+# Grants read-only access to marin3r.3scale.net resources.
+# This role is intended for users who need visibility into these resources
+# without permissions to modify them. It is ideal for monitoring purposes and limited-access viewing.
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -11,23 +11,19 @@ metadata:
   labels:
     app.kubernetes.io/name: marin3r
     app.kubernetes.io/managed-by: kustomize
-  name: marin3r-envoyconfig-editor-role
+  name: marin3r-envoyconfigrevision-viewer-role
 rules:
 - apiGroups:
   - marin3r.3scale.net
   resources:
-  - envoyconfigs
+  - envoyconfigrevisions
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - marin3r.3scale.net
   resources:
-  - envoyconfigs/status
+  - envoyconfigrevisions/status
   verbs:
   - get

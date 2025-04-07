@@ -1,7 +1,7 @@
 # This rule is not used by the project marin3r itself.
 # It is provided to allow the cluster admin to help manage permissions for users.
 #
-# Grants read-only access to marin3r.3scale.net resources.
+# Grants read-only access to operator.marin3r.3scale.net resources.
 # This role is intended for users who need visibility into these resources
 # without permissions to modify them. It is ideal for monitoring purposes and limited-access viewing.
 
@@ -11,19 +11,19 @@ metadata:
   labels:
     app.kubernetes.io/name: marin3r
     app.kubernetes.io/managed-by: kustomize
-  name: marin3r-envoyconfig-viewer-role
+  name: operator.marin3r-discoveryservice-viewer-role
 rules:
 - apiGroups:
-  - marin3r.3scale.net
+  - operator.marin3r.3scale.net
   resources:
-  - envoyconfigs
+  - discoveryservices
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - marin3r.3scale.net
+  - operator.marin3r.3scale.net
   resources:
-  - envoyconfigs/status
+  - discoveryservices/status
   verbs:
   - get
