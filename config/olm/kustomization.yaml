@@ -1,21 +1,24 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../crd
-  - ../rbac
-  - ../manager
-  - ../webhook
-  - metrics_service.yaml
+- ../crd
+- ../rbac
+- ../manager
+- ../webhook
+- metrics_service.yaml
 
 namespace: marin3r-system
 namePrefix: marin3r-
-
 patches:
-  - path: manager_patch.yaml
-    target:
-      kind: Deployment
-      name: controller-manager
-  - path: webhook_patch.yaml
-    target:
-      kind: Deployment
-      name: controller-webhook
+- path: manager_patch.yaml
+  target:
+    kind: Deployment
+    name: controller-manager
+- path: webhook_patch.yaml
+  target:
+    kind: Deployment
+    name: controller-webhook
+labels:
+- includeSelectors: false
+  pairs:
+    app.kubernetes.io/managed-by: olm

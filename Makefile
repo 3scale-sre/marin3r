@@ -304,7 +304,7 @@ ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller
 #ENVTEST_K8S_VERSION is the version of Kubernetes to use for setting up ENVTEST binaries (i.e. 1.31)
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
 GOLANGCI_LINT_VERSION ?= v1.63.4
-GINKGO_VERSION ?= v2.22.3
+GINKGO_VERSION ?= v2.23.3
 CRD_REFDOCS_VERSION ?= v0.0.8
 KIND_VERSION ?= v0.27.0
 
@@ -370,19 +370,20 @@ endef
 ##@ Operator SDK related targets
 
 .PHONY: operator-sdk
-OPERATOR_SDK ?= $(LOCALBIN)/operator-sdk
+OPERATOR_SDK = bin/operator-sdk-$(OPERATOR_SDK_RELEASE)
+OPERATOR_SDK_RELEASE = v1.39.0
 operator-sdk: ## Download operator-sdk locally if necessary.
 ifeq (,$(wildcard $(OPERATOR_SDK)))
-ifeq (, $(shell which operator-sdk 2>/dev/null))
+ifeq (,$(shell which $(OPERATOR_SDK) 2>/dev/null))
 	@{ \
 	set -e ;\
 	mkdir -p $(dir $(OPERATOR_SDK)) ;\
 	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
-	curl -sSLo $(OPERATOR_SDK) https://github.com/operator-framework/operator-sdk/releases/download/$(OPERATOR_SDK_VERSION)/operator-sdk_$${OS}_$${ARCH} ;\
+	curl -sSLo $(OPERATOR_SDK) https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_RELEASE}/operator-sdk_$${OS}_$${ARCH};\
 	chmod +x $(OPERATOR_SDK) ;\
 	}
 else
-OPERATOR_SDK = $(shell which operator-sdk)
+OPERATOR_SDK = $(shell which $(OPERATOR_SDK))
 endif
 endif
 
@@ -541,24 +542,6 @@ run-envoy: $(TMP)/certs
 		envoy -c /config/envoy-client-bootstrap.yaml $(ARGS)
 
 ##@ Other
-
-.PHONY: operator-sdk
-OPERATOR_SDK_RELEASE = v1.28.0
-OPERATOR_SDK = bin/operator-sdk-$(OPERATOR_SDK_RELEASE)
-operator-sdk: ## Download operator-sdk locally if necessary.
-ifeq (,$(wildcard $(OPERATOR_SDK)))
-ifeq (,$(shell which $(OPERATOR_SDK) 2>/dev/null))
-	@{ \
-	set -e ;\
-	mkdir -p $(dir $(OPERATOR_SDK)) ;\
-	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
-	curl -sSLo $(OPERATOR_SDK) https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_RELEASE}/operator-sdk_$${OS}_$${ARCH};\
-	chmod +x $(OPERATOR_SDK) ;\
-	}
-else
-OPERATOR_SDK = $(shell which $(OPERATOR_SDK))
-endif
-endif
 
 refdocs: ## Generates api reference documentation from code
 refdocs: crd-ref-docs

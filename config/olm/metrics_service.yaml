@@ -9,7 +9,7 @@ metadata:
   namespace: system
 spec:
   ports:
-  - name: https
+  - name: metrics
     port: 8080
     protocol: TCP
     targetPort: metrics
