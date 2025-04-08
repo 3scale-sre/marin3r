@@ -173,14 +173,14 @@ metadata:
     categories: Networking
     certified: "false"
     containerImage: quay.io/3scale/marin3r
-    createdAt: "2025-04-07T10:38:14Z"
+    createdAt: "2025-04-08T14:39:26Z"
     description: Lighweight, CRD based Envoy control plane for Kubernetes
     operators.operatorframework.io/builder: operator-sdk-v1.39.0
     operators.operatorframework.io/internal-objects: '["envoyconfigrevisions.marin3r.3scale.net","discoveryservicecertificates.operator.marin3r.3scale.net"]'
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/3scale-ops/marin3r
     support: Red Hat, Inc.
-  name: marin3r.v0.13.2-alpha.3
+  name: marin3r.v0.13.2-alpha.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1021,7 +1021,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: quay.io/3scale/marin3r:v0.13.2-alpha.3
+                image: quay.io/3scale/marin3r:v0.13.2-alpha.5
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -1085,7 +1085,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: quay.io/3scale/marin3r:v0.13.2-alpha.3
+                image: quay.io/3scale/marin3r:v0.13.2-alpha.5
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -1152,6 +1152,160 @@ spec:
           verbs:
           - create
           - patch
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - create
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          - services
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - autoscaling
+          resources:
+          - horizontalpodautoscalers
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - discovery.k8s.io
+          resources:
+          - endpointslices
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - marin3r.3scale.net
+          resources:
+          - envoyconfigrevisions
+          - envoyconfigs
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - marin3r.3scale.net
+          resources:
+          - envoyconfigrevisions/status
+          - envoyconfigs/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - marin3r.3scale.net
+          - operator.marin3r.3scale.net
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - operator.marin3r.3scale.net
+          resources:
+          - discoveryservicecertificates
+          - envoydeployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - operator.marin3r.3scale.net
+          resources:
+          - discoveryservicecertificates/status
+          - envoydeployments/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - operator.marin3r.3scale.net
+          resources:
+          - discoveryservices
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - operator.marin3r.3scale.net
+          resources:
+          - envoydeployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - policy
+          resources:
+          - poddisruptionbudgets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - rolebindings
+          - roles
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
         serviceAccountName: marin3r-controller-manager
     strategy: deployment
   installModes:
@@ -1181,7 +1335,7 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat
-  version: 0.13.2-alpha.3
+  version: 0.13.2-alpha.5
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
