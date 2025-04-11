@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-ops/marin3r/internal/pkg/envoy/resources"
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	"github.com/go-logr/logr"

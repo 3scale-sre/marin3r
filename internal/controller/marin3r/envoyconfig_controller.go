@@ -19,10 +19,10 @@ package controllers
 import (
 	"context"
 
-	"github.com/3scale-ops/basereconciler/reconciler"
-	reconciler_util "github.com/3scale-ops/basereconciler/util"
-	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
-	envoyconfig "github.com/3scale-ops/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig"
+	"github.com/3scale-sre/basereconciler/reconciler"
+	reconciler_util "github.com/3scale-sre/basereconciler/util"
+	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
+	envoyconfig "github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"

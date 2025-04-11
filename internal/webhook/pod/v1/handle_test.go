@@ -6,8 +6,8 @@ import (
 	"sort"
 	"testing"
 
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy/container/defaults"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	admissionv1 "k8s.io/api/admission/v1"
 	authenticationv1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

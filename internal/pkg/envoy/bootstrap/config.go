@@ -1,9 +1,9 @@
 package envoy
 
 import (
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	envoy_bootstrap_options "github.com/3scale-ops/marin3r/internal/pkg/envoy/bootstrap/options"
-	envoy_bootstrap_v3 "github.com/3scale-ops/marin3r/internal/pkg/envoy/bootstrap/v3"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy_bootstrap_options "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/options"
+	envoy_bootstrap_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/v3"
 )
 
 // Config in an interface with methods to generate

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/3scale-ops/marin3r/internal/pkg/util/test"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/test"
 )
 
 func testIssuerCertificate() *x509.Certificate {

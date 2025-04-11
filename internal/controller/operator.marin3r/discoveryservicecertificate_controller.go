@@ -19,11 +19,11 @@ package controllers
 import (
 	"context"
 
-	"github.com/3scale-ops/basereconciler/reconciler"
-	reconciler_util "github.com/3scale-ops/basereconciler/util"
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
-	discoveryservicecertificate "github.com/3scale-ops/marin3r/internal/pkg/reconcilers/operator/discoveryservicecertificate"
-	marin3r_provider "github.com/3scale-ops/marin3r/internal/pkg/reconcilers/operator/discoveryservicecertificate/providers/marin3r"
+	"github.com/3scale-sre/basereconciler/reconciler"
+	reconciler_util "github.com/3scale-sre/basereconciler/util"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
+	discoveryservicecertificate "github.com/3scale-sre/marin3r/internal/pkg/reconcilers/operator/discoveryservicecertificate"
+	marin3r_provider "github.com/3scale-sre/marin3r/internal/pkg/reconcilers/operator/discoveryservicecertificate/providers/marin3r"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"

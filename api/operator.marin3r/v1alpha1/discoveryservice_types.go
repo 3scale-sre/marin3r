@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/3scale-ops/basereconciler/reconciler"
-	"github.com/3scale-ops/marin3r/internal/pkg/image"
+	"github.com/3scale-sre/basereconciler/reconciler"
+	"github.com/3scale-sre/marin3r/internal/pkg/image"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -1,17 +1,17 @@
 package discoveryservice
 
 import (
-	reconcilerutil "github.com/3scale-ops/basereconciler/util"
-	xdss "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss"
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	envoy_resources_v3 "github.com/3scale-ops/marin3r/internal/pkg/envoy/resources/v3"
-	envoy_serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy_resources_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources/v3"
+	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	cache_types "github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource_v3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 )
 
-// Snapshot implements "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss".Snapshot for envoy API v3.
+// Snapshot implements "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss".Snapshot for envoy API v3.
 type Snapshot struct {
 	v3 *cache_v3.Snapshot
 }

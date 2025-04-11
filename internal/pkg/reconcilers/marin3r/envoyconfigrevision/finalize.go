@@ -1,9 +1,9 @@
 package reconcilers
 
 import (
-	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
-	xdss "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss"
-	"github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss/stats"
+	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
+	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
+	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/meta"
 )

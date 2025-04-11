@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import "github.com/3scale-ops/marin3r/cmd/app"
+import "github.com/3scale-sre/marin3r/cmd/app"
 
 func main() {
 	app.Execute()

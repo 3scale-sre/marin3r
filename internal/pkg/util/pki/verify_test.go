@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/3scale-ops/marin3r/internal/pkg/util/test"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/test"
 )
 
 func testValidCertificate() *x509.Certificate {

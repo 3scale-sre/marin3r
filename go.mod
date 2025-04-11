@@ -1,9 +1,9 @@
-module github.com/3scale-ops/marin3r
+module github.com/3scale-sre/marin3r
 
 go 1.24
 
 require (
-	github.com/3scale-ops/basereconciler v0.5.2
+	github.com/3scale-sre/basereconciler v0.5.3
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/envoyproxy/go-control-plane v0.13.4
@@ -32,7 +32,7 @@ require (
 )
 
 // For local dev uncomment this and point it to the correct path in your system
-// replace github.com/3scale-ops/basereconciler => /home/roi/github.com/3scale/basereconciler
+// replace github.com/3scale-sre/basereconciler => /home/roi/github.com/3scale/basereconciler
 
 require (
 	cel.dev/expr v0.19.0 // indirect

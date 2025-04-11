@@ -21,8 +21,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy/container/shutdownmanager"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/shutdownmanager"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"

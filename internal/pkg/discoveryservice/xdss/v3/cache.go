@@ -3,13 +3,13 @@ package discoveryservice
 import (
 	"context"
 
-	xdss "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss"
+	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 )
 
 var _ xdss.Cache = Cache{}
 
-// Cache implements "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss".Cache for envoy API v3.
+// Cache implements "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss".Cache for envoy API v3.
 type Cache struct {
 	v3 cache_v3.SnapshotCache
 }

@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/3scale-ops/basereconciler/reconciler"
-	defaults "github.com/3scale-ops/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/basereconciler/reconciler"
+	defaults "github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
@@ -389,7 +389,7 @@ func (im *InitManager) GetImage() string {
 	return defaults.InitMgrImage()
 }
 
-// ensure the status implements the AppStatus interface from "github.com/3scale-ops/basereconciler/status"
+// ensure the status implements the AppStatus interface from "github.com/3scale-sre/basereconciler/status"
 var _ reconciler.AppStatus = &EnvoyDeploymentStatus{}
 
 // EnvoyDeploymentStatus defines the observed state of EnvoyDeployment

@@ -1,7 +1,7 @@
 package envoy
 
 import (
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"google.golang.org/protobuf/proto"
 )
 

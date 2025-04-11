@@ -35,11 +35,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	marin3rv1alpha1 "github.com/3scale-ops/marin3r/api/marin3r/v1alpha1"
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
-	webhookmarin3rv1alpha1 "github.com/3scale-ops/marin3r/internal/webhook/marin3r/v1alpha1"
-	webhookoperatormarin3rv1alpha1 "github.com/3scale-ops/marin3r/internal/webhook/operator.marin3r/v1alpha1"
-	webhookpodv1 "github.com/3scale-ops/marin3r/internal/webhook/pod/v1"
+	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
+	webhookmarin3rv1alpha1 "github.com/3scale-sre/marin3r/internal/webhook/marin3r/v1alpha1"
+	webhookoperatormarin3rv1alpha1 "github.com/3scale-sre/marin3r/internal/webhook/operator.marin3r/v1alpha1"
+	webhookpodv1 "github.com/3scale-sre/marin3r/internal/webhook/pod/v1"
 	// +kubebuilder:scaffold:imports
 )
 

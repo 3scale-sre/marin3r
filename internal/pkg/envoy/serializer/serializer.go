@@ -1,8 +1,8 @@
 package envoy
 
 import (
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	envoy_serializer_v3 "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer/v3"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy_serializer_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer/v3"
 )
 
 // Serialization represents a serialization encoding for envoy.Resource structs.

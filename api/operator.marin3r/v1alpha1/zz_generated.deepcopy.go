@@ -21,7 +21,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy/container/defaults"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/autoscaling/v2"
 	"k8s.io/api/core/v1"

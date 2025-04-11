@@ -21,8 +21,8 @@ import (
 	"testing"
 	"time"
 
-	defaults "github.com/3scale-ops/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
+	defaults "github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/resource"
