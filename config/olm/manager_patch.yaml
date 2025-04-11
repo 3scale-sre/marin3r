@@ -1,15 +1,18 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: controller-manager
-  namespace: system
-spec:
-  template:
-    spec:
-      containers:
-        - name: manager
-          env:
-            - name: WATCH_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['olm.targetNamespaces']
+# Add the WATCH_NAMESPACE envvar
+- op: add
+  path: /spec/template/spec/containers/0/env
+  value:
+    - name: WATCH_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.annotations['olm.targetNamespaces']
+# Expose the metrics endpoint on port 8080
+- op: add
+  path: /spec/template/spec/containers/0/args/-
+  value: --metrics-bind-address=:8080
+- op: add
+  path: /spec/template/spec/containers/0/ports
+  value:
+    - containerPort: 8080
+      protocol: TCP
+      name: metrics

@@ -6,6 +6,38 @@ metadata:
   namespace: placeholder
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - apps
   resources:
   - deployments
@@ -30,49 +62,6 @@ rules:
   - update
   - watch
 - apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
   - discovery.k8s.io
   resources:
   - endpointslices
@@ -83,32 +72,7 @@ rules:
 - apiGroups:
   - marin3r.3scale.net
   resources:
-  - '*'
-  verbs:
-  - '*'
-- apiGroups:
-  - marin3r.3scale.net
-  resources:
   - envoyconfigrevisions
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - marin3r.3scale.net
-  resources:
-  - envoyconfigrevisions/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - marin3r.3scale.net
-  resources:
   - envoyconfigs
   verbs:
   - create
@@ -121,12 +85,14 @@ rules:
 - apiGroups:
   - marin3r.3scale.net
   resources:
+  - envoyconfigrevisions/status
   - envoyconfigs/status
   verbs:
   - get
   - patch
   - update
 - apiGroups:
+  - marin3r.3scale.net
   - operator.marin3r.3scale.net
   resources:
   - '*'
@@ -136,6 +102,7 @@ rules:
   - operator.marin3r.3scale.net
   resources:
   - discoveryservicecertificates
+  - envoydeployments
   verbs:
   - create
   - delete
@@ -148,6 +115,7 @@ rules:
   - operator.marin3r.3scale.net
   resources:
   - discoveryservicecertificates/status
+  - envoydeployments/status
   verbs:
   - get
   - patch
@@ -163,28 +131,8 @@ rules:
 - apiGroups:
   - operator.marin3r.3scale.net
   resources:
-  - envoydeployments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - operator.marin3r.3scale.net
-  resources:
   - envoydeployments/finalizers
   verbs:
-  - update
-- apiGroups:
-  - operator.marin3r.3scale.net
-  resources:
-  - envoydeployments/status
-  verbs:
-  - get
-  - patch
   - update
 - apiGroups:
   - policy
@@ -202,17 +150,6 @@ rules:
   - rbac.authorization.k8s.io
   resources:
   - rolebindings
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
   - roles
   verbs:
   - create

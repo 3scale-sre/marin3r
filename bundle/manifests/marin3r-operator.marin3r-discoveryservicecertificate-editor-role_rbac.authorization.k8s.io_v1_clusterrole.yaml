@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: olm
+    app.kubernetes.io/name: marin3r
+  name: marin3r-operator.marin3r-discoveryservicecertificate-editor-role
+rules:
+- apiGroups:
+  - operator.marin3r.3scale.net
+  resources:
+  - discoveryservicecertificates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operator.marin3r.3scale.net
+  resources:
+  - discoveryservicecertificates/status
+  verbs:
+  - get

@@ -1,7 +1,7 @@
 resources:
 - manifests.yaml
 - service.yaml
-- custom/webhook.yaml
+- custom/deployment.yaml
 
 configurations:
 - kustomizeconfig.yaml
@@ -10,9 +10,9 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/3scale/marin3r
-  newTag: v0.13.2-alpha.2
+  newTag: v0.13.2-alpha.5
 
 # [CUSTOM: pod mutating webhook config] This patch adds a label selector to the MutatingWebhookConfig
-patchesStrategicMerge:
-- custom/mutatingwebhookconfig_patch.yaml
-- custom/service_patch.yaml
+patches:
+- path: custom/mutatingwebhookconfig_patch.yaml
+- path: custom/service_patch.yaml

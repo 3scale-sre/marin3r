@@ -1,0 +1,10 @@
+- op: replace
+  path: /spec/endpoints/0/port
+  value: metrics
+- op: replace
+  path: /spec/endpoints/0/scheme
+  value: http
+- op: remove
+  path: /spec/endpoints/0/bearerTokenFile
+- op: remove
+  path: /spec/endpoints/0/tlsConfig

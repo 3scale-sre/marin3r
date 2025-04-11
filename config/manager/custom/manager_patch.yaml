@@ -13,6 +13,7 @@ spec:
           args:
             - operator
             - --leader-elect
+            - --health-probe-bind-address=:8081
           resources:
             limits:
               cpu: 300m
@@ -20,7 +21,7 @@ spec:
             requests:
               cpu: 50m
               memory: 100Mi
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-              name: metrics
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          #     name: metrics
