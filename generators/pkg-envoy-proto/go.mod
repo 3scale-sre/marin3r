@@ -1,6 +1,7 @@
 module github.com/3scale-sre/marin3r/generators/pkg-envoy-proto
 
 go 1.22
+toolchain go1.24.1
 
 require (
 	github.com/dave/jennifer v1.7.0
@@ -27,10 +28,10 @@ require (
 	github.com/skeema/knownhosts v1.3.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
