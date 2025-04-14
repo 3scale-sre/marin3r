@@ -6,8 +6,14 @@ import (
 
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
-	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
+	"k8s.io/apimachinery/pkg/runtime"
 )
+
+func stringtoRawExtension(value string) *runtime.RawExtension {
+	return &runtime.RawExtension{
+		Raw: []byte(value),
+	}
+}
 
 func TestEnvoyResources_Resources(t *testing.T) {
 	type fields struct {
@@ -47,8 +53,8 @@ func TestEnvoyResources_Resources(t *testing.T) {
 				serialization: envoy_serializer.JSON,
 			},
 			want: []Resource{
-				{Type: "endpoint", Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
-				{Type: "cluster", Value: k8sutil.StringtoRawExtension("{\"name\": \"cluster\"}")},
+				{Type: "endpoint", Value: stringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
+				{Type: "cluster", Value: stringtoRawExtension("{\"name\": \"cluster\"}")},
 				{Type: "secret", GenerateFromTlsSecret: reconcilerutil.Pointer("secret"), Blueprint: reconcilerutil.Pointer(TlsCertificate)},
 			},
 			wantErr: false,
@@ -70,8 +76,8 @@ func TestEnvoyResources_Resources(t *testing.T) {
 				serialization: envoy_serializer.YAML,
 			},
 			want: []Resource{
-				{Type: "endpoint", Value: k8sutil.StringtoRawExtension("{\"cluster_name\":\"endpoint\"}")},
-				{Type: "cluster", Value: k8sutil.StringtoRawExtension("{\"name\":\"cluster\"}")},
+				{Type: "endpoint", Value: stringtoRawExtension("{\"cluster_name\":\"endpoint\"}")},
+				{Type: "cluster", Value: stringtoRawExtension("{\"name\":\"cluster\"}")},
 				{Type: "secret", GenerateFromTlsSecret: reconcilerutil.Pointer("secret"), Blueprint: reconcilerutil.Pointer(TlsCertificate)},
 			},
 			wantErr: false,

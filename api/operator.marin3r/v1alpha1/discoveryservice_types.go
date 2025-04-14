@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/3scale-sre/basereconciler/reconciler"
-	"github.com/3scale-sre/marin3r/pkg/image"
+	"github.com/3scale-sre/marin3r/api/pkg/image"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

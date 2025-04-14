@@ -3,9 +3,10 @@ package v1alpha1
 import (
 	"fmt"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
-	errorutil "github.com/3scale-sre/marin3r/pkg/util/error"
+	errorutil "github.com/3scale-sre/marin3r/api/pkg/error"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

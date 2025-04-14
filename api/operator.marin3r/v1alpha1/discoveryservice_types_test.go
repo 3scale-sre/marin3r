@@ -5,7 +5,7 @@ import (
 	"time"
 
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
-	"github.com/3scale-sre/marin3r/pkg/image"
+	"github.com/3scale-sre/marin3r/api/pkg/image"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/resource"

@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

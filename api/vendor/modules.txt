@@ -7,12 +7,6 @@ github.com/3scale-sre/basereconciler/config
 github.com/3scale-sre/basereconciler/reconciler
 github.com/3scale-sre/basereconciler/resource
 github.com/3scale-sre/basereconciler/util
-# github.com/3scale-sre/marin3r v0.0.0-00010101000000-000000000000 => ../
-## explicit; go 1.24
-github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults
-github.com/3scale-sre/marin3r/pkg/image
-github.com/3scale-sre/marin3r/pkg/util/error
-github.com/3scale-sre/marin3r/pkg/util/k8s
 # github.com/beorn7/perks v1.0.1
 ## explicit; go 1.11
 github.com/beorn7/perks/quantile
@@ -416,6 +410,10 @@ github.com/ohler55/ojg
 github.com/ohler55/ojg/alt
 github.com/ohler55/ojg/gen
 github.com/ohler55/ojg/jp
+# github.com/onsi/ginkgo/v2 v2.23.3
+## explicit; go 1.23.0
+# github.com/onsi/gomega v1.36.3
+## explicit; go 1.23.0
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
@@ -1094,4 +1092,3 @@ sigs.k8s.io/structured-merge-diff/v4/value
 ## explicit; go 1.12
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v2
-# github.com/3scale-sre/marin3r => ../

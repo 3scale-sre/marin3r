@@ -13,7 +13,6 @@ COPY go.sum go.sum
 COPY cmd/ cmd/
 COPY api/ api/
 COPY internal/ internal/
-COPY pkg/ pkg/
 COPY vendor/ vendor/
 
 # Build

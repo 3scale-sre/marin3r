@@ -25,7 +25,7 @@ import (
 	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	errorutil "github.com/3scale-sre/marin3r/pkg/util/error"
+	errorutil "github.com/3scale-sre/marin3r/api/pkg/error"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"

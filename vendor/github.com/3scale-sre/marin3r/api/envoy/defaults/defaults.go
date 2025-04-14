@@ -2,7 +2,7 @@ package defaults
 
 import (
 	"github.com/3scale-sre/marin3r/api/envoy"
-	"github.com/3scale-sre/marin3r/pkg/image"
+	"github.com/3scale-sre/marin3r/api/pkg/image"
 )
 
 type DrainStrategy string

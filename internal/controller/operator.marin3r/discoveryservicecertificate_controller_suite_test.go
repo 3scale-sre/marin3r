@@ -6,7 +6,7 @@ import (
 
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/pkg/util/pki"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pki"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
