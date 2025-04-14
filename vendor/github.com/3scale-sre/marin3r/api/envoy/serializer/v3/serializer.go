@@ -7,8 +7,8 @@ import (
 
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	_ "github.com/3scale-sre/marin3r/api/envoy/protos/v3"
-	"github.com/ghodss/yaml"
 	"google.golang.org/protobuf/encoding/protojson"
+	"sigs.k8s.io/yaml"
 )
 
 type JSON struct{}

@@ -22,7 +22,7 @@ import (
 
 	"github.com/3scale-sre/basereconciler/reconciler"
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
-	defaults "github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
+	defaults "github.com/3scale-sre/marin3r/api/envoy/defaults"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"

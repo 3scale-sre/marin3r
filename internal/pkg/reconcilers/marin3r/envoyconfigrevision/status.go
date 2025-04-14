@@ -11,7 +11,7 @@ import (
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
-	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
+	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

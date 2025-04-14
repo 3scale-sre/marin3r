@@ -2,11 +2,8 @@ module github.com/3scale-sre/marin3r/api
 
 go 1.24
 
-replace github.com/3scale-sre/marin3r => ../
-
 require (
 	github.com/3scale-sre/basereconciler v0.5.3
-	github.com/3scale-sre/marin3r v0.0.0-00010101000000-000000000000
 	github.com/envoyproxy/go-control-plane v0.13.4
 	github.com/envoyproxy/go-control-plane/contrib v1.32.4
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4
@@ -47,6 +44,8 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nsf/jsondiff v0.0.0-20230430225905-43f6cf3098c1 // indirect
 	github.com/ohler55/ojg v1.26.1 // indirect
+	github.com/onsi/ginkgo/v2 v2.23.3 // indirect
+	github.com/onsi/gomega v1.36.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/prometheus/client_golang v1.19.1 // indirect

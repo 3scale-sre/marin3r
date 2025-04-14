@@ -22,7 +22,7 @@ import (
 	envoy_resources_v3 "github.com/3scale-sre/marin3r/api/envoy/resources/v3"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
-	"github.com/3scale-sre/marin3r/pkg/util/backoff"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/backoff"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_service_discovery_v3 "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	server_v3 "github.com/envoyproxy/go-control-plane/pkg/server/v3"

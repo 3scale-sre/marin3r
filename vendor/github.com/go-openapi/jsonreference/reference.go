@@ -133,7 +133,7 @@ func (r *Ref) parse(jsonReferenceString string) error {
 	r.HasFullFilePath = strings.HasPrefix(refURL.Path, "/")
 
 	// invalid json-pointer error means url has no json-pointer fragment. simply ignore error
-	r.referencePointer, _ = jsonreconcilerutil.Pointer(refURL.Fragment)
+	r.referencePointer, _ = jsonpointer.New(refURL.Fragment)
 
 	return nil
 }

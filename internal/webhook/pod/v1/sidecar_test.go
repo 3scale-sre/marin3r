@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	envoy_container "github.com/3scale-sre/marin3r/internal/pkg/envoy/container"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/shutdownmanager"
 	"github.com/go-test/deep"
 	corev1 "k8s.io/api/core/v1"
