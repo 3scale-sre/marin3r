@@ -3,3 +3,4 @@ bundle.Dockerfile linguist-generated=true
 config/crd/bases/** linguist-generated=true
 docs/api-reference/reference.asciidoc linguist-generated=true
 vendor/** linguist-generated=true
+api/vendor/** linguist-generated=true
