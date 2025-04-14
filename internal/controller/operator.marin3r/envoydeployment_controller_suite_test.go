@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	. "github.com/onsi/ginkgo/v2"

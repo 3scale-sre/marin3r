@@ -19,9 +19,9 @@ package v1alpha1
 import (
 	"testing"
 
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

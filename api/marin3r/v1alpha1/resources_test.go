@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 )

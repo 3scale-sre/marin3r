@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/filters"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/revisions"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"

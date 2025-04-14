@@ -6,9 +6,9 @@ import (
 	"time"
 
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/internal/pkg/util/test"

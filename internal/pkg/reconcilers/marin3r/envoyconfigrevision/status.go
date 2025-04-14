@@ -5,11 +5,11 @@ import (
 	"math"
 	"reflect"
 
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"k8s.io/apimachinery/pkg/api/meta"

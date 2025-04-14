@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/filters"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"

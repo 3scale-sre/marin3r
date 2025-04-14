@@ -21,10 +21,10 @@ import (
 	"fmt"
 
 	"github.com/3scale-sre/basereconciler/util"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	errorutil "github.com/3scale-sre/marin3r/internal/pkg/util/error"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
