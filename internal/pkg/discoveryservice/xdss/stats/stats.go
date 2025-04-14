@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/util/clock"
+	"github.com/3scale-sre/marin3r/pkg/util/clock"
 	kv "github.com/patrickmn/go-cache"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/3scale-sre/marin3r/api/envoy"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
-	testutil "github.com/3scale-sre/marin3r/internal/pkg/util/test"
+	testutil "github.com/3scale-sre/marin3r/pkg/util/test"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 )

@@ -21,7 +21,7 @@ import (
 	"time"
 
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"

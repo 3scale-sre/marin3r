@@ -25,7 +25,7 @@ import (
 	"github.com/3scale-sre/basereconciler/resource"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/operator/discoveryservice/generators"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"

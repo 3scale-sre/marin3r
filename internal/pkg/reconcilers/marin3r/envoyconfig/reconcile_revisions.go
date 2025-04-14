@@ -9,7 +9,7 @@ import (
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/filters"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/revisions"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
