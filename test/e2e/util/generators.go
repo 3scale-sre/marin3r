@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pki"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"

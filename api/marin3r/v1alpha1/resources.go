@@ -3,8 +3,8 @@ package v1alpha1
 import (
 	"fmt"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	errorutil "github.com/3scale-sre/marin3r/internal/pkg/util/error"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"

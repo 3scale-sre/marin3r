@@ -29,9 +29,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/3scale-sre/basereconciler/reconciler"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/goombaio/namegenerator"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"

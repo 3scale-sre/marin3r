@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/davecgh/go-spew/spew"
 	resource_v3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"

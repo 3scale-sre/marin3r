@@ -1,7 +1,7 @@
 package envoy
 
 import (
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_bootstrap_options "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/options"
 	envoy_bootstrap_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/v3"
 )

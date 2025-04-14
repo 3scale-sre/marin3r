@@ -3,7 +3,7 @@ package envoy
 import (
 	"testing"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 )

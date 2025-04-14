@@ -19,8 +19,8 @@ package v1alpha1
 import (
 	"testing"
 
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 )
 

@@ -1,8 +1,8 @@
 package envoy
 
 import (
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources/v3"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources_v3 "github.com/3scale-sre/marin3r/api/envoy/resources/v3"
 )
 
 // Generator in an interface with methods to generate
