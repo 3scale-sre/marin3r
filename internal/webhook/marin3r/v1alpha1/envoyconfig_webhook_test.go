@@ -19,10 +19,10 @@ package v1alpha1
 import (
 	"testing"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -253,11 +253,11 @@ func Test_validateEnvoyResources(t *testing.T) {
 			r: &marin3rv1alpha1.EnvoyConfig{
 				Spec: marin3rv1alpha1.EnvoyConfigSpec{
 					NodeID:        "test",
-					Serialization: pointer.New(envoy_serializer.JSON),
-					EnvoyAPI:      pointer.New(envoy.APIv3),
+					Serialization: reconcilerutil.Pointer(envoy_serializer.JSON),
+					EnvoyAPI:      reconcilerutil.Pointer(envoy.APIv3),
 					EnvoyResources: &marin3rv1alpha1.EnvoyResources{
 						Clusters: []marin3rv1alpha1.EnvoyResource{{
-							Name: pointer.New("cluster"),
+							Name: reconcilerutil.Pointer("cluster"),
 							// the connect_timeout value unit is wrong
 							Value: `{"name":"cluster1","type":"STRICT_DNS","connect_timeout":"2xs","load_assignment":{"cluster_name":"cluster1"}}`,
 						}},
@@ -271,11 +271,11 @@ func Test_validateEnvoyResources(t *testing.T) {
 			r: &marin3rv1alpha1.EnvoyConfig{
 				Spec: marin3rv1alpha1.EnvoyConfigSpec{
 					NodeID:        "test",
-					Serialization: pointer.New(envoy_serializer.YAML),
-					EnvoyAPI:      pointer.New(envoy.APIv3),
+					Serialization: reconcilerutil.Pointer(envoy_serializer.YAML),
+					EnvoyAPI:      reconcilerutil.Pointer(envoy.APIv3),
 					EnvoyResources: &marin3rv1alpha1.EnvoyResources{
 						Listeners: []marin3rv1alpha1.EnvoyResource{{
-							Name: pointer.New("test"),
+							Name: reconcilerutil.Pointer("test"),
 							// the "port" property should be "port_value"
 							Value: `
                               name: listener1
@@ -313,7 +313,7 @@ func TestEnvoyConfig_Validate(t *testing.T) {
 					NodeID: "test",
 					EnvoyResources: &marin3rv1alpha1.EnvoyResources{
 						Clusters: []marin3rv1alpha1.EnvoyResource{{
-							Name:  pointer.New("cluster"),
+							Name:  reconcilerutil.Pointer("cluster"),
 							Value: `{"name":"cluster1","type":"STRICT_DNS","connect_timeout":"2s","load_assignment":{"cluster_name":"cluster1"}}`,
 						}},
 					},

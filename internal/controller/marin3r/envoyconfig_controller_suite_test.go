@@ -10,7 +10,6 @@ import (
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
 	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/pkg/util/test"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	. "github.com/onsi/ginkgo/v2"
@@ -77,7 +76,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 			ec = &marin3rv1alpha1.EnvoyConfig{
 				ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: namespace},
 				Spec: marin3rv1alpha1.EnvoyConfigSpec{
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
 					NodeID:   nodeID,
 					Resources: []marin3rv1alpha1.Resource{
 						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
@@ -142,7 +141,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 			ec = &marin3rv1alpha1.EnvoyConfig{
 				ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: namespace},
 				Spec: marin3rv1alpha1.EnvoyConfigSpec{
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
 					NodeID:   nodeID,
 					Resources: []marin3rv1alpha1.Resource{
 						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},

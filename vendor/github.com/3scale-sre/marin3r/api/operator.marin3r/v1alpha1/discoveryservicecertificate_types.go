@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -210,10 +209,10 @@ type DiscoveryServiceCertificate struct {
 
 func (dsc *DiscoveryServiceCertificate) Default() {
 	if dsc.Spec.IsServerCertificate == nil {
-		dsc.Spec.IsServerCertificate = pointer.New(dsc.IsServerCertificate())
+		dsc.Spec.IsServerCertificate = reconcilerutil.Pointer(dsc.IsServerCertificate())
 	}
 	if dsc.Spec.IsCA == nil {
-		dsc.Spec.IsCA = pointer.New(dsc.IsCA())
+		dsc.Spec.IsCA = reconcilerutil.Pointer(dsc.IsCA())
 	}
 	if dsc.Spec.Hosts == nil {
 		dsc.Spec.Hosts = dsc.GetHosts()

@@ -3,8 +3,8 @@ package generators
 import (
 	"fmt"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -19,7 +19,7 @@ func (cfg *GeneratorOptions) ServerCertificate() *operatorv1alpha1.DiscoveryServ
 		},
 		Spec: operatorv1alpha1.DiscoveryServiceCertificateSpec{
 			CommonName:          fmt.Sprintf("%s-%s", cfg.ServerCertificateCommonNamePrefix, cfg.InstanceName),
-			IsServerCertificate: pointer.New(true),
+			IsServerCertificate: reconcilerutil.Pointer(true),
 			ValidFor:            int64(cfg.ServerCertificateDuration.Seconds()),
 			Signer: operatorv1alpha1.DiscoveryServiceCertificateSigner{
 				CASigned: &operatorv1alpha1.CASignedConfig{

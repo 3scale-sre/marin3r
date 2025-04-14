@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,8 +35,8 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				dsc: &operatorv1alpha1.DiscoveryServiceCertificate{
 					Status: operatorv1alpha1.DiscoveryServiceCertificateStatus{
-						Ready:           pointer.New(true),
-						CertificateHash: pointer.New("xxxx"),
+						Ready:           reconcilerutil.Pointer(true),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 						NotBefore:       &metav1.Time{Time: t1},
 						NotAfter:        &metav1.Time{Time: t2},
 						Conditions:      []metav1.Condition{},
@@ -54,8 +54,8 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				dsc: &operatorv1alpha1.DiscoveryServiceCertificate{
 					Status: operatorv1alpha1.DiscoveryServiceCertificateStatus{
-						Ready:           pointer.New(false),
-						CertificateHash: pointer.New("xxxx"),
+						Ready:           reconcilerutil.Pointer(false),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 						NotBefore:       &metav1.Time{Time: t1},
 						NotAfter:        &metav1.Time{Time: t2},
 						Conditions:      []metav1.Condition{},
@@ -73,8 +73,8 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				dsc: &operatorv1alpha1.DiscoveryServiceCertificate{
 					Status: operatorv1alpha1.DiscoveryServiceCertificateStatus{
-						Ready:           pointer.New(true),
-						CertificateHash: pointer.New("xxxx"),
+						Ready:           reconcilerutil.Pointer(true),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 						NotBefore:       &metav1.Time{Time: t1},
 						NotAfter:        &metav1.Time{Time: t2},
 						Conditions:      []metav1.Condition{},
@@ -92,8 +92,8 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				dsc: &operatorv1alpha1.DiscoveryServiceCertificate{
 					Status: operatorv1alpha1.DiscoveryServiceCertificateStatus{
-						Ready:           pointer.New(true),
-						CertificateHash: pointer.New("xxxx"),
+						Ready:           reconcilerutil.Pointer(true),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 						NotBefore:       &metav1.Time{},
 						NotAfter:        &metav1.Time{Time: t2},
 						Conditions:      []metav1.Condition{},
@@ -111,8 +111,8 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				dsc: &operatorv1alpha1.DiscoveryServiceCertificate{
 					Status: operatorv1alpha1.DiscoveryServiceCertificateStatus{
-						Ready:           pointer.New(true),
-						CertificateHash: pointer.New("xxxx"),
+						Ready:           reconcilerutil.Pointer(true),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 						NotBefore:       &metav1.Time{Time: t1},
 						NotAfter:        &metav1.Time{},
 						Conditions:      []metav1.Condition{},
@@ -130,8 +130,8 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				dsc: &operatorv1alpha1.DiscoveryServiceCertificate{
 					Status: operatorv1alpha1.DiscoveryServiceCertificateStatus{
-						Ready:           pointer.New(true),
-						CertificateHash: pointer.New("xxxx"),
+						Ready:           reconcilerutil.Pointer(true),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 						NotBefore:       &metav1.Time{Time: t1},
 						NotAfter:        &metav1.Time{Time: t1},
 					},

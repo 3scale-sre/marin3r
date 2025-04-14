@@ -21,8 +21,8 @@ import (
 	"time"
 
 	"github.com/3scale-sre/basereconciler/reconciler"
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	defaults "github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
@@ -178,7 +178,7 @@ func (ed *EnvoyDeployment) AdminAccessLogPath() string {
 
 func (ed *EnvoyDeployment) Replicas() ReplicasSpec {
 	if ed.Spec.Replicas == nil {
-		return ReplicasSpec{Static: pointer.New(DefaultReplicas)}
+		return ReplicasSpec{Static: reconcilerutil.Pointer(DefaultReplicas)}
 	}
 	if ed.Spec.Replicas.Static != nil {
 		return ReplicasSpec{Static: ed.Spec.Replicas.Static}

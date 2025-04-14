@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/pkg/util/pki"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -198,7 +198,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			Namespace: key.Namespace,
 		},
 		Spec: marin3rv1alpha1.EnvoyConfigSpec{
-			EnvoyAPI:  pointer.New(envoyAPI),
+			EnvoyAPI:  reconcilerutil.Pointer(envoyAPI),
 			NodeID:    nodeID,
 			Resources: []marin3rv1alpha1.Resource{},
 		},
@@ -256,7 +256,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 	for _, name := range secrets {
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type:                  envoy.Secret,
-			GenerateFromTlsSecret: pointer.New(name),
+			GenerateFromTlsSecret: reconcilerutil.Pointer(name),
 		})
 	}
 

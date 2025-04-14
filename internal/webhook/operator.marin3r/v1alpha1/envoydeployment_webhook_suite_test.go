@@ -20,8 +20,8 @@ import (
 	"context"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
@@ -84,9 +84,9 @@ var _ = Describe("EnvoyDeployment webhook", func() {
 					EnvoyConfigRef:      "test",
 					DiscoveryServiceRef: "test",
 					Replicas: &operatorv1alpha1.ReplicasSpec{
-						Static: pointer.New(int32(5)),
+						Static: reconcilerutil.Pointer(int32(5)),
 						Dynamic: &operatorv1alpha1.DynamicReplicasSpec{
-							MinReplicas: pointer.New(int32(2)),
+							MinReplicas: reconcilerutil.Pointer(int32(2)),
 							MaxReplicas: 10,
 						},
 					},

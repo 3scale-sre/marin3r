@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -16,12 +16,12 @@ func IsStatusReconciled(dsc *operatorv1alpha1.DiscoveryServiceCertificate, certi
 	ok := true
 
 	if dsc.Status.GetCertificateHash() != certificateHash {
-		dsc.Status.CertificateHash = pointer.New(certificateHash)
+		dsc.Status.CertificateHash = reconcilerutil.Pointer(certificateHash)
 		ok = false
 	}
 
 	if dsc.Status.IsReady() != ready {
-		dsc.Status.Ready = pointer.New(ready)
+		dsc.Status.Ready = reconcilerutil.Pointer(ready)
 		ok = false
 	}
 
