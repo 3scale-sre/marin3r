@@ -1,7 +1,7 @@
 package filters
 
 import (
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 

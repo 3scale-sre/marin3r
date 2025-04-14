@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/google/go-cmp/cmp"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"

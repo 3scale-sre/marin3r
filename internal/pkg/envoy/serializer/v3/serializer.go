@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	envoy "github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	_ "github.com/3scale-ops/marin3r/internal/pkg/envoy/protos/v3"
+	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	_ "github.com/3scale-sre/marin3r/internal/pkg/envoy/protos/v3"
 	"github.com/ghodss/yaml"
 	"google.golang.org/protobuf/encoding/protojson"
 )

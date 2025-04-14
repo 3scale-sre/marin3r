@@ -508,7 +508,7 @@ bundle-publish: container-build container-push bundle-build bundle-push ## Build
 
 catalog-publish: catalog-build catalog-push catalog-retag-latest ## Builds and pushes the catalog image
 
-get-new-release: ## Checks if a release with the name $(VERSION) already exists in https://github.com/3scale-ops/marin3r/releases
+get-new-release: ## Checks if a release with the name $(VERSION) already exists in https://github.com/3scale-sre/marin3r/releases
 	@hack/new-release.sh v$(VERSION)
 
 catalog-retag-latest:

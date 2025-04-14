@@ -3,10 +3,10 @@ package discoveryservice
 import (
 	"testing"
 
-	xdss "github.com/3scale-ops/marin3r/internal/pkg/discoveryservice/xdss"
-	envoy "github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-ops/marin3r/internal/pkg/envoy/resources"
-	testutil "github.com/3scale-ops/marin3r/internal/pkg/util/test"
+	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
+	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
+	testutil "github.com/3scale-sre/marin3r/internal/pkg/util/test"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"

@@ -17,10 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	reconcilerutil "github.com/3scale-ops/basereconciler/util"
-	"github.com/3scale-ops/marin3r/internal/pkg/envoy"
-	envoy_serializer "github.com/3scale-ops/marin3r/internal/pkg/envoy/serializer"
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

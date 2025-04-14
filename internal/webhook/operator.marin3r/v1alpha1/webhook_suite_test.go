@@ -40,7 +40,7 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	operatormarin3rv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
+	operatormarin3rv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	// +kubebuilder:scaffold:imports
 )
 

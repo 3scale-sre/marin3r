@@ -3,8 +3,8 @@ package e2e
 import (
 	"context"
 
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
-	testutil "github.com/3scale-ops/marin3r/test/e2e/util"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	testutil "github.com/3scale-sre/marin3r/test/e2e/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 )
 
 var _ = Describe("DiscoveryService intall and lifecycle", func() {

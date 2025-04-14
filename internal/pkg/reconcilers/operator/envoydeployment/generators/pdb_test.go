@@ -3,7 +3,7 @@ package generators
 import (
 	"testing"
 
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/google/go-cmp/cmp"
 	policyv1 "k8s.io/api/policy/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

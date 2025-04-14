@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/3scale-ops/basereconciler/config"
+	"github.com/3scale-sre/basereconciler/config"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 

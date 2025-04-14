@@ -8,7 +8,7 @@ metadata:
     containerImage: quay.io/3scale/marin3r
     description: Lighweight, CRD based Envoy control plane for Kubernetes
     operators.operatorframework.io/internal-objects: '["envoyconfigrevisions.marin3r.3scale.net","discoveryservicecertificates.operator.marin3r.3scale.net"]'
-    repository: https://github.com/3scale-ops/marin3r
+    repository: https://github.com/3scale-sre/marin3r
     support: Red Hat, Inc.
   name: marin3r.v0.0.0
   namespace: placeholder
@@ -870,7 +870,7 @@ spec:
     * Lifecycle management of Envoy containers (graceful shutdown and connection draining).
     * Self-healing.
 
-    Check the [docs](https://github.com/3scale-ops/marin3r#readme) for more information.
+    Check the [docs](https://github.com/3scale-sre/marin3r#readme) for more information.
 
     ## License
     MARIN3R is licensed under the [Apache 2.0 license](https://github.com/3scale/prometheus-exporter-operator/blob/master/LICENSE)
@@ -902,7 +902,7 @@ spec:
   - gateway
   links:
   - name: GitHub
-    url: https://github.com/3scale-ops/marin3r
+    url: https://github.com/3scale-sre/marin3r
   maintainers:
   - email: 3scale-operations+marin3r@redhat.com
     name: 3scale Operations Team

@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/3scale-ops/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

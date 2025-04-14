@@ -19,7 +19,7 @@ package v1alpha1
 import (
 	"context"
 
-	operatorv1alpha1 "github.com/3scale-ops/marin3r/api/operator.marin3r/v1alpha1"
+	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"

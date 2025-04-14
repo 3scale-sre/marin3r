@@ -1,4 +1,4 @@
-module github.com/3scale-ops/marin3r/generators/pkg-version
+module github.com/3scale-sre/marin3r/generators/pkg-version
 
 go 1.22
 
