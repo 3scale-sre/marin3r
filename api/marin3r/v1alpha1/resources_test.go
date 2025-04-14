@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
-	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 )
 
 func TestEnvoyResources_Resources(t *testing.T) {

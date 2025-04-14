@@ -30,7 +30,7 @@ import (
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
 	envoyconfigrevision "github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfigrevision"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"

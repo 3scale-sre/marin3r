@@ -10,7 +10,7 @@ import (
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	"github.com/davecgh/go-spew/spew"
 	resource_v3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/patrickmn/go-cache"

@@ -21,7 +21,7 @@ import (
 
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 )
 
 func TestEnvoyConfigRevisionStatus_IsPublished(t *testing.T) {

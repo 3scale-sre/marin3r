@@ -2,14 +2,18 @@ module github.com/3scale-sre/marin3r
 
 go 1.24
 
+replace github.com/3scale-sre/marin3r/api => ./api
+
+// For local dev uncomment this and point it to the correct path in your system
+// replace github.com/3scale-sre/basereconciler => /home/roi/github.com/3scale/basereconciler
+
 require (
 	github.com/3scale-sre/basereconciler v0.5.3
+	github.com/3scale-sre/marin3r/api v0.0.0-00010101000000-000000000000
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/envoyproxy/go-control-plane v0.13.4
-	github.com/envoyproxy/go-control-plane/contrib v1.32.4
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4
-	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.4.2
 	github.com/go-test/deep v1.1.1
 	github.com/google/go-cmp v0.7.0
@@ -24,15 +28,11 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.6
-	k8s.io/api v0.32.2
-	k8s.io/apimachinery v0.32.2
+	k8s.io/api v0.32.3
+	k8s.io/apimachinery v0.32.3
 	k8s.io/client-go v0.32.2
-	sigs.k8s.io/controller-runtime v0.20.2
-	sigs.k8s.io/yaml v1.4.0
+	sigs.k8s.io/controller-runtime v0.20.4
 )
-
-// For local dev uncomment this and point it to the correct path in your system
-// replace github.com/3scale-sre/basereconciler => /home/roi/github.com/3scale/basereconciler
 
 require (
 	cel.dev/expr v0.19.0 // indirect
@@ -40,11 +40,13 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
+	github.com/envoyproxy/go-control-plane/contrib v1.32.4 // indirect
 	github.com/envoyproxy/go-control-plane/ratelimit v0.1.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
@@ -98,4 +100,5 @@ require (
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.2 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )

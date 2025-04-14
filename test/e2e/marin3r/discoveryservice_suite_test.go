@@ -3,7 +3,7 @@ package e2e
 import (
 	"context"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/test/e2e/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

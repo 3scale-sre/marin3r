@@ -9,8 +9,8 @@ import (
 
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/operator/discoveryservicecertificate/providers"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/clock"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pki"
+	"github.com/3scale-sre/marin3r/pkg/util/clock"
+	"github.com/3scale-sre/marin3r/pkg/util/pki"
 	"github.com/MakeNowJust/heredoc"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
