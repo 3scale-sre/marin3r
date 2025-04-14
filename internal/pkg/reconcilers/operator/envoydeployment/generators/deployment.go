@@ -3,9 +3,9 @@ package generators
 import (
 	"strings"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy_container "github.com/3scale-sre/marin3r/internal/pkg/envoy/container"
 	defaults "github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -96,7 +96,7 @@ func (cfg *GeneratorOptions) Deployment() *appsv1.Deployment {
 							d := cfg.ShutdownManager.GetDrainTime()
 							return &d
 						}
-						return pointer.New(int64(corev1.DefaultTerminationGracePeriodSeconds))
+						return reconcilerutil.Pointer(int64(corev1.DefaultTerminationGracePeriodSeconds))
 					}(),
 				},
 			},

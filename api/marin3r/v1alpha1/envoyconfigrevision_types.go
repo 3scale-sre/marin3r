@@ -17,9 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -174,7 +174,7 @@ func (ecr *EnvoyConfigRevision) GetSerialization() envoy_serializer.Serializatio
 // Default implements defaulting for the EnvoyConfigRevision resource
 func (ecr *EnvoyConfigRevision) Default() {
 	if ecr.Spec.EnvoyAPI == nil {
-		ecr.Spec.EnvoyAPI = pointer.New(ecr.GetEnvoyAPIVersion())
+		ecr.Spec.EnvoyAPI = reconcilerutil.Pointer(ecr.GetEnvoyAPIVersion())
 	}
 }
 

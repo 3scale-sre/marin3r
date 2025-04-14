@@ -19,10 +19,10 @@ import (
 	"testing"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	"github.com/go-logr/logr"
 	"github.com/goombaio/namegenerator"
 	. "github.com/onsi/ginkgo/v2"
@@ -69,7 +69,7 @@ var _ = BeforeSuite(func() {
 	nameGenerator = namegenerator.NewNameGenerator(seed)
 
 	testEnv = &envtest.Environment{
-		UseExistingCluster: pointer.New(true),
+		UseExistingCluster: reconcilerutil.Pointer(true),
 	}
 
 	var err error

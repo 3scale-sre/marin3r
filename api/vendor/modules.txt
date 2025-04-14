@@ -13,7 +13,6 @@ github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults
 github.com/3scale-sre/marin3r/pkg/image
 github.com/3scale-sre/marin3r/pkg/util/error
 github.com/3scale-sre/marin3r/pkg/util/k8s
-github.com/3scale-sre/marin3r/pkg/util/pointer
 # github.com/beorn7/perks v1.0.1
 ## explicit; go 1.11
 github.com/beorn7/perks/quantile

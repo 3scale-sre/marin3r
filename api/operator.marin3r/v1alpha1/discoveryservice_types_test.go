@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/pkg/image"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -271,7 +271,7 @@ func TestDiscoveryService_GetImage(t *testing.T) {
 			func() *DiscoveryService {
 				return &DiscoveryService{
 					Spec: DiscoveryServiceSpec{
-						Image: pointer.New("image:test"),
+						Image: reconcilerutil.Pointer("image:test"),
 					},
 				}
 			},
@@ -305,7 +305,7 @@ func TestDiscoveryService_Debug(t *testing.T) {
 			func() *DiscoveryService {
 				return &DiscoveryService{
 					Spec: DiscoveryServiceSpec{
-						Debug: pointer.New(true),
+						Debug: reconcilerutil.Pointer(true),
 					},
 				}
 			},

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
 	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/pkg/util/test"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -81,7 +81,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   nodeID,
 					Version:  "xxxx",
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
 					Resources: []marin3rv1alpha1.Resource{
 						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension(`{"cluster_name": "endpoint"}`)},
 					}},
@@ -162,9 +162,9 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   nodeID,
 					Version:  "xxxx",
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
 					Resources: []marin3rv1alpha1.Resource{
-						{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+						{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
 					},
 				},
 			}
@@ -423,7 +423,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				err := k8sClient.Get(context.Background(), key, ecr)
 				Expect(err).ToNot(HaveOccurred())
 				patch := client.MergeFrom(ecr.DeepCopy())
-				ecr.Spec.Resources = []marin3rv1alpha1.Resource{{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")}}
+				ecr.Spec.Resources = []marin3rv1alpha1.Resource{{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")}}
 				err = k8sClient.Patch(context.Background(), ecr, patch)
 				Expect(err).ToNot(HaveOccurred())
 

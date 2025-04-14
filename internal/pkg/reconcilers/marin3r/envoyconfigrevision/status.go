@@ -5,13 +5,13 @@ import (
 	"math"
 	"reflect"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
 	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -57,20 +57,20 @@ func IsStatusReconciled(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1a
 
 	// Set status.published and status.lastPublishedAt fields
 	if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) && !ecr.Status.IsPublished() {
-		ecr.Status.Published = pointer.New(true)
+		ecr.Status.Published = reconcilerutil.Pointer(true)
 		ecr.Status.LastPublishedAt = func(t metav1.Time) *metav1.Time { return &t }(metav1.Now())
 		ok = false
 	} else if !meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) && ecr.Status.IsPublished() {
-		ecr.Status.Published = pointer.New(false)
+		ecr.Status.Published = reconcilerutil.Pointer(false)
 		ok = false
 	}
 
 	// Set status.tainted field
 	if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition) && !ecr.Status.IsTainted() {
-		ecr.Status.Tainted = pointer.New(true)
+		ecr.Status.Tainted = reconcilerutil.Pointer(true)
 		ok = false
 	} else if !meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition) && ecr.Status.IsTainted() {
-		ecr.Status.Tainted = pointer.New(false)
+		ecr.Status.Tainted = reconcilerutil.Pointer(false)
 		ok = false
 	}
 

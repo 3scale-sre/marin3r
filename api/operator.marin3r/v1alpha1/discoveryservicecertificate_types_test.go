@@ -19,7 +19,7 @@ package v1alpha1
 import (
 	"testing"
 
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"k8s.io/apimachinery/pkg/api/equality"
 )
 
@@ -39,7 +39,7 @@ func TestDiscoveryServiceCertificate_IsServerCertificate(t *testing.T) {
 			func() *DiscoveryServiceCertificate {
 				return &DiscoveryServiceCertificate{
 					Spec: DiscoveryServiceCertificateSpec{
-						IsServerCertificate: pointer.New(true),
+						IsServerCertificate: reconcilerutil.Pointer(true),
 					},
 				}
 			},
@@ -73,7 +73,7 @@ func TestDiscoveryServiceCertificate_IsCA(t *testing.T) {
 			func() *DiscoveryServiceCertificate {
 				return &DiscoveryServiceCertificate{
 					Spec: DiscoveryServiceCertificateSpec{
-						IsCA: pointer.New(true),
+						IsCA: reconcilerutil.Pointer(true),
 					},
 				}
 			},
@@ -175,7 +175,7 @@ func TestDiscoveryServiceCertificateStatus_IsReady(t *testing.T) {
 			func() *DiscoveryServiceCertificate {
 				return &DiscoveryServiceCertificate{
 					Status: DiscoveryServiceCertificateStatus{
-						Ready: pointer.New(true),
+						Ready: reconcilerutil.Pointer(true),
 					},
 				}
 			},
@@ -209,7 +209,7 @@ func TestDiscoveryServiceCertificateStatus_GetCertificateHash(t *testing.T) {
 			func() *DiscoveryServiceCertificate {
 				return &DiscoveryServiceCertificate{
 					Status: DiscoveryServiceCertificateStatus{
-						CertificateHash: pointer.New("xxxx"),
+						CertificateHash: reconcilerutil.Pointer("xxxx"),
 					},
 				}
 			},

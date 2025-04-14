@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	envoy_resources_v3 "github.com/3scale-sre/marin3r/api/envoy/resources/v3"
@@ -13,7 +14,6 @@ import (
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
 	k8sutil "github.com/3scale-sre/marin3r/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/pkg/util/test"
 	"github.com/davecgh/go-spew/spew"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -352,7 +352,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
 				},
 			},
 			wantErr: false,
@@ -388,8 +388,8 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				resources: []marin3rv1alpha1.Resource{
 					{
 						Type:                  envoy.Secret,
-						GenerateFromTlsSecret: pointer.New("secret"),
-						Blueprint:             pointer.New(marin3rv1alpha1.TlsValidationContext),
+						GenerateFromTlsSecret: reconcilerutil.Pointer("secret"),
+						Blueprint:             reconcilerutil.Pointer(marin3rv1alpha1.TlsValidationContext),
 					},
 				},
 			},
@@ -424,7 +424,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
 				},
 			},
 			wantErr: true,
@@ -443,7 +443,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
 				},
 			},
 			wantErr: true,

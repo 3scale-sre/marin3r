@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/test/e2e/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -52,7 +52,7 @@ var _ = Describe("EnvoyDeployment", func() {
 				Namespace: testNamespace,
 			},
 			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: pointer.New(image),
+				Image: reconcilerutil.Pointer(image),
 			},
 		}
 		err = k8sClient.Create(context.Background(), ds)
@@ -144,8 +144,8 @@ var _ = Describe("EnvoyDeployment", func() {
 				Spec: operatorv1alpha1.EnvoyDeploymentSpec{
 					DiscoveryServiceRef: ds.GetName(),
 					EnvoyConfigRef:      ec.GetName(),
-					Image:               pointer.New(defaults.ImageRepo + ":" + envoyVersionV3),
-					InitManager:         &operatorv1alpha1.InitManager{Image: pointer.New(image)},
+					Image:               reconcilerutil.Pointer(defaults.ImageRepo + ":" + envoyVersionV3),
+					InitManager:         &operatorv1alpha1.InitManager{Image: reconcilerutil.Pointer(image)},
 				},
 			}
 

@@ -3,10 +3,10 @@ package container
 import (
 	"fmt"
 
+	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/shutdownmanager"
-	"github.com/3scale-sre/marin3r/pkg/util/pointer"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -253,7 +253,7 @@ func (cc *ContainerConfig) Volumes() []corev1.Volume {
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName:  cc.ClientCertSecret,
-					DefaultMode: pointer.New(int32(420)),
+					DefaultMode: reconcilerutil.Pointer(int32(420)),
 				},
 			},
 		},
