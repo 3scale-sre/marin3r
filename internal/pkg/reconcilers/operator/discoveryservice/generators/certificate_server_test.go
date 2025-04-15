@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 func TestGeneratorOptions_ServerCertificate(t *testing.T) {
@@ -53,7 +53,7 @@ func TestGeneratorOptions_ServerCertificate(t *testing.T) {
 				},
 				Spec: operatorv1alpha1.DiscoveryServiceCertificateSpec{
 					CommonName:          "test-test",
-					IsServerCertificate: reconcilerutil.Pointer(true),
+					IsServerCertificate: ptr.To(true),
 					ValidFor:            int64(10),
 					Signer: operatorv1alpha1.DiscoveryServiceCertificateSigner{
 						CASigned: &operatorv1alpha1.CASignedConfig{

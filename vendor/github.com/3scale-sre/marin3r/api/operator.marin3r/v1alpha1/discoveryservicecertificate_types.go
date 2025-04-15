@@ -17,9 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -210,10 +210,10 @@ type DiscoveryServiceCertificate struct {
 
 func (dsc *DiscoveryServiceCertificate) Default() {
 	if dsc.Spec.IsServerCertificate == nil {
-		dsc.Spec.IsServerCertificate = reconcilerutil.Pointer(dsc.IsServerCertificate())
+		dsc.Spec.IsServerCertificate = ptr.To(dsc.IsServerCertificate())
 	}
 	if dsc.Spec.IsCA == nil {
-		dsc.Spec.IsCA = reconcilerutil.Pointer(dsc.IsCA())
+		dsc.Spec.IsCA = ptr.To(dsc.IsCA())
 	}
 	if dsc.Spec.Hosts == nil {
 		dsc.Spec.Hosts = dsc.GetHosts()

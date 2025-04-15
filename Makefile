@@ -127,22 +127,27 @@ gen-pkg-envoy-proto: export TARGET_PATH = $(PWD)/bin
 gen-pkg-envoy-proto: ## builds the gen-pkg-envoy-proto binary
 	 cd generators/pkg-envoy-proto && go build -o $${TARGET_PATH}/gen-pkg-envoy-proto main.go
 
-.PHONY=gen-pkg-version
+.PHONY: gen-pkg-version
 gen-pkg-version: export TARGET_PATH = $(PWD)/bin
 gen-pkg-version: ## builds the gen-pkg-version binary
 	 cd generators/pkg-version && go build -o $${TARGET_PATH}/gen-pkg-version main.go
 
-.PHONY=gen-pkg-image
+.PHONY: gen-pkg-image
 gen-pkg-image: export TARGET_PATH = $(PWD)/bin
 gen-pkg-image: ## builds the gen-pkg-image binary
 	 cd generators/pkg-image && go build -o $${TARGET_PATH}/gen-pkg-image main.go
+
+.PHONY: vendor
+vendor:
+	cd api && go mod tidy && go mod vendor
+	go mod tidy && go mod vendor
 
 ##@ Test
 
 TEST_PKG = ./api/... ./internal/...
 COVERPROFILE = coverprofile.out
 
-.PHONY: test-new
+.PHONY: test
 test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
 		$(GINKGO) -p -procs=$(shell nproc) -coverprofile=$(COVERPROFILE) -coverpkg=$(COVERPKGS) $(TEST_PKG)

@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
@@ -14,6 +13,7 @@ import (
 	"github.com/go-logr/logr"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -53,15 +53,15 @@ func TestEndpoints(t *testing.T) {
 						Endpoints: []discoveryv1.Endpoint{
 							{
 								Addresses:  []string{"127.0.0.1"},
-								Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+								Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 							},
 							{
 								Addresses:  []string{"127.0.0.2"},
-								Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+								Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 							},
 						},
 						Ports: []discoveryv1.EndpointPort{
-							{Name: reconcilerutil.Pointer("port"), Port: reconcilerutil.Pointer(int32(1001))},
+							{Name: ptr.To("port"), Port: ptr.To(int32(1001))},
 						},
 					},
 				).Build(),
@@ -134,11 +134,11 @@ func TestEndpoints(t *testing.T) {
 						Endpoints: []discoveryv1.Endpoint{
 							{
 								Addresses:  []string{"127.0.0.1"},
-								Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+								Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 							},
 						},
 						Ports: []discoveryv1.EndpointPort{
-							{Name: reconcilerutil.Pointer("port"), Port: reconcilerutil.Pointer(int32(1001))},
+							{Name: ptr.To("port"), Port: ptr.To(int32(1001))},
 						},
 					},
 				).Build(),
@@ -169,11 +169,11 @@ func TestEndpoints(t *testing.T) {
 						Endpoints: []discoveryv1.Endpoint{
 							{
 								Addresses:  []string{"127.0.0.1"},
-								Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+								Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 							},
 						},
 						Ports: []discoveryv1.EndpointPort{
-							{Name: reconcilerutil.Pointer("port"), Port: reconcilerutil.Pointer(int32(1001))},
+							{Name: ptr.To("port"), Port: ptr.To(int32(1001))},
 						},
 					},
 				).Build(),
@@ -224,16 +224,16 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 							Endpoints: []discoveryv1.Endpoint{
 								{
 									Addresses:  []string{"127.0.0.1"},
-									Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+									Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 								},
 								{
 									Addresses:  []string{"127.0.0.2"},
-									Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+									Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 								},
 							},
 							Ports: []discoveryv1.EndpointPort{
-								{Name: reconcilerutil.Pointer("port1"), Port: reconcilerutil.Pointer(int32(1001))},
-								{Name: reconcilerutil.Pointer("port2"), Port: reconcilerutil.Pointer(int32(1002))},
+								{Name: ptr.To("port1"), Port: ptr.To(int32(1001))},
+								{Name: ptr.To("port2"), Port: ptr.To(int32(1002))},
 							},
 						},
 						{
@@ -241,16 +241,16 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 							Endpoints: []discoveryv1.Endpoint{
 								{
 									Addresses:  []string{"127.0.0.3"},
-									Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+									Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 								},
 								{
 									Addresses:  []string{"127.0.0.4"},
-									Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(false)},
+									Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(false)},
 								},
 							},
 							Ports: []discoveryv1.EndpointPort{
-								{Name: reconcilerutil.Pointer("port1"), Port: reconcilerutil.Pointer(int32(1001))},
-								{Name: reconcilerutil.Pointer("port2"), Port: reconcilerutil.Pointer(int32(1002))},
+								{Name: ptr.To("port1"), Port: ptr.To(int32(1001))},
+								{Name: ptr.To("port2"), Port: ptr.To(int32(1002))},
 							},
 						},
 					},
@@ -300,7 +300,7 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 				esl: &discoveryv1.EndpointSliceList{
 					Items: []discoveryv1.EndpointSlice{{
 						Ports: []discoveryv1.EndpointPort{
-							{Name: reconcilerutil.Pointer("port1"), Port: reconcilerutil.Pointer(int32(1001))},
+							{Name: ptr.To("port1"), Port: ptr.To(int32(1001))},
 						}}},
 				},
 				portName: "other-port",
@@ -318,15 +318,15 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 						Endpoints: []discoveryv1.Endpoint{
 							{
 								Addresses:  []string{"xxxx"},
-								Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+								Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 							},
 							{
 								Addresses:  []string{"127.0.0.2"},
-								Conditions: discoveryv1.EndpointConditions{Ready: reconcilerutil.Pointer(true)},
+								Conditions: discoveryv1.EndpointConditions{Ready: ptr.To(true)},
 							},
 						},
 						Ports: []discoveryv1.EndpointPort{
-							{Name: reconcilerutil.Pointer("port1"), Port: reconcilerutil.Pointer(int32(1001))},
+							{Name: ptr.To("port1"), Port: ptr.To(int32(1001))},
 						},
 					}},
 				},
@@ -368,9 +368,9 @@ func Test_health(t *testing.T) {
 			name: "HEALTHY",
 			args: args{
 				ec: discoveryv1.EndpointConditions{
-					Ready:       reconcilerutil.Pointer(true),
-					Serving:     reconcilerutil.Pointer(true),
-					Terminating: reconcilerutil.Pointer(false),
+					Ready:       ptr.To(true),
+					Serving:     ptr.To(true),
+					Terminating: ptr.To(false),
 				},
 			},
 			want: envoy.HealthStatus_HEALTHY,
@@ -379,8 +379,8 @@ func Test_health(t *testing.T) {
 			name: "HEALTHY",
 			args: args{
 				ec: discoveryv1.EndpointConditions{
-					Ready:   reconcilerutil.Pointer(true),
-					Serving: reconcilerutil.Pointer(true),
+					Ready:   ptr.To(true),
+					Serving: ptr.To(true),
 				},
 			},
 			want: envoy.HealthStatus_HEALTHY,
@@ -389,7 +389,7 @@ func Test_health(t *testing.T) {
 			name: "HEALTHY",
 			args: args{
 				ec: discoveryv1.EndpointConditions{
-					Ready: reconcilerutil.Pointer(true),
+					Ready: ptr.To(true),
 				},
 			},
 			want: envoy.HealthStatus_HEALTHY,
@@ -398,7 +398,7 @@ func Test_health(t *testing.T) {
 			name: "UNHEALTHY",
 			args: args{
 				ec: discoveryv1.EndpointConditions{
-					Ready: reconcilerutil.Pointer(false),
+					Ready: ptr.To(false),
 				},
 			},
 			want: envoy.HealthStatus_UNHEALTHY,
@@ -407,7 +407,7 @@ func Test_health(t *testing.T) {
 			name: "UNHEALTHY",
 			args: args{
 				ec: discoveryv1.EndpointConditions{
-					Serving: reconcilerutil.Pointer(false),
+					Serving: ptr.To(false),
 				},
 			},
 			want: envoy.HealthStatus_UNHEALTHY,
@@ -423,7 +423,7 @@ func Test_health(t *testing.T) {
 			name: "DRAINING",
 			args: args{
 				ec: discoveryv1.EndpointConditions{
-					Terminating: reconcilerutil.Pointer(true),
+					Terminating: ptr.To(true),
 				},
 			},
 			want: envoy.HealthStatus_DRAINING,

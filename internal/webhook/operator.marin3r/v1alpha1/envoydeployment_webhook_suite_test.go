@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,6 +28,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -84,9 +84,9 @@ var _ = Describe("EnvoyDeployment webhook", func() {
 					EnvoyConfigRef:      "test",
 					DiscoveryServiceRef: "test",
 					Replicas: &operatorv1alpha1.ReplicasSpec{
-						Static: reconcilerutil.Pointer(int32(5)),
+						Static: ptr.To(int32(5)),
 						Dynamic: &operatorv1alpha1.DynamicReplicasSpec{
-							MinReplicas: reconcilerutil.Pointer(int32(2)),
+							MinReplicas: ptr.To(int32(2)),
 							MaxReplicas: 10,
 						},
 					},

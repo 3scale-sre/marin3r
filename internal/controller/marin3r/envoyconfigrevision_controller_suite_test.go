@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
@@ -22,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -81,7 +81,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   nodeID,
 					Version:  "xxxx",
-					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
+					EnvoyAPI: ptr.To(envoy.APIv3),
 					Resources: []marin3rv1alpha1.Resource{
 						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension(`{"cluster_name": "endpoint"}`)},
 					}},
@@ -162,9 +162,9 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   nodeID,
 					Version:  "xxxx",
-					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
+					EnvoyAPI: ptr.To(envoy.APIv3),
 					Resources: []marin3rv1alpha1.Resource{
-						{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
+						{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 					},
 				},
 			}
@@ -423,7 +423,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				err := k8sClient.Get(context.Background(), key, ecr)
 				Expect(err).ToNot(HaveOccurred())
 				patch := client.MergeFrom(ecr.DeepCopy())
-				ecr.Spec.Resources = []marin3rv1alpha1.Resource{{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")}}
+				ecr.Spec.Resources = []marin3rv1alpha1.Resource{{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")}}
 				err = k8sClient.Patch(context.Background(), ecr, patch)
 				Expect(err).ToNot(HaveOccurred())
 

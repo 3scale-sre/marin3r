@@ -23,7 +23,6 @@ import (
 
 	"github.com/3scale-sre/basereconciler/reconciler"
 	reconciler_util "github.com/3scale-sre/basereconciler/util"
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
@@ -39,6 +38,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -151,7 +151,7 @@ func (r *EnvoyConfigRevisionReconciler) taintSelf(ctx context.Context, ecr *mari
 			Reason:  reason,
 			Message: msg,
 		})
-		ecr.Status.Tainted = reconcilerutil.Pointer(true)
+		ecr.Status.Tainted = ptr.To(true)
 
 		if err := r.Client.Status().Patch(ctx, ecr, patch); err != nil {
 			return err
