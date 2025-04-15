@@ -55,7 +55,7 @@ func EnableResourcePruner() { config.resourcePruner = true }
 // of managed resoures to reconcile.
 func DisableResourcePruner() { config.resourcePruner = false }
 
-// IsResourcePrunerEnabled returs a boolean indicating wheter the resource pruner is enabled or not.
+// IsResourcePrunerEnabled returs a boolean indicating whether the resource pruner is enabled or not.
 func IsResourcePrunerEnabled() bool { return config.resourcePruner }
 
 // EnableDynamicWatches enables controller dynamic watches. Dynamic watches keep track of the resource
@@ -66,7 +66,7 @@ func EnableDynamicWatches() { config.dynamicWatches = true }
 // types that the controller owns and dynamically adds watches to the controller for those.
 func DisableDynamicWatches() { config.dynamicWatches = false }
 
-// AreDynamicWatchesEnabled returs a boolean indicating wheter the dynamic watches are enabled or not.
+// AreDynamicWatchesEnabled returs a boolean indicating whether the dynamic watches are enabled or not.
 func AreDynamicWatchesEnabled() bool { return config.dynamicWatches }
 
 // GetDefaultReconcileConfigForGVK returns the default configuration that instructs basereconciler how to reconcile
@@ -88,7 +88,8 @@ func GetDefaultReconcileConfigForGVK(gvk schema.GroupVersionKind) (ReconcileConf
 // a given kubernetes GVK (GroupVersionKind). This default config will be used if the "resource.Template" object (see
 // the resource package) does not specify a configuration itself.
 // If the passed GVK is an empty one ("schema.GroupVersionKind{}"), the function will set the wildcard instead, which
-// is a default set of basic reconclie rules that the reconciler will try to use when no other configuration is available.
+// is a default set of basic reconclie rules that the reconciler will try to use when no other configuration is
+// available.
 func SetDefaultReconcileConfigForGVK(gvk schema.GroupVersionKind, cfg ReconcileConfigForGVK) {
 	if gvk.Empty() {
 		config.defaultResourceReconcileConfig["*"] = cfg

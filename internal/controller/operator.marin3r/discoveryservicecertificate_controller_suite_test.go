@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pki"
 	. "github.com/onsi/ginkgo/v2"
@@ -13,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -129,7 +129,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 				},
 				Spec: operatorv1alpha1.DiscoveryServiceCertificateSpec{
 					CommonName: "test",
-					IsCA:       reconcilerutil.Pointer(true),
+					IsCA:       ptr.To(true),
 					ValidFor:   3600,
 					Signer: operatorv1alpha1.DiscoveryServiceCertificateSigner{
 						SelfSigned: &operatorv1alpha1.SelfSignedConfig{},

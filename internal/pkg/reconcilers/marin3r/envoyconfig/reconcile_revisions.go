@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/filters"
@@ -13,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -67,7 +67,7 @@ func (r *RevisionReconciler) NodeID() string {
 func (r *RevisionReconciler) DesiredVersion() string {
 	if r.desiredVersion == nil {
 		// Store the version to avoid further computation of the same value
-		r.desiredVersion = reconcilerutil.Pointer(r.Instance().GetEnvoyResourcesVersion())
+		r.desiredVersion = ptr.To(r.Instance().GetEnvoyResourcesVersion())
 	}
 	return *r.desiredVersion
 }
@@ -141,28 +141,27 @@ func (r *RevisionReconciler) Reconcile() (ctrl.Result, error) {
 	shouldBeTrue, shouldBeFalse := r.isRevisionPublishedConditionReconciled(r.PublishedVersion())
 
 	for _, ecr := range shouldBeFalse {
-
 		if err := r.client.Status().Update(r.ctx, &ecr); err != nil {
-			log.Error(err, "unable to update revision", "Phase", "UnpublishOldRevisions", "Name/Namespace", reconcilerutil.ObjectKey(&ecr))
+			log.Error(err, "unable to update revision", "Phase", "UnpublishOldRevisions", "Name/Namespace", client.ObjectKeyFromObject(&ecr))
 			return ctrl.Result{}, err
 		}
 	}
 
 	if shouldBeTrue != nil {
 		if err := r.client.Status().Update(r.ctx, shouldBeTrue); err != nil {
-			log.Error(err, "unable to update revision", "Phase", "PublishNewRevision", "Name/Namespace", reconcilerutil.ObjectKey(shouldBeTrue))
+			log.Error(err, "unable to update revision", "Phase", "PublishNewRevision", "Name/Namespace", client.ObjectKeyFromObject(shouldBeTrue))
 			return ctrl.Result{}, err
 		}
-		log.Info("updated the published EnvoyConfigRevision", "Namespace/Name", reconcilerutil.ObjectKey(shouldBeTrue))
+		log.Info("updated the published EnvoyConfigRevision", "Namespace/Name", client.ObjectKeyFromObject(shouldBeTrue))
 	}
 
 	shouldBeDeleted := r.isRevisionRetentionReconciled(maxRevisions)
 	for _, ecr := range shouldBeDeleted {
 		if err := r.client.Delete(r.ctx, &ecr); err != nil {
-			log.Error(err, "unable to delete revision", "Phase", "ApplyRevisionRetention", "Name/Namespace", reconcilerutil.ObjectKey(&ecr))
+			log.Error(err, "unable to delete revision", "Phase", "ApplyRevisionRetention", "Name/Namespace", client.ObjectKeyFromObject(&ecr))
 			return ctrl.Result{}, err
 		}
-		log.Info("deleted old EnvoyConfigRevision", "Namespace/Name", reconcilerutil.ObjectKey(&ecr))
+		log.Info("deleted old EnvoyConfigRevision", "Namespace/Name", client.ObjectKeyFromObject(&ecr))
 	}
 
 	log.Info(fmt.Sprintf("CacheState is %s after revision reconcile", cacheState))
@@ -268,7 +267,7 @@ func (r *RevisionReconciler) newRevisionForCurrentResources() *marin3rv1alpha1.E
 		},
 		Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 			NodeID:    r.NodeID(),
-			EnvoyAPI:  reconcilerutil.Pointer(r.EnvoyAPI()),
+			EnvoyAPI:  ptr.To(r.EnvoyAPI()),
 			Version:   r.DesiredVersion(),
 			Resources: r.Instance().Spec.Resources,
 		},

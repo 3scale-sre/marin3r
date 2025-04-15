@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/3scale-sre/basereconciler/reconciler"
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
@@ -14,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -71,7 +71,7 @@ func Test_filterByAPIVersion(t *testing.T) {
 				obj: &marin3rv1alpha1.EnvoyConfigRevision{
 					ObjectMeta: metav1.ObjectMeta{Name: "xx", Namespace: "xx"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
-						EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
+						EnvoyAPI: ptr.To(envoy.APIv3),
 					},
 				},
 				version: envoy.APIv3,
@@ -84,7 +84,7 @@ func Test_filterByAPIVersion(t *testing.T) {
 				obj: &marin3rv1alpha1.EnvoyConfigRevision{
 					ObjectMeta: metav1.ObjectMeta{Name: "xx", Namespace: "xx"},
 					Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
-						EnvoyAPI: reconcilerutil.Pointer(envoy.APIVersion("XX")),
+						EnvoyAPI: ptr.To(envoy.APIVersion("XX")),
 					},
 				},
 				version: envoy.APIv3,

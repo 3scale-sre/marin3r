@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/3scale-sre/basereconciler/reconciler"
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	defaults "github.com/3scale-sre/marin3r/api/envoy/defaults"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
@@ -29,6 +27,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -178,7 +177,7 @@ func (ed *EnvoyDeployment) AdminAccessLogPath() string {
 
 func (ed *EnvoyDeployment) Replicas() ReplicasSpec {
 	if ed.Spec.Replicas == nil {
-		return ReplicasSpec{Static: reconcilerutil.Pointer(DefaultReplicas)}
+		return ReplicasSpec{Static: ptr.To(DefaultReplicas)}
 	}
 	if ed.Spec.Replicas.Static != nil {
 		return ReplicasSpec{Static: ed.Spec.Replicas.Static}
@@ -389,9 +388,6 @@ func (im *InitManager) GetImage() string {
 	return defaults.InitMgrImage()
 }
 
-// ensure the status implements the AppStatus interface from "github.com/3scale-sre/basereconciler/status"
-var _ reconciler.AppStatus = &EnvoyDeploymentStatus{}
-
 // EnvoyDeploymentStatus defines the observed state of EnvoyDeployment
 type EnvoyDeploymentStatus struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
@@ -400,16 +396,22 @@ type EnvoyDeploymentStatus struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	*appsv1.DeploymentStatus `json:"deploymentStatus,omitempty"`
-	// internal fields
-	reconciler.UnimplementedStatefulSetStatus `json:"-"`
 }
 
+// The following methods implement the AppStatus interface from "github.com/3scale-sre/basereconciler/status"
+// which provides a generic status for the workload.
 func (eds *EnvoyDeploymentStatus) GetDeploymentStatus(key types.NamespacedName) *appsv1.DeploymentStatus {
 	return eds.DeploymentStatus
 }
 
 func (eds *EnvoyDeploymentStatus) SetDeploymentStatus(key types.NamespacedName, s *appsv1.DeploymentStatus) {
 	eds.DeploymentStatus = s
+}
+
+func (eds *EnvoyDeploymentStatus) GetStatefulSetStatus(types.NamespacedName) *appsv1.StatefulSetStatus {
+	return nil
+}
+func (eds *EnvoyDeploymentStatus) SetStatefulSetStatus(types.NamespacedName, *appsv1.StatefulSetStatus) {
 }
 
 //+kubebuilder:object:root=true
@@ -429,9 +431,7 @@ type EnvoyDeployment struct {
 	Status EnvoyDeploymentStatus `json:"status,omitempty"`
 }
 
-var _ reconciler.ObjectWithAppStatus = &EnvoyDeployment{}
-
-func (ed *EnvoyDeployment) GetStatus() reconciler.AppStatus {
+func (ed *EnvoyDeployment) GetStatus() *EnvoyDeploymentStatus {
 	return &ed.Status
 }
 

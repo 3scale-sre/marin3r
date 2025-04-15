@@ -17,11 +17,12 @@ limitations under the License.
 package v1alpha1
 
 import (
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
+	"github.com/3scale-sre/marin3r/api/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -165,13 +166,13 @@ func (ec *EnvoyConfig) GetSerialization() envoy_serializer.Serialization {
 // GetEnvoyResourcesVersion returns the hash of the resources in the spec which
 // univoquely identifies the version of the resources.
 func (ec *EnvoyConfig) GetEnvoyResourcesVersion() string {
-	return reconcilerutil.Hash(ec.Spec.Resources)
+	return util.Hash(ec.Spec.Resources)
 }
 
 // Default implements defaulting for the EnvoyConfig resource
 func (ec *EnvoyConfig) Default() {
 	if ec.Spec.EnvoyAPI == nil {
-		ec.Spec.EnvoyAPI = reconcilerutil.Pointer(ec.GetEnvoyAPIVersion())
+		ec.Spec.EnvoyAPI = ptr.To(ec.GetEnvoyAPIVersion())
 	}
 }
 

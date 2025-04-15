@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
@@ -28,6 +27,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -198,7 +198,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			Namespace: key.Namespace,
 		},
 		Spec: marin3rv1alpha1.EnvoyConfigSpec{
-			EnvoyAPI:  reconcilerutil.Pointer(envoyAPI),
+			EnvoyAPI:  ptr.To(envoyAPI),
 			NodeID:    nodeID,
 			Resources: []marin3rv1alpha1.Resource{},
 		},
@@ -256,7 +256,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 	for _, name := range secrets {
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type:                  envoy.Secret,
-			GenerateFromTlsSecret: reconcilerutil.Pointer(name),
+			GenerateFromTlsSecret: ptr.To(name),
 		})
 	}
 

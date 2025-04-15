@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
@@ -29,6 +28,7 @@ import (
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -69,7 +69,7 @@ var _ = BeforeSuite(func() {
 	nameGenerator = namegenerator.NewNameGenerator(seed)
 
 	testEnv = &envtest.Environment{
-		UseExistingCluster: reconcilerutil.Pointer(true),
+		UseExistingCluster: ptr.To(true),
 	}
 
 	var err error

@@ -18,7 +18,6 @@ func Hash(o interface{}) string {
 		DisableMethods: true,
 		SpewKeys:       true,
 	}
-	// (hash.Hash32).Write() never returns error
-	_, _ = printer.Fprintf(hasher, "%#v", o)
+	printer.Fprintf(hasher, "%#v", o)
 	return rand.SafeEncodeString(fmt.Sprint(hasher.Sum32()))
 }

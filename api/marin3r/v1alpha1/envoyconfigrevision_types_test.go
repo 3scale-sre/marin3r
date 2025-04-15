@@ -19,9 +19,9 @@ package v1alpha1
 import (
 	"testing"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
+	"k8s.io/utils/ptr"
 )
 
 func TestEnvoyConfigRevisionStatus_IsPublished(t *testing.T) {
@@ -40,7 +40,7 @@ func TestEnvoyConfigRevisionStatus_IsPublished(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Status: EnvoyConfigRevisionStatus{
-						Published: reconcilerutil.Pointer(true),
+						Published: ptr.To(true),
 					},
 				}
 			},
@@ -74,7 +74,7 @@ func TestEnvoyConfigRevisionStatus_IsTainted(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Status: EnvoyConfigRevisionStatus{
-						Tainted: reconcilerutil.Pointer(true),
+						Tainted: ptr.To(true),
 					},
 				}
 			},
@@ -108,7 +108,7 @@ func TestEnvoyConfigRevision_GetEnvoyAPIVersion(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Spec: EnvoyConfigRevisionSpec{
-						EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
+						EnvoyAPI: ptr.To(envoy.APIv3),
 					},
 				}
 			},
@@ -142,7 +142,7 @@ func TestEnvoyConfigRevision_GetSerialization(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Spec: EnvoyConfigRevisionSpec{
-						Serialization: reconcilerutil.Pointer(envoy_serializer.YAML),
+						Serialization: ptr.To(envoy_serializer.YAML),
 					},
 				}
 			},

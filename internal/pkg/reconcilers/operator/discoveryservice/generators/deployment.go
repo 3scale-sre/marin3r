@@ -3,12 +3,12 @@ package generators
 import (
 	"fmt"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
@@ -22,7 +22,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 				Labels:    cfg.labels(),
 			},
 			Spec: appsv1.DeploymentSpec{
-				Replicas: reconcilerutil.Pointer(int32(1)),
+				Replicas: ptr.To(int32(1)),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: cfg.labels(),
 				},
@@ -42,7 +42,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
 										SecretName:  cfg.ServerCertName(),
-										DefaultMode: reconcilerutil.Pointer(int32(420)),
+										DefaultMode: ptr.To(int32(420)),
 									},
 								},
 							},
@@ -51,7 +51,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
 										SecretName:  cfg.RootCertName(),
-										DefaultMode: reconcilerutil.Pointer(int32(420)),
+										DefaultMode: ptr.To(int32(420)),
 									},
 								},
 							},
@@ -60,7 +60,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
 										SecretName:  cfg.ClientCertName(),
-										DefaultMode: reconcilerutil.Pointer(int32(420)),
+										DefaultMode: ptr.To(int32(420)),
 									},
 								},
 							},
@@ -152,7 +152,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 								ImagePullPolicy: corev1.PullIfNotPresent,
 							},
 						},
-						TerminationGracePeriodSeconds: reconcilerutil.Pointer(int64(corev1.DefaultTerminationGracePeriodSeconds)),
+						TerminationGracePeriodSeconds: ptr.To(int64(corev1.DefaultTerminationGracePeriodSeconds)),
 						ServiceAccountName:            cfg.ResourceName(),
 						DeprecatedServiceAccount:      cfg.ResourceName(),
 					},

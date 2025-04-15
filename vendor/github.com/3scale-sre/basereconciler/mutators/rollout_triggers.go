@@ -50,9 +50,11 @@ func (trigger RolloutTrigger) Add(params ...string) resource.TemplateMutationFun
 
 		switch o := desired.(type) {
 		case *appsv1.Deployment:
-			o.Spec.Template.ObjectMeta.Annotations = util.MergeMaps(map[string]string{}, o.Spec.Template.ObjectMeta.Annotations, trigger)
+			o.Spec.Template.ObjectMeta.Annotations =
+				util.MergeMaps(map[string]string{}, o.Spec.Template.ObjectMeta.Annotations, trigger)
 		case *appsv1.StatefulSet:
-			o.Spec.Template.ObjectMeta.Annotations = util.MergeMaps(map[string]string{}, o.Spec.Template.ObjectMeta.Annotations, trigger)
+			o.Spec.Template.ObjectMeta.Annotations =
+				util.MergeMaps(map[string]string{}, o.Spec.Template.ObjectMeta.Annotations, trigger)
 		}
 
 		return nil
@@ -94,7 +96,7 @@ func (rt RolloutTrigger) GetHash(ctx context.Context, cl client.Client, namespac
 // from the config source defined in the RolloutTrigger.
 func (rt RolloutTrigger) GetAnnotationKey(annotationsDomain string) string {
 	if rt.SecretName != nil {
-		return fmt.Sprintf("%s/%s.%s", string(annotationsDomain), rt.Name, "secret-hash")
+		return fmt.Sprintf("%s/%s.%s", annotationsDomain, rt.Name, "secret-hash")
 	}
-	return fmt.Sprintf("%s/%s.%s", string(annotationsDomain), rt.Name, "configmap-hash")
+	return fmt.Sprintf("%s/%s.%s", annotationsDomain, rt.Name, "configmap-hash")
 }

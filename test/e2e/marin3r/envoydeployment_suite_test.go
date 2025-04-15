@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
@@ -20,6 +19,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -52,7 +52,7 @@ var _ = Describe("EnvoyDeployment", func() {
 				Namespace: testNamespace,
 			},
 			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: reconcilerutil.Pointer(image),
+				Image: ptr.To(image),
 			},
 		}
 		err = k8sClient.Create(context.Background(), ds)
@@ -144,8 +144,8 @@ var _ = Describe("EnvoyDeployment", func() {
 				Spec: operatorv1alpha1.EnvoyDeploymentSpec{
 					DiscoveryServiceRef: ds.GetName(),
 					EnvoyConfigRef:      ec.GetName(),
-					Image:               reconcilerutil.Pointer(defaults.ImageRepo + ":" + envoyVersionV3),
-					InitManager:         &operatorv1alpha1.InitManager{Image: reconcilerutil.Pointer(image)},
+					Image:               ptr.To(defaults.ImageRepo + ":" + envoyVersionV3),
+					InitManager:         &operatorv1alpha1.InitManager{Image: ptr.To(image)},
 				},
 			}
 

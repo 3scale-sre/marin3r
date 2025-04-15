@@ -36,10 +36,15 @@ func (r *Reconciler) pruneOrphaned(ctx context.Context, owner client.Object, man
 		for _, obj := range util.GetItems(objectList) {
 
 			owned := util.ContainsBy(obj.GetOwnerReferences(), func(ref metav1.OwnerReference) bool {
-				return ref.Kind == ownerGVK.Kind && ref.Name == owner.GetName() && ref.APIVersion == ownerGVK.GroupVersion().String()
+				return ref.Kind == ownerGVK.Kind &&
+					ref.Name == owner.GetName() &&
+					ref.APIVersion == ownerGVK.GroupVersion().String()
 			})
 			managed := util.ContainsBy(managed, func(ref corev1.ObjectReference) bool {
-				return ref.Name == obj.GetName() && ref.Namespace == obj.GetNamespace() && ref.Kind == gvk.Kind && ref.APIVersion == gvk.GroupVersion().String()
+				return ref.Name == obj.GetName() &&
+					ref.Namespace == obj.GetNamespace() &&
+					ref.Kind == gvk.Kind &&
+					ref.APIVersion == gvk.GroupVersion().String()
 			})
 
 			// if isOwned(owner, obj) && !util.IsBeingDeleted(obj) && !isManaged(util.ObjectKey(obj), gvk.Kind, managed) {

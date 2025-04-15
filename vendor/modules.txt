@@ -1,7 +1,7 @@
 # cel.dev/expr v0.19.0
 ## explicit; go 1.21.1
 cel.dev/expr
-# github.com/3scale-sre/basereconciler v0.5.3
+# github.com/3scale-sre/basereconciler v0.5.5
 ## explicit; go 1.24
 github.com/3scale-sre/basereconciler/config
 github.com/3scale-sre/basereconciler/mutators
@@ -21,6 +21,7 @@ github.com/3scale-sre/marin3r/api/marin3r/v1alpha1
 github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1
 github.com/3scale-sre/marin3r/api/pkg/error
 github.com/3scale-sre/marin3r/api/pkg/image
+github.com/3scale-sre/marin3r/api/pkg/util
 github.com/3scale-sre/marin3r/api/pkg/version
 # github.com/MakeNowJust/heredoc v1.0.0
 ## explicit; go 1.12
@@ -571,7 +572,7 @@ go.uber.org/zap/internal/exit
 go.uber.org/zap/internal/pool
 go.uber.org/zap/internal/stacktrace
 go.uber.org/zap/zapcore
-# golang.org/x/net v0.37.0
+# golang.org/x/net v0.38.0
 ## explicit; go 1.23.0
 golang.org/x/net/html
 golang.org/x/net/html/atom

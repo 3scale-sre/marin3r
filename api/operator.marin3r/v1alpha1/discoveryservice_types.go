@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/3scale-sre/basereconciler/reconciler"
 	"github.com/3scale-sre/marin3r/api/pkg/image"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -121,9 +120,10 @@ type DiscoveryServiceStatus struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	*appsv1.DeploymentStatus `json:"deploymentStatus,omitempty"`
-	// internal fields
-	reconciler.UnimplementedStatefulSetStatus `json:"-"`
 }
+
+// The following methods implement the AppStatus interface from "github.com/3scale-sre/basereconciler/status"
+// which provides a generic status for the workload.
 
 func (dss *DiscoveryServiceStatus) GetDeploymentStatus(key types.NamespacedName) *appsv1.DeploymentStatus {
 	return dss.DeploymentStatus
@@ -131,6 +131,12 @@ func (dss *DiscoveryServiceStatus) GetDeploymentStatus(key types.NamespacedName)
 
 func (dss *DiscoveryServiceStatus) SetDeploymentStatus(key types.NamespacedName, s *appsv1.DeploymentStatus) {
 	dss.DeploymentStatus = s
+}
+
+func (eds *DiscoveryServiceStatus) GetStatefulSetStatus(types.NamespacedName) *appsv1.StatefulSetStatus {
+	return nil
+}
+func (eds *DiscoveryServiceStatus) SetStatefulSetStatus(types.NamespacedName, *appsv1.StatefulSetStatus) {
 }
 
 // PKIConfig has configuration for the PKI that marin3r manages for the
@@ -176,9 +182,7 @@ type DiscoveryService struct {
 	Status DiscoveryServiceStatus `json:"status,omitempty"`
 }
 
-var _ reconciler.ObjectWithAppStatus = &DiscoveryService{}
-
-func (d *DiscoveryService) GetStatus() reconciler.AppStatus {
+func (d *DiscoveryService) GetStatus() *DiscoveryServiceStatus {
 	return &d.Status
 }
 

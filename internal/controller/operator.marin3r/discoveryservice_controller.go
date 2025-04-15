@@ -23,7 +23,6 @@ import (
 	"github.com/3scale-sre/basereconciler/mutators"
 	"github.com/3scale-sre/basereconciler/reconciler"
 	"github.com/3scale-sre/basereconciler/resource"
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/operator/discoveryservice/generators"
 	appsv1 "k8s.io/api/apps/v1"
@@ -31,6 +30,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -110,7 +110,7 @@ func (r *DiscoveryServiceReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	result = r.ReconcileStatus(ctx, ds, []types.NamespacedName{{Name: gen.ResourceName(), Namespace: ds.GetNamespace()}}, nil,
 		func() bool {
 			if ds.Status.DeploymentName == nil || *ds.Status.DeploymentName != gen.ResourceName() {
-				ds.Status.DeploymentName = reconcilerutil.Pointer(gen.ResourceName())
+				ds.Status.DeploymentName = ptr.To(gen.ResourceName())
 				return true
 			}
 			return false

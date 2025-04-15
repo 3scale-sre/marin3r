@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
+	apiutil "github.com/3scale-sre/marin3r/api/pkg/util"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfig/filters"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/go-logr/logr"
@@ -17,6 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -167,7 +168,7 @@ func TestRevisionReconciler_EnvoyAPI(t *testing.T) {
 	}{
 		{
 			"Returns the envoy API version of the EnvoyConfig instance to reconcile",
-			testRevisionReconcilerBuilder(s, &marin3rv1alpha1.EnvoyConfig{Spec: marin3rv1alpha1.EnvoyConfigSpec{EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3)}}),
+			testRevisionReconcilerBuilder(s, &marin3rv1alpha1.EnvoyConfig{Spec: marin3rv1alpha1.EnvoyConfigSpec{EnvoyAPI: ptr.To(envoy.APIv3)}}),
 			envoy.APIv3,
 		},
 	}
@@ -199,7 +200,7 @@ func TestRevisionReconciler_DesiredVersion(t *testing.T) {
 	}{
 		{
 			"Returns the DesiredVersion",
-			fields{context.TODO(), logr.Logger{}, nil, nil, nil, reconcilerutil.Pointer("xxxx"), nil, nil, nil},
+			fields{context.TODO(), logr.Logger{}, nil, nil, nil, ptr.To("xxxx"), nil, nil, nil},
 			"xxxx",
 		},
 	}
@@ -285,7 +286,7 @@ func TestRevisionReconciler_PublishedVersion(t *testing.T) {
 	}{
 		{
 			"Returns the PublishedVersion",
-			fields{context.TODO(), logr.Logger{}, nil, nil, nil, nil, reconcilerutil.Pointer("xxxx"), nil, nil},
+			fields{context.TODO(), logr.Logger{}, nil, nil, nil, nil, ptr.To("xxxx"), nil, nil},
 			"xxxx",
 		},
 	}
@@ -328,7 +329,7 @@ func TestRevisionReconciler_GetCacheState(t *testing.T) {
 	}{
 		{
 			"Returns the CacheState",
-			fields{context.TODO(), logr.Logger{}, nil, nil, nil, nil, nil, reconcilerutil.Pointer(marin3rv1alpha1.InSyncState), nil},
+			fields{context.TODO(), logr.Logger{}, nil, nil, nil, nil, nil, ptr.To(marin3rv1alpha1.InSyncState), nil},
 			marin3rv1alpha1.InSyncState,
 		},
 	}
@@ -398,7 +399,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 							Labels: map[string]string{
 								filters.NodeIDTag:   "node",
 								filters.EnvoyAPITag: envoy.APIv3.String(),
-								filters.VersionTag:  reconcilerutil.Hash([]marin3rv1alpha1.Resource{}),
+								filters.VersionTag:  apiutil.Hash([]marin3rv1alpha1.Resource{}),
 							},
 						},
 						Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{},
@@ -410,7 +411,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 							Labels: map[string]string{
 								filters.NodeIDTag:   "node",
 								filters.EnvoyAPITag: envoy.APIv3.String(),
-								filters.VersionTag:  reconcilerutil.Hash([]marin3rv1alpha1.Resource{}),
+								filters.VersionTag:  apiutil.Hash([]marin3rv1alpha1.Resource{}),
 							},
 						},
 						Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{},
@@ -425,7 +426,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigSpec{
 						NodeID:    "node",
-						EnvoyAPI:  reconcilerutil.Pointer(envoy.APIv3),
+						EnvoyAPI:  ptr.To(envoy.APIv3),
 						Resources: []marin3rv1alpha1.Resource{},
 					},
 				},
@@ -446,7 +447,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 							Labels: map[string]string{
 								filters.NodeIDTag:   "node",
 								filters.EnvoyAPITag: envoy.APIv3.String(),
-								filters.VersionTag:  reconcilerutil.Hash([]marin3rv1alpha1.Resource{}),
+								filters.VersionTag:  apiutil.Hash([]marin3rv1alpha1.Resource{}),
 							},
 						},
 						Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{},
@@ -461,7 +462,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: "test"},
 					Spec: marin3rv1alpha1.EnvoyConfigSpec{
 						NodeID:    "node",
-						EnvoyAPI:  reconcilerutil.Pointer(envoy.APIv3),
+						EnvoyAPI:  ptr.To(envoy.APIv3),
 						Resources: []marin3rv1alpha1.Resource{},
 					},
 				},
@@ -787,7 +788,7 @@ func TestRevisionReconciler_newRevisionForCurrentResources(t *testing.T) {
 				},
 				Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{
 					NodeID:   "node",
-					EnvoyAPI: reconcilerutil.Pointer(envoy.APIv3),
+					EnvoyAPI: ptr.To(envoy.APIv3),
 					Version:  "85cdf4df4",
 					Resources: []marin3rv1alpha1.Resource{
 						{

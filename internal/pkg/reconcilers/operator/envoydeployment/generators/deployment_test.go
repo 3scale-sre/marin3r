@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	defaults "github.com/3scale-sre/marin3r/api/envoy/defaults"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	"github.com/google/go-cmp/cmp"
@@ -13,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 func TestGeneratorOptions_Deployment(t *testing.T) {
@@ -37,10 +37,10 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 				ExposedPorts:              []operatorv1alpha1.ContainerPort{{Name: "port", Port: 8080}},
 				AdminPort:                 9901,
 				AdminAccessLogPath:        "/dev/null",
-				Replicas:                  operatorv1alpha1.ReplicasSpec{Static: reconcilerutil.Pointer(int32(1))},
+				Replicas:                  operatorv1alpha1.ReplicasSpec{Static: ptr.To(int32(1))},
 				LivenessProbe:             operatorv1alpha1.ProbeSpec{InitialDelaySeconds: 30, TimeoutSeconds: 1, PeriodSeconds: 10, SuccessThreshold: 1, FailureThreshold: 10},
 				ReadinessProbe:            operatorv1alpha1.ProbeSpec{InitialDelaySeconds: 15, TimeoutSeconds: 1, PeriodSeconds: 5, SuccessThreshold: 1, FailureThreshold: 1},
-				InitManager:               &operatorv1alpha1.InitManager{Image: reconcilerutil.Pointer("init-manager:latest")},
+				InitManager:               &operatorv1alpha1.InitManager{Image: ptr.To("init-manager:latest")},
 			},
 			want: &appsv1.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
@@ -54,7 +54,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 					},
 				},
 				Spec: appsv1.DeploymentSpec{
-					Replicas: reconcilerutil.Pointer(int32(1)),
+					Replicas: ptr.To(int32(1)),
 					Selector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
 							"app.kubernetes.io/name":       "marin3r",
@@ -79,7 +79,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName:  defaults.DeploymentClientCertificate + "-instance",
-											DefaultMode: reconcilerutil.Pointer(int32(420)),
+											DefaultMode: ptr.To(int32(420)),
 										},
 									},
 								},
@@ -216,7 +216,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 									ImagePullPolicy:          corev1.PullIfNotPresent,
 								},
 							},
-							TerminationGracePeriodSeconds: reconcilerutil.Pointer(int64(corev1.DefaultTerminationGracePeriodSeconds)),
+							TerminationGracePeriodSeconds: ptr.To(int64(corev1.DefaultTerminationGracePeriodSeconds)),
 							ServiceAccountName:            "default",
 							DeprecatedServiceAccount:      "default",
 						},

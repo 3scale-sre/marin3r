@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 func TestIsStatusReconciled(t *testing.T) {
@@ -27,9 +27,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("6758fd786c"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("6758fd786c"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions: []marin3rv1alpha1.ConfigRevisionRef{
 							{Version: "1", Ref: corev1.ObjectReference{Name: "ecr1", Namespace: "test"}},
 							{Version: "2", Ref: corev1.ObjectReference{Name: "ecr2", Namespace: "test"}},
@@ -62,9 +62,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("6758fd786c"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("6758fd786c"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions:  []marin3rv1alpha1.ConfigRevisionRef{},
 						Conditions: []metav1.Condition{
 							{Type: marin3rv1alpha1.CacheOutOfSyncCondition, Status: metav1.ConditionFalse, Message: "a"},
@@ -83,9 +83,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("6758fd786c"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("6758fd786c"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions:  []marin3rv1alpha1.ConfigRevisionRef{},
 						Conditions: []metav1.Condition{
 							{Type: marin3rv1alpha1.CacheOutOfSyncCondition, Status: metav1.ConditionTrue, Message: "a"},
@@ -104,9 +104,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("6758fd786c"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.RollbackFailedState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("6758fd786c"),
+						CacheState:       ptr.To(marin3rv1alpha1.RollbackFailedState),
 						ConfigRevisions:  []marin3rv1alpha1.ConfigRevisionRef{},
 						Conditions: []metav1.Condition{
 							{Type: marin3rv1alpha1.CacheOutOfSyncCondition, Status: metav1.ConditionFalse, Message: "a"},
@@ -125,9 +125,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("xxxx"),
-						PublishedVersion: reconcilerutil.Pointer("6758fd786c"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("xxxx"),
+						PublishedVersion: ptr.To("6758fd786c"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions:  []marin3rv1alpha1.ConfigRevisionRef{},
 						Conditions: []metav1.Condition{
 							{Type: marin3rv1alpha1.CacheOutOfSyncCondition, Status: metav1.ConditionFalse, Message: "a"},
@@ -146,9 +146,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("xxxx"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("xxxx"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions:  []marin3rv1alpha1.ConfigRevisionRef{},
 						Conditions: []metav1.Condition{
 							{Type: marin3rv1alpha1.CacheOutOfSyncCondition, Status: metav1.ConditionFalse, Message: "a"},
@@ -167,9 +167,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("xxxx"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("xxxx"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions:  []marin3rv1alpha1.ConfigRevisionRef{},
 						Conditions: []metav1.Condition{
 							{Type: marin3rv1alpha1.CacheOutOfSyncCondition, Status: metav1.ConditionFalse, Message: "a"},
@@ -200,9 +200,9 @@ func TestIsStatusReconciled(t *testing.T) {
 			args: args{
 				ec: &marin3rv1alpha1.EnvoyConfig{
 					Status: marin3rv1alpha1.EnvoyConfigStatus{
-						DesiredVersion:   reconcilerutil.Pointer("6758fd786c"),
-						PublishedVersion: reconcilerutil.Pointer("6758fd786c"),
-						CacheState:       reconcilerutil.Pointer(marin3rv1alpha1.InSyncState),
+						DesiredVersion:   ptr.To("6758fd786c"),
+						PublishedVersion: ptr.To("6758fd786c"),
+						CacheState:       ptr.To(marin3rv1alpha1.InSyncState),
 						ConfigRevisions: []marin3rv1alpha1.ConfigRevisionRef{
 							{Version: "1", Ref: corev1.ObjectReference{Name: "ecr1", Namespace: "test"}},
 							{Version: "2", Ref: corev1.ObjectReference{Name: "ecr2", Namespace: "test"}},

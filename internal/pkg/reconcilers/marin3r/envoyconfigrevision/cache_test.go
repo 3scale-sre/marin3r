@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	envoy_resources_v3 "github.com/3scale-sre/marin3r/api/envoy/resources/v3"
@@ -27,6 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -352,7 +352,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 				},
 			},
 			wantErr: false,
@@ -388,8 +388,8 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				resources: []marin3rv1alpha1.Resource{
 					{
 						Type:                  envoy.Secret,
-						GenerateFromTlsSecret: reconcilerutil.Pointer("secret"),
-						Blueprint:             reconcilerutil.Pointer(marin3rv1alpha1.TlsValidationContext),
+						GenerateFromTlsSecret: ptr.To("secret"),
+						Blueprint:             ptr.To(marin3rv1alpha1.TlsValidationContext),
 					},
 				},
 			},
@@ -424,7 +424,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 				},
 			},
 			wantErr: true,
@@ -443,7 +443,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: reconcilerutil.Pointer("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 				},
 			},
 			wantErr: true,

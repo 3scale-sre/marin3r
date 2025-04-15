@@ -3,7 +3,6 @@ package v1alpha1
 import (
 	"fmt"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
 	"github.com/3scale-sre/marin3r/api/envoy"
 	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	errorutil "github.com/3scale-sre/marin3r/api/pkg/error"
@@ -11,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
 )
 
@@ -188,7 +188,7 @@ func (in *EnvoyResources) Resources(serialization envoy_serializer.Serialization
 		r := Resource{
 			Type:                  envoy.Secret,
 			GenerateFromTlsSecret: &deprecatedResource.Name,
-			Blueprint:             reconcilerutil.Pointer(TlsCertificate),
+			Blueprint:             ptr.To(TlsCertificate),
 		}
 		resources = append(resources, r)
 	}
