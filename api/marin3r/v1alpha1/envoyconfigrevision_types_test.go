@@ -19,9 +19,9 @@ package v1alpha1
 import (
 	"testing"
 
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
+	"k8s.io/utils/ptr"
 )
 
 func TestEnvoyConfigRevisionStatus_IsPublished(t *testing.T) {
@@ -40,7 +40,7 @@ func TestEnvoyConfigRevisionStatus_IsPublished(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Status: EnvoyConfigRevisionStatus{
-						Published: pointer.New(true),
+						Published: ptr.To(true),
 					},
 				}
 			},
@@ -74,7 +74,7 @@ func TestEnvoyConfigRevisionStatus_IsTainted(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Status: EnvoyConfigRevisionStatus{
-						Tainted: pointer.New(true),
+						Tainted: ptr.To(true),
 					},
 				}
 			},
@@ -108,7 +108,7 @@ func TestEnvoyConfigRevision_GetEnvoyAPIVersion(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Spec: EnvoyConfigRevisionSpec{
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: ptr.To(envoy.APIv3),
 					},
 				}
 			},
@@ -142,7 +142,7 @@ func TestEnvoyConfigRevision_GetSerialization(t *testing.T) {
 			func() *EnvoyConfigRevision {
 				return &EnvoyConfigRevision{
 					Spec: EnvoyConfigRevisionSpec{
-						Serialization: pointer.New(envoy_serializer.YAML),
+						Serialization: ptr.To(envoy_serializer.YAML),
 					},
 				}
 			},

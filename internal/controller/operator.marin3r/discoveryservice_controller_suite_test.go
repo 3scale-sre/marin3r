@@ -4,9 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
@@ -15,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -47,7 +47,7 @@ var _ = Describe("DiscoveryService controller", func() {
 				Namespace: namespace,
 			},
 			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: pointer.New("image"),
+				Image: ptr.To("image"),
 			},
 		}
 		err = k8sClient.Create(context.Background(), ds)

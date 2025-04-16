@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/test/e2e/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -11,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
@@ -46,7 +46,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 				Namespace: testNamespace,
 			},
 			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: pointer.New(image),
+				Image: ptr.To(image),
 			},
 		}
 		err = k8sClient.Create(context.Background(), ds)
@@ -130,7 +130,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 		It("reconciles the discovery service deployment", func() {
 
 			patch := client.MergeFrom(ds.DeepCopy())
-			ds.Spec.Debug = pointer.New(true)
+			ds.Spec.Debug = ptr.To(true)
 			generation := ds.GetGeneration()
 			err := k8sClient.Patch(context.Background(), ds, patch)
 			Expect(err).ToNot(HaveOccurred())

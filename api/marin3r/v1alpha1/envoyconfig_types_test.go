@@ -20,12 +20,12 @@ import (
 	"reflect"
 	"testing"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
+	"github.com/3scale-sre/marin3r/api/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 )
 
 func TestEnvoyConfig_GetEnvoyAPIVersion(t *testing.T) {
@@ -44,7 +44,7 @@ func TestEnvoyConfig_GetEnvoyAPIVersion(t *testing.T) {
 			func() *EnvoyConfig {
 				return &EnvoyConfig{
 					Spec: EnvoyConfigSpec{
-						EnvoyAPI: pointer.New(envoy.APIv3),
+						EnvoyAPI: ptr.To(envoy.APIv3),
 					},
 				}
 			},
@@ -78,7 +78,7 @@ func TestEnvoyConfig_GetSerialization(t *testing.T) {
 			func() *EnvoyConfig {
 				return &EnvoyConfig{
 					Spec: EnvoyConfigSpec{
-						Serialization: pointer.New(envoy_serializer.YAML),
+						Serialization: ptr.To(envoy_serializer.YAML),
 					},
 				}
 			},
@@ -110,7 +110,7 @@ func TestEnvoyConfig_GetEnvoyResourcesVersion(t *testing.T) {
 					},
 				}
 			},
-			reconcilerutil.Hash([]Resource{}),
+			util.Hash([]Resource{}),
 		},
 	}
 

@@ -2,6 +2,7 @@ package reconciler
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
@@ -14,12 +15,24 @@ import (
 // the ObjectWithAppStatus interface. It is specifically targeted for the status of custom
 // resources that deploy Deployments/StatefulSets, as it can aggregate the status of those into the
 // status of the custom resource. It also accepts functions with signature "func() bool" that can
-// reconcile the status of the custom resource and return whether update is required or not.
-func (r *Reconciler) ReconcileStatus(ctx context.Context, instance ObjectWithAppStatus,
+// reconcile the status of the custom resource and detect whether status update is required or not.
+func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object,
 	deployments, statefulsets []types.NamespacedName, mutators ...func() bool) Result {
 	logger := logr.FromContextOrDiscard(ctx)
 	update := false
-	status := instance.GetStatus()
+
+	// ensure the received object implements ObjectWithAppStatus
+	var obj ObjectWithAppStatus
+	var ok bool
+	if obj, ok = instance.(ObjectWithAppStatus); !ok {
+		return Result{Error: fmt.Errorf(
+			"object '%s' with GVK '%s' does not implement ObjectWithAppStatus interface",
+			instance.GetName(),
+			instance.GetObjectKind().GroupVersionKind(),
+		)}
+	}
+
+	status := obj.GetStatus()
 
 	// Aggregate the status of all Deployments owned
 	// by this instance

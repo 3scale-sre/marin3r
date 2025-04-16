@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/shutdownmanager"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/go-test/deep"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 func TestContainerConfig_Containers(t *testing.T) {
@@ -349,7 +349,7 @@ func TestContainerConfig_Volumes(t *testing.T) {
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName:  "client-secret",
-							DefaultMode: pointer.New(int32(420)),
+							DefaultMode: ptr.To(int32(420)),
 						},
 					},
 				},

@@ -21,13 +21,13 @@ import (
 	"testing"
 	"time"
 
-	defaults "github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	defaults "github.com/3scale-sre/marin3r/api/envoy/defaults"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 func TestEnvoyDeployment_Image(t *testing.T) {
@@ -45,7 +45,7 @@ func TestEnvoyDeployment_Image(t *testing.T) {
 		{"With explicitly set options",
 			func() *EnvoyDeployment {
 				return &EnvoyDeployment{
-					Spec: EnvoyDeploymentSpec{Image: pointer.New("image:test")},
+					Spec: EnvoyDeploymentSpec{Image: ptr.To("image:test")},
 				}
 			},
 			"image:test",
@@ -187,7 +187,7 @@ func TestEnvoyDeployment_AdminAccessLogPath(t *testing.T) {
 		{"With explicitly set options",
 			func() *EnvoyDeployment {
 				return &EnvoyDeployment{
-					Spec: EnvoyDeploymentSpec{AdminAccessLogPath: pointer.New("/my/log/file")},
+					Spec: EnvoyDeploymentSpec{AdminAccessLogPath: ptr.To("/my/log/file")},
 				}
 			},
 			"/my/log/file",
@@ -214,7 +214,7 @@ func TestEnvoyDeployment_Replicas(t *testing.T) {
 			func() *EnvoyDeployment {
 				return &EnvoyDeployment{}
 			},
-			ReplicasSpec{Static: pointer.New(DefaultReplicas)},
+			ReplicasSpec{Static: ptr.To(DefaultReplicas)},
 		},
 		{"With explicitly set options",
 			func() *EnvoyDeployment {
@@ -232,13 +232,13 @@ func TestEnvoyDeployment_Replicas(t *testing.T) {
 			func() *EnvoyDeployment {
 				return &EnvoyDeployment{
 					Spec: EnvoyDeploymentSpec{Replicas: &ReplicasSpec{
-						Static:  pointer.New(int32(3)),
+						Static:  ptr.To(int32(3)),
 						Dynamic: &DynamicReplicasSpec{},
 					}},
 				}
 			},
 			ReplicasSpec{
-				Static: pointer.New(int32(3)),
+				Static: ptr.To(int32(3)),
 			},
 		},
 	}
@@ -419,7 +419,7 @@ func TestInitManager_GetImage(t *testing.T) {
 		},
 		{
 			name:   "returns value",
-			fields: fields{Image: pointer.New("test")},
+			fields: fields{Image: ptr.To("test")},
 			want:   "test",
 		},
 	}
@@ -450,7 +450,7 @@ func TestShutdownManager_GetDrainTime(t *testing.T) {
 		{
 			name: "Returns value",
 			fields: fields{
-				DrainTime: pointer.New(int64(100)),
+				DrainTime: ptr.To(int64(100)),
 			},
 			want: 100,
 		},
