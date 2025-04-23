@@ -89,12 +89,12 @@ func CreateOrUpdate(ctx context.Context, cl client.Client, scheme *runtime.Schem
 	// normalize both live and desired for comparison
 	normalizedDesired, err := normalize(desired, ensure, ignore, gvk, scheme)
 	if err != nil {
-		wrapError("unable to normalize desired", key, gvk, err)
+		return nil, wrapError("unable to normalize desired", key, gvk, err)
 	}
 
 	normalizedLive, err := normalize(live, ensure, ignore, gvk, scheme)
 	if err != nil {
-		wrapError("unable to normalize live", key, gvk, err)
+		return nil, wrapError("unable to normalize live", key, gvk, err)
 	}
 
 	if !equality.Semantic.DeepEqual(normalizedLive, normalizedDesired) {
@@ -129,7 +129,8 @@ func CreateOrUpdate(ctx context.Context, cl client.Client, scheme *runtime.Schem
 	return util.ObjectReference(live, gvk), nil
 }
 
-func normalize(o client.Object, ensure, ignore []Property, gvk schema.GroupVersionKind, s *runtime.Scheme) (client.Object, error) {
+func normalize(o client.Object, ensure, ignore []Property,
+	gvk schema.GroupVersionKind, s *runtime.Scheme) (client.Object, error) {
 
 	in, err := runtime.DefaultUnstructuredConverter.ToUnstructured(o)
 	if err != nil {

@@ -3,9 +3,9 @@ name: catalog
 on:
   push:
     branches:
-    - main
+      - main
     paths:
-    - catalog/marin3r/stable-channel.yaml
+      - catalog/marin3r/stable-channel.yaml
 
 jobs:
   build:
@@ -14,11 +14,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login to quay.io/3scale
-        uses: docker/login-action@v3
+        uses: redhat-actions/podman-login@v1
         with:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & push catalog
-        run: make catalog-publish CONTAINER_TOOL=docker
+        run: make catalog-publish

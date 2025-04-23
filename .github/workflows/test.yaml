@@ -23,6 +23,12 @@ jobs:
         run: |
           make test
 
+  test-e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Run e2e tests
         run: |
-          make e2e-test CONTAINER_TOOL=docker
+          make e2e-test CONTAINER_TOOL=podman

@@ -3,10 +3,10 @@ package envoy
 import (
 	"time"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
+	envoy_serializer_v3 "github.com/3scale-sre/marin3r/api/envoy/serializer/v3"
 	envoy_bootstrap_options "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/options"
-	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
-	envoy_serializer_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer/v3"
 	envoy_config_accesslog_v3 "github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
 	envoy_config_bootstrap_v3 "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v3"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"

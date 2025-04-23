@@ -4,11 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/3scale-sre/marin3r/api/envoy"
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
@@ -18,6 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -50,7 +50,7 @@ var _ = Describe("EnvoyDeployment controller", func() {
 				Namespace: namespace,
 			},
 			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: pointer.New("image"),
+				Image: ptr.To("image"),
 			},
 		}
 		err = k8sClient.Create(context.Background(), ds)
@@ -63,7 +63,7 @@ var _ = Describe("EnvoyDeployment controller", func() {
 		ec := &marin3rv1alpha1.EnvoyConfig{
 			ObjectMeta: metav1.ObjectMeta{Name: "config", Namespace: namespace},
 			Spec: marin3rv1alpha1.EnvoyConfigSpec{
-				EnvoyAPI:       pointer.New(envoy.APIv3),
+				EnvoyAPI:       ptr.To(envoy.APIv3),
 				NodeID:         "test-node",
 				EnvoyResources: &marin3rv1alpha1.EnvoyResources{},
 			},
@@ -137,7 +137,7 @@ var _ = Describe("EnvoyDeployment controller", func() {
 									Name: corev1.ResourceCPU,
 									Target: autoscalingv2.MetricTarget{
 										Type:               autoscalingv2.UtilizationMetricType,
-										AverageUtilization: pointer.New(int32(50)),
+										AverageUtilization: ptr.To(int32(50)),
 									},
 								},
 							},

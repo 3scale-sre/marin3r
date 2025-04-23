@@ -6,8 +6,8 @@ import (
 
 	"context"
 
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
 	"github.com/go-logr/logr"
 	discoveryv1 "k8s.io/api/discovery/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

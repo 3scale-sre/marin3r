@@ -5,12 +5,12 @@ import (
 	"time"
 
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/google/go-cmp/cmp"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 func TestGeneratorOptions_Deployment(t *testing.T) {
@@ -41,7 +41,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 				DeploymentImage:                   "test:latest",
 				DeploymentResources:               corev1.ResourceRequirements{},
 				Debug:                             true,
-				PodPriorityClass:                  pointer.New("highest"),
+				PodPriorityClass:                  ptr.To("highest"),
 			},
 			args{hash: "hash"},
 			&appsv1.Deployment{
@@ -56,7 +56,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 					},
 				},
 				Spec: appsv1.DeploymentSpec{
-					Replicas: pointer.New(int32(1)),
+					Replicas: ptr.To(int32(1)),
 					Selector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
 							"app.kubernetes.io/name":       "marin3r",
@@ -82,7 +82,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName:  "server-cert-test",
-											DefaultMode: pointer.New(int32(420)),
+											DefaultMode: ptr.To(int32(420)),
 										},
 									},
 								},
@@ -91,7 +91,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName:  "ca-cert-test",
-											DefaultMode: pointer.New(int32(420)),
+											DefaultMode: ptr.To(int32(420)),
 										},
 									},
 								},
@@ -100,7 +100,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 									VolumeSource: corev1.VolumeSource{
 										Secret: &corev1.SecretVolumeSource{
 											SecretName:  "envoy-sidecar-client-cert",
-											DefaultMode: pointer.New(int32(420)),
+											DefaultMode: ptr.To(int32(420)),
 										},
 									},
 								},
@@ -187,7 +187,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 									ImagePullPolicy: corev1.PullIfNotPresent,
 								},
 							},
-							TerminationGracePeriodSeconds: pointer.New(int64(corev1.DefaultTerminationGracePeriodSeconds)),
+							TerminationGracePeriodSeconds: ptr.To(int64(corev1.DefaultTerminationGracePeriodSeconds)),
 							ServiceAccountName:            "marin3r-test",
 							DeprecatedServiceAccount:      "marin3r-test",
 							PriorityClassName:             "highest",

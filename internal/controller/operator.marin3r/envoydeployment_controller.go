@@ -25,17 +25,17 @@ import (
 	"github.com/3scale-sre/basereconciler/mutators"
 	"github.com/3scale-sre/basereconciler/reconciler"
 	"github.com/3scale-sre/basereconciler/resource"
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	"github.com/3scale-sre/marin3r/internal/pkg/reconcilers/operator/envoydeployment/generators"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	policyv1 "k8s.io/api/policy/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -135,7 +135,7 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	result = r.ReconcileStatus(ctx, ed, []types.NamespacedName{gen.OwnedResourceKey()}, nil,
 		func() bool {
 			if ed.Status.DeploymentName == nil || *ed.Status.DeploymentName != gen.OwnedResourceKey().Name {
-				ed.Status.DeploymentName = pointer.New(gen.OwnedResourceKey().Name)
+				ed.Status.DeploymentName = ptr.To(gen.OwnedResourceKey().Name)
 				return true
 			}
 			return false

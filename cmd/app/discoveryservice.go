@@ -27,11 +27,11 @@ import (
 	"time"
 
 	"github.com/3scale-sre/basereconciler/reconciler"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	marin3rcontroller "github.com/3scale-sre/marin3r/internal/controller/marin3r"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"

@@ -3,7 +3,7 @@ package discoveryservice
 import (
 	"context"
 
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
 )
 
 // Cache is a snapshot-based cache that maintains a single versioned

@@ -49,16 +49,20 @@ type typeTracker struct {
 	mu        sync.Mutex
 }
 
-func (tt *typeTracker) trackType(gvk schema.GroupVersionKind) bool {
+func (tt *typeTracker) trackType(gvk schema.GroupVersionKind) {
 	if !util.ContainsBy(tt.seenTypes, func(x schema.GroupVersionKind) bool {
 		return reflect.DeepEqual(x, gvk)
 	}) {
 		tt.mu.Lock()
 		defer tt.mu.Unlock()
 		tt.seenTypes = append(tt.seenTypes, gvk)
-		return true
 	}
-	return false
+}
+
+func (tt *typeTracker) isTypeTracked(gvk schema.GroupVersionKind) bool {
+	return util.ContainsBy(tt.seenTypes, func(x schema.GroupVersionKind) bool {
+		return reflect.DeepEqual(x, gvk)
+	})
 }
 
 func (r *Reconciler) watchOwned(gvk schema.GroupVersionKind, owner client.Object) error {

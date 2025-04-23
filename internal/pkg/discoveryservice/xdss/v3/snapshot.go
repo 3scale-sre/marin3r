@@ -1,11 +1,11 @@
 package discoveryservice
 
 import (
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources_v3 "github.com/3scale-sre/marin3r/api/envoy/resources/v3"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
+	apiutil "github.com/3scale-sre/marin3r/api/pkg/util"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources/v3"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	cache_types "github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cache_v3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	resource_v3 "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
@@ -93,7 +93,7 @@ func (s Snapshot) recalculateVersion(rType envoy.Type) string {
 		resources[n] = string(j)
 	}
 	if len(resources) > 0 {
-		return reconcilerutil.Hash(resources)
+		return apiutil.Hash(resources)
 	}
 	return ""
 }

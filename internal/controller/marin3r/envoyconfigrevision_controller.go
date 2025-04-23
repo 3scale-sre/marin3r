@@ -23,14 +23,13 @@ import (
 
 	"github.com/3scale-sre/basereconciler/reconciler"
 	reconciler_util "github.com/3scale-sre/basereconciler/util"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/stats"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	envoyconfigrevision "github.com/3scale-sre/marin3r/internal/pkg/reconcilers/marin3r/envoyconfigrevision"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	discoveryv1 "k8s.io/api/discovery/v1"
@@ -39,6 +38,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -151,7 +151,7 @@ func (r *EnvoyConfigRevisionReconciler) taintSelf(ctx context.Context, ecr *mari
 			Reason:  reason,
 			Message: msg,
 		})
-		ecr.Status.Tainted = pointer.New(true)
+		ecr.Status.Tainted = ptr.To(true)
 
 		if err := r.Client.Status().Patch(ctx, ecr, patch); err != nil {
 			return err

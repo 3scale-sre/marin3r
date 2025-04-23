@@ -1,0 +1,44 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: make container-buildx
+
+      - name: Export release name
+        run: |
+          echo "NEW_RELEASE=$(make get-new-release)" >> $GITHUB_ENV
+
+      - name: Login to quay.io/3scale
+        if: ${{ env.NEW_RELEASE != '' }}
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push new operator image
+        if: ${{ env.NEW_RELEASE != '' }}
+        run: make container-pushx
+
+      - name: Publish new bundle image in marin3r index
+        if: ${{ env.NEW_RELEASE != '' }}
+        run: make bundle-publish
+
+      - name: Create a new draft-release in github
+        if: ${{ env.NEW_RELEASE != '' }}
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ env.NEW_RELEASE }}"
+          title: "${{ env.NEW_RELEASE }}"
+          draft: true

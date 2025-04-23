@@ -24,7 +24,7 @@ type Property string
 
 func (p Property) jsonPath() string { return string(p) }
 
-func (p Property) reconcile(u_live, u_desired map[string]any, logger logr.Logger) error {
+func (p Property) reconcile(u_live, u_desired map[string]any, _ logr.Logger) error {
 	expr, err := jp.ParseString(p.jsonPath())
 	if err != nil {
 		return fmt.Errorf("unable to parse JSONPath '%s': %w", p.jsonPath(), err)
@@ -72,15 +72,4 @@ func (p Property) reconcile(u_live, u_desired map[string]any, logger logr.Logger
 
 func delta(a, b int) propertyDelta {
 	return propertyDelta(a<<1 + b)
-}
-
-func (p Property) ignore(m map[string]any) error {
-	expr, err := jp.ParseString(p.jsonPath())
-	if err != nil {
-		return fmt.Errorf("unable to parse JSONPath '%s': %w", p.jsonPath(), err)
-	}
-	if err = expr.Del(m); err != nil {
-		return fmt.Errorf("unable to parse delete JSONPath '%s' from unstructured: %w", p.jsonPath(), err)
-	}
-	return nil
 }

@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -70,7 +71,7 @@ type lifecycleOption interface {
 type finalizer string
 
 func (f finalizer) applyToLifecycleOptions(opts *lifecycleOptions) {
-	opts.finalizer = util.Pointer(string(f))
+	opts.finalizer = ptr.To(string(f))
 	opts.initializationLogic = append(opts.initializationLogic, f.initFinalizer)
 }
 
@@ -93,8 +94,8 @@ func (fn finalizationFunction) applyToLifecycleOptions(opts *lifecycleOptions) {
 	opts.finalizationLogic = append(opts.finalizationLogic, fn)
 }
 
-// WithFinalizationFunc can be used to provide functions that will be run on object finalization. A Finalizer must be set for
-// these functions to be called.
+// WithFinalizationFunc can be used to provide functions that will be run on object finalization.
+// A Finalizer must be set for these functions to be called.
 func WithFinalizationFunc(fn func(context.Context, client.Client) error) finalizationFunction {
 	return fn
 }
@@ -119,7 +120,8 @@ func (fn inMemoryinitializationFunction) applyToLifecycleOptions(opts *lifecycle
 
 // WithInitializationFunc can be used to provide functions that run resource initialization, like for example
 // applying defaults or labels to the resource.
-func WithInMemoryInitializationFunc(fn func(context.Context, client.Client, client.Object) error) inMemoryinitializationFunction {
+func WithInMemoryInitializationFunc(
+	fn func(context.Context, client.Client, client.Object) error) inMemoryinitializationFunction {
 	return fn
 }
 
@@ -143,7 +145,8 @@ func (r *Reconciler) WithLogger(logger logr.Logger) *Reconciler {
 	return r
 }
 
-// Logger returns the Reconciler logger and a copy of the context that also includes the logger inside to pass it around easily.
+// Logger returns the Reconciler logger and a copy of the context that also includes the logger inside
+// to pass it around easily.
 func (r *Reconciler) Logger(ctx context.Context, keysAndValues ...interface{}) (context.Context, logr.Logger) {
 	var logger logr.Logger
 	if !r.Log.IsZero() {
@@ -256,7 +259,8 @@ func (r *Reconciler) isInitialized(ctx context.Context, obj client.Object, fns [
 // writing it to the API to avoid surfacing it uo to the user. This approach is a bit more
 // gitops friendly as it avoids modifying the resource, but it doesn't provide any information
 // to the user on the initialization being used for reconciliation.
-func (r *Reconciler) inMemoryInitialization(ctx context.Context, obj client.Object, fns []inMemoryinitializationFunction) error {
+func (r *Reconciler) inMemoryInitialization(
+	ctx context.Context, obj client.Object, fns []inMemoryinitializationFunction) error {
 	for _, fn := range fns {
 		err := fn(ctx, r.Client, obj)
 		if err != nil {
@@ -288,7 +292,9 @@ func (r *Reconciler) finalize(ctx context.Context, fns []finalizationFunction) e
 //   - If the resource pruner is enabled any resource owned by the custom resource not present in the list of managed
 //     resources is deleted. The resource pruner must be enabled in the global config (see package config) and also not
 //     explicitly disabled in the resource by the '<annotations-domain>/prune: true/false' annotation.
-func (r *Reconciler) ReconcileOwnedResources(ctx context.Context, owner client.Object, list []resource.TemplateInterface) Result {
+func (r *Reconciler) ReconcileOwnedResources(
+	ctx context.Context, owner client.Object, list []resource.TemplateInterface) Result {
+
 	managedResources := []corev1.ObjectReference{}
 	requeue := false
 
@@ -300,10 +306,19 @@ func (r *Reconciler) ReconcileOwnedResources(ctx context.Context, owner client.O
 		if ref != nil {
 			managedResources = append(managedResources, *ref)
 			gvk := schema.FromAPIVersionAndKind(ref.APIVersion, ref.Kind)
-			if changed := r.typeTracker.trackType(gvk); changed && config.AreDynamicWatchesEnabled() {
-				r.watchOwned(gvk, owner)
-				// requeue so we make sure we haven't lost any events related to the owned resource
-				// while the watch was not still up
+
+			// if the resource type is not yet tracked
+			if !r.typeTracker.isTypeTracked(gvk) {
+
+				// watch this gvk if feature is enabled
+				if config.AreDynamicWatchesEnabled() {
+					if err := r.watchOwned(gvk, owner); err != nil {
+						return Result{Error: fmt.Errorf("unable to watch GVK %s: %w", gvk, err)}
+					}
+				}
+
+				// add this GVK to the type tracker
+				r.typeTracker.trackType(gvk)
 				requeue = true
 			}
 		}

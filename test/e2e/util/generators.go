@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
 	"github.com/3scale-sre/marin3r/internal/pkg/util/pki"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -28,6 +27,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -198,7 +198,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 			Namespace: key.Namespace,
 		},
 		Spec: marin3rv1alpha1.EnvoyConfigSpec{
-			EnvoyAPI:  pointer.New(envoyAPI),
+			EnvoyAPI:  ptr.To(envoyAPI),
 			NodeID:    nodeID,
 			Resources: []marin3rv1alpha1.Resource{},
 		},
@@ -256,7 +256,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 	for _, name := range secrets {
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type:                  envoy.Secret,
-			GenerateFromTlsSecret: pointer.New(name),
+			GenerateFromTlsSecret: ptr.To(name),
 		})
 	}
 

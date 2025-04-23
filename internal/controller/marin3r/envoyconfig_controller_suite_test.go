@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	reconcilerutil "github.com/3scale-sre/basereconciler/util"
+	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
+	apiutil "github.com/3scale-sre/marin3r/api/pkg/util"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
-	envoy "github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/internal/pkg/util/test"
 	envoy_config_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	. "github.com/onsi/ginkgo/v2"
@@ -20,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -77,7 +77,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 			ec = &marin3rv1alpha1.EnvoyConfig{
 				ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: namespace},
 				Spec: marin3rv1alpha1.EnvoyConfigSpec{
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: ptr.To(envoy.APIv3),
 					NodeID:   nodeID,
 					Resources: []marin3rv1alpha1.Resource{
 						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
@@ -110,7 +110,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				// Validate the cache for the nodeID
-				wantRevision := reconcilerutil.Hash(ec.Spec.Resources)
+				wantRevision := apiutil.Hash(ec.Spec.Resources)
 				wantSnap := xdss_v3.NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				})
@@ -142,7 +142,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 			ec = &marin3rv1alpha1.EnvoyConfig{
 				ObjectMeta: metav1.ObjectMeta{Name: "ec", Namespace: namespace},
 				Spec: marin3rv1alpha1.EnvoyConfigSpec{
-					EnvoyAPI: pointer.New(envoy.APIv3),
+					EnvoyAPI: ptr.To(envoy.APIv3),
 					NodeID:   nodeID,
 					Resources: []marin3rv1alpha1.Resource{
 						{Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},

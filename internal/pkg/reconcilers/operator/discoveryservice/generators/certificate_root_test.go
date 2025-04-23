@@ -5,10 +5,10 @@ import (
 	"time"
 
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 func TestGeneratorOptions_RootCertificationAuthority(t *testing.T) {
@@ -53,7 +53,7 @@ func TestGeneratorOptions_RootCertificationAuthority(t *testing.T) {
 				},
 				Spec: operatorv1alpha1.DiscoveryServiceCertificateSpec{
 					CommonName: "test-test",
-					IsCA:       pointer.New(true),
+					IsCA:       ptr.To(true),
 					ValidFor:   int64(10),
 					Signer: operatorv1alpha1.DiscoveryServiceCertificateSigner{
 						SelfSigned: &operatorv1alpha1.SelfSignedConfig{},

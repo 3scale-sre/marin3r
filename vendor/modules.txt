@@ -1,13 +1,28 @@
 # cel.dev/expr v0.19.0
 ## explicit; go 1.21.1
 cel.dev/expr
-# github.com/3scale-sre/basereconciler v0.5.3
+# github.com/3scale-sre/basereconciler v0.5.5
 ## explicit; go 1.24
 github.com/3scale-sre/basereconciler/config
 github.com/3scale-sre/basereconciler/mutators
 github.com/3scale-sre/basereconciler/reconciler
 github.com/3scale-sre/basereconciler/resource
 github.com/3scale-sre/basereconciler/util
+# github.com/3scale-sre/marin3r/api v0.0.0-00010101000000-000000000000 => ./api
+## explicit; go 1.24
+github.com/3scale-sre/marin3r/api/envoy
+github.com/3scale-sre/marin3r/api/envoy/defaults
+github.com/3scale-sre/marin3r/api/envoy/protos/v3
+github.com/3scale-sre/marin3r/api/envoy/resources
+github.com/3scale-sre/marin3r/api/envoy/resources/v3
+github.com/3scale-sre/marin3r/api/envoy/serializer
+github.com/3scale-sre/marin3r/api/envoy/serializer/v3
+github.com/3scale-sre/marin3r/api/marin3r/v1alpha1
+github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1
+github.com/3scale-sre/marin3r/api/pkg/error
+github.com/3scale-sre/marin3r/api/pkg/image
+github.com/3scale-sre/marin3r/api/pkg/util
+github.com/3scale-sre/marin3r/api/pkg/version
 # github.com/MakeNowJust/heredoc v1.0.0
 ## explicit; go 1.12
 github.com/MakeNowJust/heredoc
@@ -350,9 +365,6 @@ github.com/fsnotify/fsnotify
 # github.com/fxamacker/cbor/v2 v2.7.0
 ## explicit; go 1.17
 github.com/fxamacker/cbor/v2
-# github.com/ghodss/yaml v1.0.0
-## explicit
-github.com/ghodss/yaml
 # github.com/go-logr/logr v1.4.2
 ## explicit; go 1.18
 github.com/go-logr/logr
@@ -560,7 +572,7 @@ go.uber.org/zap/internal/exit
 go.uber.org/zap/internal/pool
 go.uber.org/zap/internal/stacktrace
 go.uber.org/zap/zapcore
-# golang.org/x/net v0.37.0
+# golang.org/x/net v0.38.0
 ## explicit; go 1.23.0
 golang.org/x/net/html
 golang.org/x/net/html/atom
@@ -741,13 +753,10 @@ gopkg.in/evanphx/json-patch.v4
 # gopkg.in/inf.v0 v0.9.1
 ## explicit
 gopkg.in/inf.v0
-# gopkg.in/yaml.v2 v2.4.0
-## explicit; go 1.15
-gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# k8s.io/api v0.32.2
+# k8s.io/api v0.32.3
 ## explicit; go 1.23.0
 k8s.io/api/admission/v1
 k8s.io/api/admission/v1beta1
@@ -819,7 +828,7 @@ k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1
-# k8s.io/apimachinery v0.32.2
+# k8s.io/apimachinery v0.32.3
 ## explicit; go 1.23.0
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -1250,7 +1259,7 @@ k8s.io/utils/net
 k8s.io/utils/pointer
 k8s.io/utils/ptr
 k8s.io/utils/trace
-# sigs.k8s.io/controller-runtime v0.20.2
+# sigs.k8s.io/controller-runtime v0.20.4
 ## explicit; go 1.23.0
 sigs.k8s.io/controller-runtime
 sigs.k8s.io/controller-runtime/pkg/builder
@@ -1320,3 +1329,4 @@ sigs.k8s.io/structured-merge-diff/v4/value
 ## explicit; go 1.12
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v2
+# github.com/3scale-sre/marin3r/api => ./api

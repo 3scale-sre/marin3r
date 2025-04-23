@@ -1,6 +1,8 @@
 package util
 
 // Returns a pointer of any type
+//
+// Deprecated: use ptr.To() from "k8s.io/utils/ptr" instead
 func Pointer[T any](t T) *T {
 	return &t
 }

@@ -4,10 +4,16 @@ import (
 	"reflect"
 	"testing"
 
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
-	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 )
+
+func stringtoRawExtension(value string) *runtime.RawExtension {
+	return &runtime.RawExtension{
+		Raw: []byte(value),
+	}
+}
 
 func TestEnvoyResources_Resources(t *testing.T) {
 	type fields struct {
@@ -47,9 +53,9 @@ func TestEnvoyResources_Resources(t *testing.T) {
 				serialization: envoy_serializer.JSON,
 			},
 			want: []Resource{
-				{Type: "endpoint", Value: k8sutil.StringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
-				{Type: "cluster", Value: k8sutil.StringtoRawExtension("{\"name\": \"cluster\"}")},
-				{Type: "secret", GenerateFromTlsSecret: pointer.New("secret"), Blueprint: pointer.New(TlsCertificate)},
+				{Type: "endpoint", Value: stringtoRawExtension("{\"cluster_name\": \"endpoint\"}")},
+				{Type: "cluster", Value: stringtoRawExtension("{\"name\": \"cluster\"}")},
+				{Type: "secret", GenerateFromTlsSecret: ptr.To("secret"), Blueprint: ptr.To(TlsCertificate)},
 			},
 			wantErr: false,
 		},
@@ -70,9 +76,9 @@ func TestEnvoyResources_Resources(t *testing.T) {
 				serialization: envoy_serializer.YAML,
 			},
 			want: []Resource{
-				{Type: "endpoint", Value: k8sutil.StringtoRawExtension("{\"cluster_name\":\"endpoint\"}")},
-				{Type: "cluster", Value: k8sutil.StringtoRawExtension("{\"name\":\"cluster\"}")},
-				{Type: "secret", GenerateFromTlsSecret: pointer.New("secret"), Blueprint: pointer.New(TlsCertificate)},
+				{Type: "endpoint", Value: stringtoRawExtension("{\"cluster_name\":\"endpoint\"}")},
+				{Type: "cluster", Value: stringtoRawExtension("{\"name\":\"cluster\"}")},
+				{Type: "secret", GenerateFromTlsSecret: ptr.To("secret"), Blueprint: ptr.To(TlsCertificate)},
 			},
 			wantErr: false,
 		},

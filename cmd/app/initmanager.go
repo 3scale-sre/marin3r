@@ -23,11 +23,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/3scale-sre/marin3r/api/envoy"
+	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
 	envoy_bootstrap "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap"
 	envoy_bootstrap_options "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/options"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy/container/defaults"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"

@@ -5,15 +5,14 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/3scale-sre/marin3r/api/envoy"
+	envoy_resources "github.com/3scale-sre/marin3r/api/envoy/resources"
+	envoy_resources_v3 "github.com/3scale-sre/marin3r/api/envoy/resources/v3"
+	envoy_serializer "github.com/3scale-sre/marin3r/api/envoy/serializer"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
 	xdss "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss"
 	xdss_v3 "github.com/3scale-sre/marin3r/internal/pkg/discoveryservice/xdss/v3"
-	"github.com/3scale-sre/marin3r/internal/pkg/envoy"
-	envoy_resources "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources"
-	envoy_resources_v3 "github.com/3scale-sre/marin3r/internal/pkg/envoy/resources/v3"
-	envoy_serializer "github.com/3scale-sre/marin3r/internal/pkg/envoy/serializer"
 	k8sutil "github.com/3scale-sre/marin3r/internal/pkg/util/k8s"
-	"github.com/3scale-sre/marin3r/internal/pkg/util/pointer"
 	testutil "github.com/3scale-sre/marin3r/internal/pkg/util/test"
 	"github.com/davecgh/go-spew/spew"
 	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -27,6 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -352,7 +352,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 				},
 			},
 			wantErr: false,
@@ -388,8 +388,8 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 				resources: []marin3rv1alpha1.Resource{
 					{
 						Type:                  envoy.Secret,
-						GenerateFromTlsSecret: pointer.New("secret"),
-						Blueprint:             pointer.New(marin3rv1alpha1.TlsValidationContext),
+						GenerateFromTlsSecret: ptr.To("secret"),
+						Blueprint:             ptr.To(marin3rv1alpha1.TlsValidationContext),
 					},
 				},
 			},
@@ -424,7 +424,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 				},
 			},
 			wantErr: true,
@@ -443,7 +443,7 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 			args: args{
 				req: types.NamespacedName{Name: "xx", Namespace: "xx"},
 				resources: []marin3rv1alpha1.Resource{
-					{Type: envoy.Secret, GenerateFromTlsSecret: pointer.New("secret")},
+					{Type: envoy.Secret, GenerateFromTlsSecret: ptr.To("secret")},
 				},
 			},
 			wantErr: true,
