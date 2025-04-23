@@ -19,10 +19,10 @@ import (
 )
 
 func TestEnvoyConfigRevisionReconciler_taintSelf(t *testing.T) {
-
 	err := marin3rv1alpha1.AddToScheme(scheme.Scheme)
 	if err != nil {
 		t.Error(err)
+
 		return
 	}
 
@@ -43,12 +43,15 @@ func TestEnvoyConfigRevisionReconciler_taintSelf(t *testing.T) {
 			},
 			XdsCache: xdss_v3.NewCache(),
 		}
+
 		if err := r.taintSelf(context.TODO(), ecr, "test", "test", r.Log); err != nil {
 			t.Errorf("EnvoyConfigRevisionReconciler.taintSelf() error = %v", err)
 		}
+
 		if err := r.Client.Get(context.TODO(), types.NamespacedName{Name: "ecr", Namespace: "default"}, ecr); err != nil {
 			t.Error(err)
 		}
+
 		if !meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition) {
 			t.Errorf("EnvoyConfigRevisionReconciler.taintSelf() ecr is not tainted")
 		}
@@ -60,6 +63,7 @@ func Test_filterByAPIVersion(t *testing.T) {
 		obj     runtime.Object
 		version envoy.APIVersion
 	}
+
 	tests := []struct {
 		name string
 		args args

@@ -16,6 +16,7 @@ func ReadyReplicas(k8sClient client.Client, namespace string, matchingLabels cli
 	)
 
 	readyCount := 0
+
 	for _, pod := range podList.Items {
 		if cond := GetPodCondition(pod.Status.Conditions, corev1.PodReady); cond != nil {
 			if cond.Status == corev1.ConditionTrue {
@@ -33,5 +34,6 @@ func GetPodCondition(conditions []corev1.PodCondition, conditionType corev1.PodC
 			return &conditions[i]
 		}
 	}
+
 	return nil
 }

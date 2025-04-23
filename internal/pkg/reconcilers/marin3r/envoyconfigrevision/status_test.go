@@ -25,6 +25,7 @@ func TestIsStatusReconciled(t *testing.T) {
 		xdssCacheFactory           func() xdss.Cache
 		dStats                     func() *stats.Stats
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -59,6 +60,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				dStats: stats.New,
@@ -113,6 +115,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				dStats: stats.New,
@@ -142,6 +145,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				dStats: stats.New,
@@ -170,6 +174,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				dStats: stats.New,
@@ -194,6 +199,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				versionTrackerFactory: func() *marin3rv1alpha1.VersionTracker { return &marin3rv1alpha1.VersionTracker{Endpoints: "aaaa"} },
@@ -233,6 +239,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				versionTrackerFactory: func() *marin3rv1alpha1.VersionTracker { return &marin3rv1alpha1.VersionTracker{Endpoints: "aaaa"} },
@@ -265,6 +272,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				dStats: stats.New,
@@ -292,6 +300,7 @@ func TestIsStatusReconciled(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 				dStats: stats.New,
@@ -315,6 +324,7 @@ func Test_calculateResourcesInSyncCondition(t *testing.T) {
 		envoyConfigRevisionFactory func() *marin3rv1alpha1.EnvoyConfigRevision
 		xdssCacheFactory           func() xdss.Cache
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -339,6 +349,7 @@ func Test_calculateResourcesInSyncCondition(t *testing.T) {
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
 					cache.SetSnapshot(context.TODO(), "test", cache.NewSnapshot())
+
 					return cache
 				},
 			},
@@ -362,6 +373,7 @@ func Test_calculateResourcesInSyncCondition(t *testing.T) {
 				},
 				xdssCacheFactory: func() xdss.Cache {
 					cache := xdss_v3.NewCache()
+
 					return cache
 				},
 			},
@@ -384,6 +396,7 @@ func Test_calculateRevisionTaintedCondition(t *testing.T) {
 		dStats     *stats.Stats
 		thresshold float64
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -501,10 +514,13 @@ func Test_calculateRevisionTaintedCondition(t *testing.T) {
 			got := calculateRevisionTaintedCondition(tt.args.ecr, tt.args.vt, tt.args.dStats, tt.args.thresshold)
 			if tt.want == corev1.ConditionFalse && got != nil {
 				t.Errorf("calculateRevisionTaintedCondition() = %v, want %v", got, tt.want)
+
 				return
 			}
+
 			if tt.want == corev1.ConditionTrue && got == nil {
 				t.Errorf("calculateRevisionTaintedCondition() = %v, want %v", got, tt.want)
+
 				return
 			}
 		})

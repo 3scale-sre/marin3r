@@ -26,12 +26,12 @@ func IsVerifyError(err error) bool {
 	case VerifyError:
 		return true
 	}
+
 	return false
 }
 
 // Verify validates that the given certificate is valid and signed by the given root
 func Verify(certificate, root *x509.Certificate) error {
-
 	roots := x509.NewCertPool()
 	roots.AddCert(root)
 

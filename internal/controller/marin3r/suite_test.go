@@ -55,13 +55,14 @@ var k8sClient client.Client
 var testEnv *envtest.Environment
 var ecrV3Reconciler *EnvoyConfigRevisionReconciler
 var nameGenerator namegenerator.Generator
-var ctx = context.Background()
+var ctx context.Context
 var cancel context.CancelFunc
 
 func TestAPIs(t *testing.T) {
 	if os.Getenv("RUN_ENVTEST") == "0" {
 		t.Skip("Skipping envtest tests")
 	}
+
 	RegisterFailHandler(Fail)
 
 	RunSpecs(t, "Marin3r API group Suite")
@@ -70,6 +71,7 @@ func TestAPIs(t *testing.T) {
 var _ = BeforeSuite(func() {
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 
+	// nolint:fatcontext
 	ctx, cancel = context.WithCancel(context.TODO())
 
 	By("bootstrapping test environment")

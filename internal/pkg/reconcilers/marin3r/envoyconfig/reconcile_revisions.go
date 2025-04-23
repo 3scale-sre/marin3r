@@ -24,14 +24,13 @@ const (
 
 // RevisionReconciler is a struct with methods to reconcile EnvoyConfig revisions
 type RevisionReconciler struct {
-	ctx    context.Context
 	logger logr.Logger
 	client client.Client
 	scheme *runtime.Scheme
 	ec     *marin3rv1alpha1.EnvoyConfig
 
 	// This fields are only available once Reconcile()
-	// has been succesfully run
+	// has been successfully run
 	desiredVersion   *string
 	publishedVersion *string
 	cacheState       *string
@@ -41,8 +40,7 @@ type RevisionReconciler struct {
 // NewRevisionReconciler returns a new RevisionReconciler
 func NewRevisionReconciler(ctx context.Context, logger logr.Logger, client client.Client,
 	s *runtime.Scheme, ec *marin3rv1alpha1.EnvoyConfig) RevisionReconciler {
-
-	return RevisionReconciler{ctx, logger, client, s, ec, nil, nil, nil, nil}
+	return RevisionReconciler{logger, client, s, ec, nil, nil, nil, nil}
 }
 
 // Instance returns the EnvoyConfig the reconciler has been instantiated with
@@ -69,6 +67,7 @@ func (r *RevisionReconciler) DesiredVersion() string {
 		// Store the version to avoid further computation of the same value
 		r.desiredVersion = ptr.To(r.Instance().GetEnvoyResourcesVersion())
 	}
+
 	return *r.desiredVersion
 }
 
@@ -78,8 +77,8 @@ func (r *RevisionReconciler) EnvoyAPI() envoy.APIVersion {
 	return r.Instance().GetEnvoyAPIVersion()
 }
 
-// GetRevisionList returns the EnvoyConfigRevisionList that has been used to
-// to computed by the Reconcile() function. If Reconcile has not been successfully
+// GetRevisionList returns the ordered list of revisions that has been
+// computed by the Reconcile() function. If Reconcile() has not yet been
 // invoked it will return nil.
 func (r *RevisionReconciler) GetRevisionList() *marin3rv1alpha1.EnvoyConfigRevisionList {
 	return r.revisionList
@@ -100,39 +99,47 @@ func (r *RevisionReconciler) GetCacheState() string {
 
 // Reconcile progresses EnvoyConfig revisions to match the desired state. It does so
 // by creating/updating/deleting EnvoyConfigRevision API resources.
-func (r *RevisionReconciler) Reconcile() (ctrl.Result, error) {
+func (r *RevisionReconciler) Reconcile(ctx context.Context) (ctrl.Result, error) {
 	log := r.logger
 
-	_, err := revisions.Get(r.ctx, r.client, r.Namespace(),
+	_, err := revisions.Get(ctx, r.client, r.Namespace(),
 		filters.ByNodeID(r.NodeID()), filters.ByVersion(r.DesiredVersion()), filters.ByEnvoyAPI(r.EnvoyAPI()))
 	if err != nil {
 		if revisions.ErrorIsNoMatchesForFilter(err) {
 			ecr := r.newRevisionForCurrentResources()
 			if err := controllerutil.SetControllerReference(r.Instance(), ecr, r.scheme); err != nil {
 				log.Error(err, "unable to SetControllerReference for new EnvoyConfigRevision resource", "Phase", "ReconcileRevisionForCurrentResources")
+
 				return ctrl.Result{}, err
 			}
-			if err := r.client.Create(r.ctx, ecr); err != nil {
+
+			if err := r.client.Create(ctx, ecr); err != nil {
 				log.Error(err, "unable to create EnvoyConfigRevision resource", "Phase", "ReconcileRevisionForCurrentResources")
+
 				return ctrl.Result{}, err
 			}
 			// New EnvoyConfigRevision created, trigger a new reconcile loop
 			log.Info("created EnvoyConfigRevision for current resources", "version", r.DesiredVersion())
+
 			return ctrl.Result{Requeue: true}, nil
 		}
+
 		if revisions.ErrorIsMultipleMatchesForFilter(err) {
 			log.Error(err, "found more than one revision that matches current resources", "Phase", "ReconcileRevisionForCurrentResources")
+
 			return ctrl.Result{}, err
 		}
 
 		return ctrl.Result{}, err
 	}
 
-	list, err := revisions.List(r.ctx, r.client, r.Namespace(), filters.ByNodeID(r.NodeID()), filters.ByEnvoyAPI(r.EnvoyAPI()))
+	list, err := revisions.List(ctx, r.client, r.Namespace(), filters.ByNodeID(r.NodeID()), filters.ByEnvoyAPI(r.EnvoyAPI()))
 	if err != nil {
 		log.Error(err, "unable to list revisions", "Phase", "BuildRevisionList")
+
 		return ctrl.Result{}, err
 	}
+
 	r.revisionList = revisions.SortByPublication(r.DesiredVersion(), list)
 	publishedVersion, cacheState := r.getVersionToPublish()
 	r.cacheState = &cacheState
@@ -141,30 +148,36 @@ func (r *RevisionReconciler) Reconcile() (ctrl.Result, error) {
 	shouldBeTrue, shouldBeFalse := r.isRevisionPublishedConditionReconciled(r.PublishedVersion())
 
 	for _, ecr := range shouldBeFalse {
-		if err := r.client.Status().Update(r.ctx, &ecr); err != nil {
+		if err := r.client.Status().Update(ctx, &ecr); err != nil {
 			log.Error(err, "unable to update revision", "Phase", "UnpublishOldRevisions", "Name/Namespace", client.ObjectKeyFromObject(&ecr))
+
 			return ctrl.Result{}, err
 		}
 	}
 
 	if shouldBeTrue != nil {
-		if err := r.client.Status().Update(r.ctx, shouldBeTrue); err != nil {
+		if err := r.client.Status().Update(ctx, shouldBeTrue); err != nil {
 			log.Error(err, "unable to update revision", "Phase", "PublishNewRevision", "Name/Namespace", client.ObjectKeyFromObject(shouldBeTrue))
+
 			return ctrl.Result{}, err
 		}
+
 		log.Info("updated the published EnvoyConfigRevision", "Namespace/Name", client.ObjectKeyFromObject(shouldBeTrue))
 	}
 
 	shouldBeDeleted := r.isRevisionRetentionReconciled(maxRevisions)
 	for _, ecr := range shouldBeDeleted {
-		if err := r.client.Delete(r.ctx, &ecr); err != nil {
+		if err := r.client.Delete(ctx, &ecr); err != nil {
 			log.Error(err, "unable to delete revision", "Phase", "ApplyRevisionRetention", "Name/Namespace", client.ObjectKeyFromObject(&ecr))
+
 			return ctrl.Result{}, err
 		}
+
 		log.Info("deleted old EnvoyConfigRevision", "Namespace/Name", client.ObjectKeyFromObject(&ecr))
 	}
 
 	log.Info(fmt.Sprintf("CacheState is %s after revision reconcile", cacheState))
+
 	return ctrl.Result{}, nil
 }
 
@@ -182,19 +195,18 @@ func (r *RevisionReconciler) getVersionToPublish() (string, string) {
 		ecr := r.revisionList.Items[idx]
 		if !meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition) {
 			versionToPublish = ecr.Spec.Version
+
 			break
 		}
 	}
 
 	if versionToPublish == "" {
 		return "", marin3rv1alpha1.RollbackFailedState
-
 	} else if versionToPublish != r.revisionList.Items[topIdx].Spec.Version {
 		return versionToPublish, marin3rv1alpha1.RollbackState
 	}
 
 	return versionToPublish, marin3rv1alpha1.InSyncState
-
 }
 
 // isRevisionPublishedConditionReconciled returns the revisions that need the RevisionPublished condition reconciled.
@@ -203,15 +215,14 @@ func (r *RevisionReconciler) getVersionToPublish() (string, string) {
 // set to false, nil if no revision needs update.
 func (r *RevisionReconciler) isRevisionPublishedConditionReconciled(versionToPublish string) (*marin3rv1alpha1.EnvoyConfigRevision,
 	[]marin3rv1alpha1.EnvoyConfigRevision) {
-
 	var shouldBeTrue *marin3rv1alpha1.EnvoyConfigRevision = nil
-	var shouldBeFalse []marin3rv1alpha1.EnvoyConfigRevision = []marin3rv1alpha1.EnvoyConfigRevision{}
-	for _, ecr := range r.revisionList.Items {
 
+	var shouldBeFalse []marin3rv1alpha1.EnvoyConfigRevision = []marin3rv1alpha1.EnvoyConfigRevision{}
+
+	for _, ecr := range r.revisionList.Items {
 		if ecr.Spec.Version != versionToPublish && meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 			meta.RemoveStatusCondition(&ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition)
 			shouldBeFalse = append(shouldBeFalse, ecr)
-
 		} else if ecr.Spec.Version == versionToPublish && !meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 			meta.SetStatusCondition(&ecr.Status.Conditions, metav1.Condition{
 				Type:    marin3rv1alpha1.RevisionPublishedCondition,
@@ -219,6 +230,7 @@ func (r *RevisionReconciler) isRevisionPublishedConditionReconciled(versionToPub
 				Reason:  "VersionPublished",
 				Message: fmt.Sprintf("Version '%s' has been published", versionToPublish),
 			})
+
 			shouldBeTrue = ecr.DeepCopy()
 		}
 	}
@@ -226,14 +238,15 @@ func (r *RevisionReconciler) isRevisionPublishedConditionReconciled(versionToPub
 	if len(shouldBeFalse) == 0 {
 		shouldBeFalse = nil
 	}
+
 	return shouldBeTrue, shouldBeFalse
 }
 
 // isRevisionRetentionReconciled removes items from the revisionList until the list holds the number of items
 // determined by the 'retention' parameter
 func (r *RevisionReconciler) isRevisionRetentionReconciled(retention int) []marin3rv1alpha1.EnvoyConfigRevision {
-
 	var toBeDeleted []marin3rv1alpha1.EnvoyConfigRevision = []marin3rv1alpha1.EnvoyConfigRevision{}
+
 	var revisionList *[]marin3rv1alpha1.EnvoyConfigRevision = &(r.GetRevisionList().Items)
 
 	for len(*revisionList) > retention {
@@ -249,6 +262,7 @@ func (r *RevisionReconciler) isRevisionRetentionReconciled(retention int) []mari
 func popRevision(list *[]marin3rv1alpha1.EnvoyConfigRevision) marin3rv1alpha1.EnvoyConfigRevision {
 	item := (*list)[0]
 	*list = (*list)[1:]
+
 	return item
 }
 

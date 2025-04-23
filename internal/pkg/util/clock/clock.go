@@ -19,5 +19,5 @@ type Test struct {
 
 func NewTest(t time.Time) Test { return Test{t} }
 
-// Now returns the the current time
+// Now returns the current time
 func (tc Test) Now() time.Time { return tc.now }

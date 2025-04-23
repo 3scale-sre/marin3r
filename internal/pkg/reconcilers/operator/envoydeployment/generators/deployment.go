@@ -13,13 +13,12 @@ import (
 )
 
 func (cfg *GeneratorOptions) Deployment() *appsv1.Deployment {
-
 	cc := envoy_container.ContainerConfig{
 		Name:  defaults.DeploymentContainerName,
 		Image: cfg.DeploymentImage,
 		Ports: func() []corev1.ContainerPort {
 			ports := make([]corev1.ContainerPort, len(cfg.ExposedPorts))
-			for i := 0; i < len(cfg.ExposedPorts); i++ {
+			for i := range len(cfg.ExposedPorts) {
 				p := corev1.ContainerPort{
 					Name:          cfg.ExposedPorts[i].Name,
 					ContainerPort: cfg.ExposedPorts[i].Port,
@@ -29,6 +28,7 @@ func (cfg *GeneratorOptions) Deployment() *appsv1.Deployment {
 				}
 				ports[i] = p
 			}
+
 			return ports
 		}(),
 		ConfigBasePath:     defaults.EnvoyConfigBasePath,
@@ -94,8 +94,10 @@ func (cfg *GeneratorOptions) Deployment() *appsv1.Deployment {
 						// configured Envoy DrainTime
 						if cfg.ShutdownManager != nil {
 							d := cfg.ShutdownManager.GetDrainTime()
+
 							return &d
 						}
+
 						return ptr.To(int64(corev1.DefaultTerminationGracePeriodSeconds))
 					}(),
 				},

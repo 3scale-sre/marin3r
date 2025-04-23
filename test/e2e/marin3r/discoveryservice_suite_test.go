@@ -36,6 +36,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 		n := &corev1.Namespace{}
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: testNamespace}, n)
+
 			return err == nil
 		}, timeout, poll).Should(BeTrue())
 
@@ -54,6 +55,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 		Eventually(func() bool {
 			key := types.NamespacedName{Name: "instance", Namespace: testNamespace}
 			err := k8sClient.Get(context.Background(), key, ds)
+
 			return err == nil
 		}, timeout, poll).Should(BeTrue())
 
@@ -84,6 +86,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 				if err := k8sClient.Get(context.Background(), key, dep); err != nil {
 					return 0
 				}
+
 				return int(dep.Status.ReadyReplicas)
 			}, timeout, poll).Should(Equal(1))
 		})
@@ -109,6 +112,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 				}
 				err := k8sClient.Get(context.Background(), key, dep)
 				Expect(err).ToNot(HaveOccurred())
+
 				return dep.GetGeneration() > generation
 			}, timeout, poll).Should(BeTrue())
 
@@ -144,6 +148,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 				}
 				err := k8sClient.Get(context.Background(), key, dep)
 				Expect(err).ToNot(HaveOccurred())
+
 				return dep.GetGeneration() > generation
 			}, timeout, poll).Should(BeTrue())
 		})

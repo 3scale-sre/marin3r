@@ -38,7 +38,6 @@ const (
 )
 
 func GeneratePod(key types.NamespacedName, nodeID, envoyAPI, envoyVersion, discoveryService string) *corev1.Pod {
-
 	initContainers := []corev1.Container{{
 		Name:  "init-manager",
 		Image: "quay.io/3scale/marin3r:test",
@@ -165,7 +164,6 @@ func GenerateDeploymentWithInjection(key types.NamespacedName, nodeID, envoyAPI,
 }
 
 func GenerateTLSSecret(k8skey types.NamespacedName, commonName, duration string) (*corev1.Secret, error) {
-
 	tDuration, err := time.ParseDuration(duration)
 	if err != nil {
 		return nil, err
@@ -175,11 +173,13 @@ func GenerateTLSSecret(k8skey types.NamespacedName, commonName, duration string)
 	if err != nil {
 		return nil, err
 	}
+
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{Name: k8skey.Name, Namespace: k8skey.Namespace},
 		Type:       corev1.SecretTypeTLS,
 		Data:       map[string][]byte{"tls.crt": crt, "tls.key": key},
 	}
+
 	return secret, err
 }
 
@@ -211,6 +211,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 		if err != nil {
 			panic(err)
 		}
+
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type: envoy.Endpoint, Value: k8sutil.StringtoRawExtension(json)})
 	}
@@ -231,6 +232,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 		if err != nil {
 			panic(err)
 		}
+
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type: envoy.Cluster, Value: k8sutil.StringtoRawExtension(json)})
 	}
@@ -240,6 +242,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 		if err != nil {
 			panic(err)
 		}
+
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type: envoy.Route, Value: k8sutil.StringtoRawExtension(json)})
 	}
@@ -249,6 +252,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 		if err != nil {
 			panic(err)
 		}
+
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type: envoy.Listener, Value: k8sutil.StringtoRawExtension(json)})
 	}
@@ -265,6 +269,7 @@ func GenerateEnvoyConfig(key types.NamespacedName, nodeID string, envoyAPI envoy
 		if err != nil {
 			panic(err)
 		}
+
 		resources = append(resources, marin3rv1alpha1.Resource{
 			Type: envoy.ExtensionConfig, Value: k8sutil.StringtoRawExtension(json)})
 	}
@@ -289,7 +294,7 @@ func TransportSocketV3(secretName string) *envoy_config_core_v3.TransportSocket 
 		Name: "envoy.transport_sockets.tls",
 		ConfigType: &envoy_config_core_v3.TransportSocket_TypedConfig{
 			TypedConfig: func() *anypb.Any {
-				any, err := anypb.New(&envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext{
+				proto, err := anypb.New(&envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext{
 					CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
 						TlsCertificateSdsSecretConfigs: []*envoy_extensions_transport_sockets_tls_v3.SdsSecretConfig{
 							{
@@ -307,7 +312,8 @@ func TransportSocketV3(secretName string) *envoy_config_core_v3.TransportSocket 
 				if err != nil {
 					panic(err)
 				}
-				return any
+
+				return proto
 			}(),
 		},
 	}
@@ -323,7 +329,7 @@ func HTTPListener(listenerName, routeName, extensionConfigName string,
 				Name: "envoy.filters.network.http_connection_manager",
 				ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
 					TypedConfig: func() *anypb.Any {
-						any, err := anypb.New(
+						proto, err := anypb.New(
 							&http_connection_manager_v3.HttpConnectionManager{
 								StatPrefix: listenerName,
 								RouteSpecifier: &http_connection_manager_v3.HttpConnectionManager_Rds{
@@ -355,7 +361,8 @@ func HTTPListener(listenerName, routeName, extensionConfigName string,
 						if err != nil {
 							panic(err)
 						}
-						return any
+
+						return proto
 					}(),
 				},
 			}},
@@ -363,6 +370,7 @@ func HTTPListener(listenerName, routeName, extensionConfigName string,
 				if transportSocket != nil {
 					return transportSocket.(*envoy_config_core_v3.TransportSocket)
 				}
+
 				return nil
 			}(),
 		}},
@@ -373,7 +381,7 @@ func HTTPFilterRouter(extensionConfigName string) *envoy_config_core_v3.TypedExt
 	return &envoy_config_core_v3.TypedExtensionConfig{
 		Name: extensionConfigName,
 		TypedConfig: func() *anypb.Any {
-			any, err := anypb.New(
+			proto, err := anypb.New(
 				&envoy_extensions_filters_http_router_v3.Router{
 					DynamicStats: wrapperspb.Bool(false),
 				},
@@ -381,7 +389,8 @@ func HTTPFilterRouter(extensionConfigName string) *envoy_config_core_v3.TypedExt
 			if err != nil {
 				panic(err)
 			}
-			return any
+
+			return proto
 		}()}
 }
 

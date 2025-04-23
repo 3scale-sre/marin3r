@@ -13,7 +13,6 @@ import (
 // the reconciler has been instantiated with
 func List(ctx context.Context, k8sClient client.Client, namespace string,
 	filters ...filters.RevisionFilter) (*marin3rv1alpha1.EnvoyConfigRevisionList, error) {
-
 	list := &marin3rv1alpha1.EnvoyConfigRevisionList{}
 
 	labelSelector := client.MatchingLabels{}
@@ -28,6 +27,7 @@ func List(ctx context.Context, k8sClient client.Client, namespace string,
 	if len(list.Items) == 0 {
 		return nil, NewError(NoMatchesForFilterError, "ListRevisions", fmt.Sprintf("api returned %d EnvoyConfigRevisions", len(list.Items)))
 	}
+
 	return list, nil
 }
 
@@ -35,7 +35,6 @@ func List(ctx context.Context, k8sClient client.Client, namespace string,
 // by the API an error is returned. If more than one EnvoyConfigRevision is returned by the API an error is returned.
 func Get(ctx context.Context, k8sClient client.Client, namespace string,
 	filters ...filters.RevisionFilter) (*marin3rv1alpha1.EnvoyConfigRevision, error) {
-
 	list := &marin3rv1alpha1.EnvoyConfigRevisionList{}
 
 	labelSelector := client.MatchingLabels{}

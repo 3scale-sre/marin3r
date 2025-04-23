@@ -38,8 +38,10 @@ func TestConfig_GenerateStatic(t *testing.T) {
 			got, err := tt.c.GenerateStatic()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.GenerateStatic() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("Config.GenerateStatic() = %v, want %v", got, tt.want)
 			}
@@ -76,8 +78,10 @@ func TestConfig_GenerateSdsResources(t *testing.T) {
 			got, err := tt.c.GenerateSdsResources()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.GeneratSds() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Config.GeneratSds() = %v, want %v", got, tt.want)
 			}

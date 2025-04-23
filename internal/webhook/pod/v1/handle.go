@@ -29,7 +29,7 @@ type PodMutator struct {
 // PodMutator Iimplements admission.Handler.
 var _ admission.Handler = &PodMutator{}
 
-//+kubebuilder:webhook:path=/pod-v1-mutate,mutating=true,failurePolicy=fail,sideEffects=None,groups=core,resources=pods,verbs=create,versions=v1,name=sidecar-injector.marin3r.3scale.net,admissionReviewVersions=v1
+// +kubebuilder:webhook:path=/pod-v1-mutate,mutating=true,failurePolicy=fail,sideEffects=None,groups=core,resources=pods,verbs=create,versions=v1,name=sidecar-injector.marin3r.3scale.net,admissionReviewVersions=v1
 
 // Handle injects an envoy container in every incoming Pod
 func (a *PodMutator) Handle(ctx context.Context, req admission.Request) admission.Response {
@@ -47,7 +47,8 @@ func (a *PodMutator) Handle(ctx context.Context, req admission.Request) admissio
 
 	// Get the patches for the envoy sidecar container
 	config := envoySidecarConfig{}
-	err = config.PopulateFromAnnotations(context.Background(), a.Client, req.Namespace, pod.GetAnnotations())
+
+	err = config.PopulateFromAnnotations(ctx, a.Client, req.Namespace, pod.GetAnnotations())
 	if err != nil {
 		return admission.Errored(http.StatusBadRequest, fmt.Errorf("error trying to build envoy container config: '%s'", err))
 	}
@@ -65,6 +66,7 @@ func (a *PodMutator) Handle(ctx context.Context, req admission.Request) admissio
 		if err != nil {
 			return admission.Errored(http.StatusBadRequest, err)
 		}
+
 		pod.Spec.Containers = containers
 	}
 
@@ -82,5 +84,6 @@ func (a *PodMutator) Handle(ctx context.Context, req admission.Request) admissio
 // InjectDecoder injects the decoder.
 func (a *PodMutator) InjectDecoder(d admission.Decoder) error {
 	a.Decoder = d
+
 	return nil
 }

@@ -32,6 +32,7 @@ func TestCallbacks_OnStreamOpen(t *testing.T) {
 		id  int64
 		typ string
 	}
+
 	tests := []struct {
 		name    string
 		cb      *Callbacks
@@ -58,6 +59,7 @@ func TestCallbacks_OnStreamClosed(t *testing.T) {
 	type args struct {
 		id int64
 	}
+
 	tests := []struct {
 		name string
 		cb   *Callbacks
@@ -83,6 +85,7 @@ func TestCallbacks_OnStreamRequest(t *testing.T) {
 		id  int64
 		req *envoy_service_discovery_v3.DiscoveryRequest
 	}
+
 	tests := []struct {
 		name    string
 		cb      *Callbacks
@@ -133,6 +136,7 @@ func TestCallbacks_OnStreamResponse(t *testing.T) {
 		request  *envoy_service_discovery_v3.DiscoveryRequest
 		response *envoy_service_discovery_v3.DiscoveryResponse
 	}
+
 	tests := []struct {
 		name string
 		cb   *Callbacks
@@ -193,6 +197,7 @@ func TestCallbacks_OnFetchRequest(t *testing.T) {
 		ctx context.Context
 		req *envoy_service_discovery_v3.DiscoveryRequest
 	}
+
 	tests := []struct {
 		name    string
 		cb      *Callbacks
@@ -223,6 +228,7 @@ func TestCallbacks_OnFetchResponse(t *testing.T) {
 		req  *envoy_service_discovery_v3.DiscoveryRequest
 		resp *envoy_service_discovery_v3.DiscoveryResponse
 	}
+
 	tests := []struct {
 		name string
 		cb   *Callbacks

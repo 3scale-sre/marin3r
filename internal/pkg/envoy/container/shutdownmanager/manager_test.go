@@ -2,9 +2,9 @@ package shutdownmanager
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -94,7 +94,7 @@ func TestManager_Start(t *testing.T) {
 
 func TestManager_healthzHandler(t *testing.T) {
 	mgr := Manager{}
-	req := httptest.NewRequest("GET", HealthEndpoint, nil)
+	req := httptest.NewRequest(http.MethodGet, HealthEndpoint, nil)
 	rr := httptest.NewRecorder()
 	mgr.healthzHandler(rr, req)
 
@@ -109,26 +109,29 @@ func TestManager_waitForDrainHandler(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", ShutdownEndpoint, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, ShutdownEndpoint, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Run("Returns HTTP 200 when file exists", func(t *testing.T) {
-
-		tmpdir, err := ioutil.TempDir("", "shutdownmanager_test-*")
+		tmpdir, err := os.MkdirTemp("", "shutdownmanager_test-*")
 		defer os.RemoveAll(tmpdir)
+
 		if err != nil {
 			t.Error(err)
 		}
+
 		mgr.ShutdownReadyFile = path.Join(tmpdir, "ok")
 
 		go func() {
 			time.Sleep(50 * time.Millisecond)
+
 			file, err := os.Create(mgr.ShutdownReadyFile)
 			if err != nil {
 				t.Error(err)
 			}
+
 			defer file.Close()
 		}()
 
@@ -144,7 +147,6 @@ func TestManager_waitForDrainHandler(t *testing.T) {
 		rr := httptest.NewRecorder()
 		http.HandlerFunc(mgr.shutdownHandler).ServeHTTP(rr, req)
 	})
-
 }
 
 func TestManager_drainHandler(t *testing.T) {
@@ -157,26 +159,31 @@ func TestManager_drainHandler(t *testing.T) {
 	}
 
 	run := func(mgr Manager, drainHandler, statsHandler http.HandlerFunc) error {
-		tmpdir, err := ioutil.TempDir("", "shutdownmanager_test-*")
+		tmpdir, err := os.MkdirTemp("", "shutdownmanager_test-*")
 		defer os.RemoveAll(tmpdir)
+
 		if err != nil {
 			t.Error(err)
 		}
+
 		mgr.ShutdownReadyFile = path.Join(tmpdir, "ok")
 
 		port, err := freeport.GetFreePort()
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		mgr.EnvoyAdminAddress = fmt.Sprintf("http://localhost:%d", port)
 
 		// Create a request against shutdown manager /drain endpoint
 		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 		defer cancel()
-		req, err := http.NewRequestWithContext(ctx, "GET", DrainEndpoint, nil)
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, DrainEndpoint, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		rr := httptest.NewRecorder()
 
 		// Start a mock envoy server
@@ -189,8 +196,10 @@ func TestManager_drainHandler(t *testing.T) {
 
 		// Make a request to /drain in a goroutine
 		success := make(chan struct{})
+
 		go func() {
 			mgr.drainHandler(rr, req)
+
 			if rr.Result().StatusCode == http.StatusOK {
 				close(success)
 			}
@@ -199,11 +208,10 @@ func TestManager_drainHandler(t *testing.T) {
 		// Block until success or timeout
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("request timed out")
+			return errors.New("request timed out")
 		case <-success:
 			return nil
 		}
-
 	}
 
 	t.Run("Request should timeout (no metrics returned)", func(t *testing.T) {
@@ -306,86 +314,6 @@ func TestManager_drainHandler(t *testing.T) {
 	})
 }
 
-func TestManager_shutdownEnvoy(t *testing.T) {
-	type fields struct {
-		HTTPServePort              int
-		ShutdownReadyFile          string
-		ShutdownReadyCheckInterval time.Duration
-		CheckDrainInterval         time.Duration
-		CheckDrainDelay            time.Duration
-		StartDrainDelay            time.Duration
-		EnvoyAdminURL              string
-		MinOpenConnections         int
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mgr := &Manager{
-				HTTPServePort:              tt.fields.HTTPServePort,
-				ShutdownReadyFile:          tt.fields.ShutdownReadyFile,
-				ShutdownReadyCheckInterval: tt.fields.ShutdownReadyCheckInterval,
-				CheckDrainInterval:         tt.fields.CheckDrainInterval,
-				CheckDrainDelay:            tt.fields.CheckDrainDelay,
-				StartDrainDelay:            tt.fields.StartDrainDelay,
-				EnvoyAdminAddress:          tt.fields.EnvoyAdminURL,
-				MinOpenConnections:         tt.fields.MinOpenConnections,
-			}
-			if err := mgr.shutdownEnvoy(); (err != nil) != tt.wantErr {
-				t.Errorf("Manager.shutdownEnvoy() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestManager_getOpenConnections(t *testing.T) {
-	type fields struct {
-		HTTPServePort              int
-		ShutdownReadyFile          string
-		ShutdownReadyCheckInterval time.Duration
-		CheckDrainInterval         time.Duration
-		CheckDrainDelay            time.Duration
-		StartDrainDelay            time.Duration
-		EnvoyAdminURL              string
-		MinOpenConnections         int
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		want    int
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mgr := &Manager{
-				HTTPServePort:              tt.fields.HTTPServePort,
-				ShutdownReadyFile:          tt.fields.ShutdownReadyFile,
-				ShutdownReadyCheckInterval: tt.fields.ShutdownReadyCheckInterval,
-				CheckDrainInterval:         tt.fields.CheckDrainInterval,
-				CheckDrainDelay:            tt.fields.CheckDrainDelay,
-				StartDrainDelay:            tt.fields.StartDrainDelay,
-				EnvoyAdminAddress:          tt.fields.EnvoyAdminURL,
-				MinOpenConnections:         tt.fields.MinOpenConnections,
-			}
-			got, err := mgr.getOpenConnections()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Manager.getOpenConnections() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("Manager.getOpenConnections() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_parseOpenConnections(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -450,8 +378,10 @@ func Test_parseOpenConnections(t *testing.T) {
 			got, err := parseOpenConnections(tt.stats)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseOpenConnections() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("parseOpenConnections() = %v, want %v", got, tt.want)
 			}
@@ -460,9 +390,9 @@ func Test_parseOpenConnections(t *testing.T) {
 }
 
 func mockServer(port int, handlers map[string]http.HandlerFunc) {
-
 	mux := http.NewServeMux()
 	srv := http.Server{Addr: fmt.Sprintf(":%d", port), Handler: mux}
+
 	for pattern, handler := range handlers {
 		mux.HandleFunc(pattern, handler)
 	}

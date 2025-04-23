@@ -63,6 +63,7 @@ func TestLoadX509Certificate(t *testing.T) {
 	type args struct {
 		cert []byte
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -84,6 +85,7 @@ func TestLoadX509Certificate(t *testing.T) {
 			_, err := LoadX509Certificate(tt.args.cert)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LoadX509Certificate() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 		})
@@ -94,6 +96,7 @@ func TestDecodePrivateKeyBytes(t *testing.T) {
 	type args struct {
 		keyBytes []byte
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -115,6 +118,7 @@ func TestDecodePrivateKeyBytes(t *testing.T) {
 			_, err := DecodePrivateKeyBytes(tt.args.keyBytes)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DecodePrivateKeyBytes() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 		})

@@ -6,7 +6,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) PDB() *policyv1.PodDisruptionBudget {
-
 	return &policyv1.PodDisruptionBudget{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.resourceName(),
@@ -24,6 +23,7 @@ func (cfg *GeneratorOptions) PDB() *policyv1.PodDisruptionBudget {
 			} else {
 				spec.MaxUnavailable = cfg.PodDisruptionBudget.MaxUnavailable
 			}
+
 			return spec
 		}(),
 	}

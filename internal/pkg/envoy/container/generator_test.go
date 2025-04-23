@@ -1,7 +1,7 @@
 package container
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/3scale-sre/marin3r/api/envoy/defaults"
@@ -278,7 +278,7 @@ func TestContainerConfig_Containers(t *testing.T) {
 					Args: []string{
 						"shutdown-manager",
 						"--port",
-						fmt.Sprintf("%d", 30000),
+						strconv.Itoa(30000),
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -322,7 +322,6 @@ func TestContainerConfig_Containers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			if diff := deep.Equal(tt.cc.Containers(), tt.want); len(diff) > 0 {
 				t.Errorf("ContainerConfig.Container() = diff %v", diff)
 			}

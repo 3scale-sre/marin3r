@@ -11,11 +11,13 @@ import (
 
 func testIssuerCertificate() *x509.Certificate {
 	cert, _ := LoadX509Certificate(test.TestIssuerCertificate())
+
 	return cert
 }
 
 func testIssuerKey() interface{} {
 	key, _ := DecodePrivateKeyBytes(test.TestIssuerKey())
+
 	return key
 }
 
@@ -29,6 +31,7 @@ func TestGenerateCertificate(t *testing.T) {
 		isCA       bool
 		host       []string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -79,37 +82,44 @@ func TestGenerateCertificate(t *testing.T) {
 			got, _, err := GenerateCertificate(tt.args.issuerCert, tt.args.signerKey, tt.args.commonName, tt.args.validFor, tt.args.isServer, tt.args.isCA, tt.args.host...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateCertificate() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 
 			cert, err := LoadX509Certificate(got)
 			if err != nil {
 				t.Errorf("GenerateCertificate() error trying to load certificate = %v", err)
+
 				return
 			}
 
 			if tt.args.issuerCert != nil {
 				if err := Verify(cert, tt.args.issuerCert); err != nil {
 					t.Errorf("GenerateCertificate() error validating certificate = %v\n\n%s", err, string(got))
+
 					return
 				}
 			} else {
 				if err := Verify(cert, cert); err != nil {
 					t.Errorf("GenerateCertificate() error validating certificate = %v\n\n%s", err, string(got))
+
 					return
 				}
 			}
 
 			if cert.Subject.CommonName != tt.args.commonName {
 				t.Errorf("GenerateCertificate() got CommonName = %s, want %s", cert.Subject.CommonName, tt.args.commonName)
+
 				return
 			}
 
 			if tt.args.isServer && !reflect.DeepEqual(cert.ExtKeyUsage, []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}) {
 				t.Errorf("GenerateCertificate() got ExtKeyUsage = %v, want %v", cert.ExtKeyUsage, []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth})
+
 				return
 			} else if !tt.args.isServer && cert.ExtKeyUsage != nil {
 				t.Errorf("GenerateCertificate() got ExtKeyUsage = %v, want %v", cert.ExtKeyUsage, []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth})
+
 				return
 			}
 
@@ -118,6 +128,7 @@ func TestGenerateCertificate(t *testing.T) {
 			} else if !tt.args.isCA && cert.IsCA {
 				t.Errorf("GenerateCertificate() got IsCA = %v, want %v", cert.IsCA, tt.args.isCA)
 			}
+
 			if !reflect.DeepEqual(cert.DNSNames, tt.args.host) {
 				t.Errorf("GenerateCertificate() got Hosts = %v, want %v", cert.DNSNames, tt.args.host)
 			}
@@ -140,6 +151,7 @@ func TestGeneratePrivateKey(t *testing.T) {
 			_, err := GeneratePrivateKey()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GeneratePrivateKey() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 		})

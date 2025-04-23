@@ -41,6 +41,7 @@ func TestNewCacheReconciler(t *testing.T) {
 		decoder   envoy_serializer.ResourceUnmarshaller
 		generator envoy_resources.Generator
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -57,7 +58,6 @@ func TestNewCacheReconciler(t *testing.T) {
 				generator: envoy_resources_v3.Generator{},
 			},
 			want: CacheReconciler{
-				ctx:       context.TODO(),
 				logger:    ctrl.Log.WithName("test"),
 				client:    fake.NewClientBuilder().Build(),
 				xdsCache:  xdss_v3.NewCache(),
@@ -68,7 +68,7 @@ func TestNewCacheReconciler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewCacheReconciler(tt.args.ctx, tt.args.logger, tt.args.client, tt.args.xdsCache, tt.args.decoder, tt.args.generator); !reflect.DeepEqual(got, tt.want) {
+			if got := NewCacheReconciler(tt.args.client, tt.args.xdsCache, tt.args.decoder, tt.args.generator, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewCacheReconciler() = %v, want %v", got, tt.want)
 			}
 		})
@@ -84,12 +84,14 @@ func TestCacheReconciler_Reconcile(t *testing.T) {
 		decoder   envoy_serializer.ResourceUnmarshaller
 		generator envoy_resources.Generator
 	}
+
 	type args struct {
 		req       types.NamespacedName
 		resources []marin3rv1alpha1.Resource
 		nodeID    string
 		version   string
 	}
+
 	tests := []struct {
 		name        string
 		fields      fields
@@ -131,21 +133,24 @@ func TestCacheReconciler_Reconcile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &CacheReconciler{
-				ctx:       tt.fields.ctx,
 				logger:    tt.fields.logger,
 				client:    tt.fields.client,
 				xdsCache:  tt.fields.xdsCache,
 				decoder:   tt.fields.decoder,
 				generator: tt.fields.generator,
 			}
+
 			got, err := r.Reconcile(context.TODO(), tt.args.req, tt.args.resources, tt.args.nodeID, tt.args.version)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CacheReconciler.Reconcile() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CacheReconciler.Reconcile() = %v, want %v", got, tt.want)
 			}
+
 			gotSnap, _ := r.xdsCache.GetSnapshot(tt.args.nodeID)
 			if !testutil.SnapshotsAreEqual(gotSnap, tt.wantSnap) {
 				t.Errorf("CacheReconciler.Reconcile() Snapshot = E:%s C:%s R:%s SR:%s VH:%s L:%s S:%s RU:%s, want E:%s C:%s R:%s SR:%s VH:%s L:%s S:%s RU:%s",
@@ -168,10 +173,12 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 		decoder   envoy_serializer.ResourceUnmarshaller
 		generator envoy_resources.Generator
 	}
+
 	type args struct {
 		req       types.NamespacedName
 		resources []marin3rv1alpha1.Resource
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -453,16 +460,17 @@ func TestCacheReconciler_GenerateSnapshot(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &CacheReconciler{
-				ctx:       tt.fields.ctx,
 				logger:    tt.fields.logger,
 				client:    tt.fields.client,
 				xdsCache:  tt.fields.xdsCache,
 				decoder:   tt.fields.decoder,
 				generator: tt.fields.generator,
 			}
-			got, err := r.GenerateSnapshot(tt.args.req, tt.args.resources)
+
+			got, err := r.GenerateSnapshot(context.TODO(), tt.args.req, tt.args.resources)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CacheReconciler.GenerateSnapshot() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 

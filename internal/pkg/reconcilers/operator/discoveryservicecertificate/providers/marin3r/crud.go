@@ -26,7 +26,6 @@ const (
 // CertificateProvider is the operator internal certificate
 // provider
 type CertificateProvider struct {
-	ctx    context.Context
 	logger logr.Logger
 	client client.Client
 	scheme *runtime.Scheme
@@ -36,9 +35,7 @@ type CertificateProvider struct {
 // NewCertificateProvider returns a CertificateProvider struct for the given parameters
 func NewCertificateProvider(ctx context.Context, logger logr.Logger, client client.Client,
 	scheme *runtime.Scheme, dsc *operatorv1alpha1.DiscoveryServiceCertificate) *CertificateProvider {
-
 	return &CertificateProvider{
-		ctx:    ctx,
 		logger: logger,
 		client: client,
 		scheme: scheme,
@@ -48,12 +45,13 @@ func NewCertificateProvider(ctx context.Context, logger logr.Logger, client clie
 
 // CreateCertificate creates a certificate with the config options defined
 // in the spec of the DiscoveryServiceCertificate
-func (cp *CertificateProvider) CreateCertificate() ([]byte, []byte, error) {
+func (cp *CertificateProvider) CreateCertificate(ctx context.Context) ([]byte, []byte, error) {
 	logger := cp.logger.WithValues("method", "CreateCertificate")
 
-	issuerCert, issuerKey, err := cp.getIssuerCertificate()
+	issuerCert, issuerKey, err := cp.getIssuerCertificate(ctx)
 	if err != nil {
 		logger.Error(err, "unable to get issuer certificate")
+
 		return nil, nil, err
 	}
 
@@ -62,38 +60,45 @@ func (cp *CertificateProvider) CreateCertificate() ([]byte, []byte, error) {
 		Name:      cp.dsc.Spec.SecretRef.Name,
 		Namespace: cp.dsc.GetNamespace(),
 	}
-	err = cp.client.Get(cp.ctx, key, secret)
+	err = cp.client.Get(ctx, key, secret)
 
 	if err == nil {
 		logger.Error(fmt.Errorf("secret %s already exists", client.ObjectKeyFromObject(secret)), "secret already exists")
-		return nil, nil, fmt.Errorf("secret %s already exists", client.ObjectKeyFromObject(secret))
 
+		return nil, nil, fmt.Errorf("secret %s already exists", client.ObjectKeyFromObject(secret))
 	} else if !errors.IsNotFound(err) {
 		logger.Error(err, "unable to get Secret")
+
 		return nil, nil, err
 	}
 
 	secret, err = cp.genSecret(issuerCert, issuerKey)
 	if err != nil {
 		logger.Error(err, "unable to generate Secret for certificate")
+
 		return nil, nil, err
 	}
+
 	if err := controllerutil.SetControllerReference(cp.dsc, secret, cp.scheme); err != nil {
 		logger.Error(err, "unable to SetControllerReference on Secret for certificate")
+
 		return nil, nil, err
 	}
-	if err := cp.client.Create(cp.ctx, secret); err != nil {
+
+	if err := cp.client.Create(ctx, secret); err != nil {
 		logger.Error(err, "unable to create Secret for certificate")
+
 		return nil, nil, err
 	}
 
 	logger.V(1).Info("created certificate")
+
 	return secret.Data[tlsCertificateKey], secret.Data[tlsPrivateKeyKey], nil
 }
 
 // GetCertificate loads a certificate form the Secret referred in the
 // DiscoveryServiceCertificate resource
-func (cp *CertificateProvider) GetCertificate() ([]byte, []byte, error) {
+func (cp *CertificateProvider) GetCertificate(ctx context.Context) ([]byte, []byte, error) {
 	logger := cp.logger.WithValues("method", "GetCertificate")
 
 	secret := &corev1.Secret{}
@@ -101,10 +106,11 @@ func (cp *CertificateProvider) GetCertificate() ([]byte, []byte, error) {
 		Name:      cp.dsc.Spec.SecretRef.Name,
 		Namespace: cp.dsc.GetNamespace(),
 	}
-	err := cp.client.Get(cp.ctx, key, secret)
+	err := cp.client.Get(ctx, key, secret)
 
 	if err != nil {
 		logger.Error(err, "unable to get Secret")
+
 		return nil, nil, err
 	}
 
@@ -113,12 +119,13 @@ func (cp *CertificateProvider) GetCertificate() ([]byte, []byte, error) {
 
 // UpdateCertificate updates the certificate stored in the Secret referred
 // in the DiscoveryServiceCertificate resource
-func (cp *CertificateProvider) UpdateCertificate() ([]byte, []byte, error) {
+func (cp *CertificateProvider) UpdateCertificate(ctx context.Context) ([]byte, []byte, error) {
 	logger := cp.logger.WithValues("method", "UpdateCertificate")
 
-	issuerCert, issuerKey, err := cp.getIssuerCertificate()
+	issuerCert, issuerKey, err := cp.getIssuerCertificate(ctx)
 	if err != nil {
 		logger.Error(err, "unable to get issuer certificate")
+
 		return nil, nil, err
 	}
 
@@ -127,31 +134,36 @@ func (cp *CertificateProvider) UpdateCertificate() ([]byte, []byte, error) {
 		Name:      cp.dsc.Spec.SecretRef.Name,
 		Namespace: cp.dsc.GetNamespace(),
 	}
-	err = cp.client.Get(cp.ctx, key, secret)
+
+	err = cp.client.Get(ctx, key, secret)
 	if err != nil {
 		logger.Error(err, "unable to get Secret")
+
 		return nil, nil, err
 	}
 
 	newPayload, err := cp.genSecret(issuerCert, issuerKey)
 	if err != nil {
 		logger.Error(err, "unable to generate new payload for certificate")
+
 		return nil, nil, err
 	}
 
 	secret.Data = newPayload.Data
-	if err := cp.client.Update(cp.ctx, secret); err != nil {
+	if err := cp.client.Update(ctx, secret); err != nil {
 		logger.Error(err, "unable to update Secret for certificate")
+
 		return nil, nil, err
 	}
 
 	logger.V(1).Info("updated certificate")
+
 	return secret.Data[tlsCertificateKey], secret.Data[tlsPrivateKeyKey], nil
 }
 
 // VerifyCertificate verifies the validity of a certificate. Returns
 // 'nil' if verification is correct, an error otherwise.
-func (cp *CertificateProvider) VerifyCertificate() error {
+func (cp *CertificateProvider) VerifyCertificate(ctx context.Context) error {
 	logger := cp.logger.WithValues("method", "VerifyCertificate")
 
 	secret := &corev1.Secret{}
@@ -159,24 +171,29 @@ func (cp *CertificateProvider) VerifyCertificate() error {
 		Name:      cp.dsc.Spec.SecretRef.Name,
 		Namespace: cp.dsc.GetNamespace(),
 	}
-	err := cp.client.Get(cp.ctx, key, secret)
+
+	err := cp.client.Get(ctx, key, secret)
 	if err != nil {
 		logger.Error(err, "unable to get Secret")
+
 		return err
 	}
 
 	var cert *x509.Certificate
+
 	cert, err = pki.LoadX509Certificate(secret.Data[tlsCertificateKey])
 	if err != nil {
 		logger.Error(err, "unable to load certificate from Secret")
+
 		return err
 	}
 
 	var root *x509.Certificate
 	if cp.dsc.Spec.Signer.CASigned != nil {
-		root, _, err = cp.getIssuerCertificate()
+		root, _, err = cp.getIssuerCertificate(ctx)
 		if err != nil {
 			logger.Error(err, "unable to get issuer certificate")
+
 			return err
 		}
 	}
@@ -191,8 +208,7 @@ func (cp *CertificateProvider) VerifyCertificate() error {
 }
 
 // getIssuerCertificate returns the issuer certificate for a DiscoveryServiceCertificate resource
-func (cp *CertificateProvider) getIssuerCertificate() (*x509.Certificate, interface{}, error) {
-
+func (cp *CertificateProvider) getIssuerCertificate(ctx context.Context) (*x509.Certificate, interface{}, error) {
 	if cp.dsc.Spec.Signer.CASigned != nil {
 		secret := &corev1.Secret{}
 		key := types.NamespacedName{
@@ -200,7 +216,7 @@ func (cp *CertificateProvider) getIssuerCertificate() (*x509.Certificate, interf
 			Namespace: cp.dsc.Spec.Signer.CASigned.SecretRef.Namespace,
 		}
 
-		if err := cp.client.Get(cp.ctx, key, secret); err != nil {
+		if err := cp.client.Get(ctx, key, secret); err != nil {
 			return nil, nil, err
 		}
 
@@ -221,7 +237,6 @@ func (cp *CertificateProvider) getIssuerCertificate() (*x509.Certificate, interf
 }
 
 func (cp *CertificateProvider) genSecret(issuerCert *x509.Certificate, issuerKey interface{}) (*corev1.Secret, error) {
-
 	crt, key, err := pki.GenerateCertificate(
 		issuerCert,
 		issuerKey,
@@ -234,6 +249,7 @@ func (cp *CertificateProvider) genSecret(issuerCert *x509.Certificate, issuerKey
 	if err != nil {
 		return nil, err
 	}
+
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cp.dsc.Spec.SecretRef.Name,

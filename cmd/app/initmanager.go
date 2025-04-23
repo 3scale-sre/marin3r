@@ -17,6 +17,7 @@ limitations under the License.
 package app
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -28,6 +29,7 @@ import (
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	envoy_bootstrap "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap"
 	envoy_bootstrap_options "github.com/3scale-sre/marin3r/internal/pkg/envoy/bootstrap/options"
+	ioutil "github.com/3scale-sre/marin3r/internal/pkg/util/io"
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -59,14 +61,13 @@ var (
 )
 
 func init() {
-
 	rootCmd.AddCommand(initManagerServiceCmd)
 
 	// Init manager flags
 	initManagerServiceCmd.Flags().StringVar(&initmgrNodeID, "node-id", "", "The 'node-id' that identifies this client to the xDS server.")
 	initManagerServiceCmd.Flags().StringVar(&initmgrCluster, "cluster", "", "Identifies this cluster to the xDS server.")
 	initManagerServiceCmd.Flags().StringVar(&initmgrXdsHost, "xdss-host", "", "Address of the xDS server.")
-	initManagerServiceCmd.Flags().IntVar(&initmgrXdsPort, "xdss-port", int(operatorv1alpha1.DefaultXdsServerPort), "The port port the xDS server.")
+	initManagerServiceCmd.Flags().IntVar(&initmgrXdsPort, "xdss-port", int(operatorv1alpha1.DefaultXdsServerPort), "The port the xDS server.")
 	initManagerServiceCmd.Flags().StringVar(&initmgrConfigPath, "config-file", fmt.Sprintf("%s/%s", defaults.EnvoyConfigBasePath, defaults.EnvoyConfigFileName), "Path to the xDS client certificate key.")
 	initManagerServiceCmd.Flags().StringVar(&initmgrSdsConfigSourcePath, "resources-path", defaults.EnvoyConfigBasePath, "Path to the xDS client certificate key.")
 	initManagerServiceCmd.Flags().StringVar(&initmgrXdsClientCertificatePath, "client-certificate-path", defaults.EnvoyTLSBasePath, "Path to the xDS client certificate and key.")
@@ -78,12 +79,11 @@ func init() {
 }
 
 func runInitManager(cmd *cobra.Command, args []string) {
-
 	ctrl.SetLogger(zap.New(zap.UseDevMode(debug)))
 	printVersion()
 
 	if initmgrXdsHost == "" {
-		err := fmt.Errorf("cannot be empty")
+		err := errors.New("cannot be empty")
 		setupLog.Error(err, "error parsing '--xdss-host'")
 		os.Exit(-1)
 	}
@@ -138,14 +138,16 @@ func runInitManager(cmd *cobra.Command, args []string) {
 		setupLog.Error(err, "")
 		os.Exit(-1)
 	}
-	defer cf.Close()
+
+	defer ioutil.CloseOrLog(cf, initmgrConfigPath, setupLog)
 
 	_, err = cf.WriteString(config)
 	if err != nil {
 		setupLog.Error(err, "")
 		os.Exit(-1)
 	}
-	setupLog.Info("Config succesfully generated", "config", config)
+
+	setupLog.Info("Config successfully generated", "config", config)
 	setupLog.Info(fmt.Sprintf("Created file '%s' with config", initmgrConfigPath))
 
 	// Write the resource files
@@ -155,39 +157,41 @@ func runInitManager(cmd *cobra.Command, args []string) {
 			setupLog.Error(err, "")
 			os.Exit(-1)
 		}
-		defer rf.Close()
+
+		defer ioutil.CloseOrLog(rf, fmt.Sprintf("%s/%s", initmgrSdsConfigSourcePath, file), setupLog)
 
 		_, err = rf.WriteString(contents)
 		if err != nil {
 			setupLog.Error(err, "")
 			os.Exit(-1)
 		}
-		rf.Close()
-		setupLog.Info("Config succesfully generated", "config", contents)
+
+		setupLog.Info("Config successfully generated", "config", contents)
 		setupLog.Info(fmt.Sprintf("Created file '%s/%s' with config", initmgrSdsConfigSourcePath, file))
 	}
-
 }
 
 func parseBindAddress(address string) (string, uint32, error) {
-
 	var err error
+
 	var host string
+
 	var port int64
 
 	var parts []string
 	if parts = strings.Split(address, ":"); len(parts) != 2 {
-		return "", 0, fmt.Errorf("wrong 'spec.envoyStaticConfig.adminBindAddress' specification, expected '<ip>:<port>'")
+		return "", 0, errors.New("wrong 'spec.envoyStaticConfig.adminBindAddress' specification, expected '<ip>:<port>'")
 	}
 
 	host = parts[0]
 	if net.ParseIP(host) == nil {
 		err := fmt.Errorf("ip address %s is invalid", host)
+
 		return "", 0, err
 	}
 
 	if port, err = strconv.ParseInt(parts[1], 10, 32); err != nil {
-		return "", 0, fmt.Errorf("unable to parse port value in 'spec.envoyStaticConfig.adminBindAddress'")
+		return "", 0, errors.New("unable to parse port value in 'spec.envoyStaticConfig.adminBindAddress'")
 	}
 
 	return host, uint32(port), nil

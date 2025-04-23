@@ -31,7 +31,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 				EnvoyAPIVersion:           "v3",
 				EnvoyNodeID:               "test",
 				EnvoyClusterID:            "test",
-				ClientCertificateDuration: time.Duration(20 * time.Second),
+				ClientCertificateDuration: 20 * time.Second,
 				DeploymentImage:           "test:latest",
 				DeploymentResources:       corev1.ResourceRequirements{},
 				ExposedPorts:              []operatorv1alpha1.ContainerPort{{Name: "port", Port: 8080}},

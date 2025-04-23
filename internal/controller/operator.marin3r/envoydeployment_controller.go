@@ -46,22 +46,22 @@ type EnvoyDeploymentReconciler struct {
 	*reconciler.Reconciler
 }
 
-//+kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=envoydeployments,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=envoydeployments/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=envoydeployments/finalizers,verbs=update
-//+kubebuilder:rbac:groups="apps",namespace=placeholder,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=envoydeployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=envoydeployments/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=envoydeployments/finalizers,verbs=update
+// +kubebuilder:rbac:groups="apps",namespace=placeholder,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="autoscaling",namespace=placeholder,resources=horizontalpodautoscalers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="policy",namespace=placeholder,resources=poddisruptionbudgets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=discoveryservicecertificates,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=marin3r.3scale.net,namespace=placeholder,resources=envoyconfigs,verbs=get;list;watch
-//+kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=discoveryservices,verbs=get;list;watch
+// +kubebuilder:rbac:groups=marin3r.3scale.net,namespace=placeholder,resources=envoyconfigs,verbs=get;list;watch
+// +kubebuilder:rbac:groups=operator.marin3r.3scale.net,namespace=placeholder,resources=discoveryservices,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	ctx, logger := r.Logger(ctx, "name", req.Name, "namespace", req.Namespace)
 	ed := &operatorv1alpha1.EnvoyDeployment{}
+
 	result := r.ManageResourceLifecycle(ctx, req, ed)
 	if result.ShouldReturn() {
 		return result.Values()
@@ -70,10 +70,12 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// Get the address of the DiscoveryService instance
 	ds := &operatorv1alpha1.DiscoveryService{}
 	dsKey := types.NamespacedName{Name: ed.Spec.DiscoveryServiceRef, Namespace: ed.GetNamespace()}
+
 	if err := r.Client.Get(ctx, dsKey, ds); err != nil {
 		if errors.IsNotFound(err) {
 			logger.Error(err, "DiscoveryService does not exist", "DiscoveryService", ed.Spec.DiscoveryServiceRef)
 		}
+
 		return ctrl.Result{Requeue: true, RequeueAfter: 10 * time.Second}, err
 	}
 
@@ -81,6 +83,7 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	ec, err := r.getEnvoyConfig(ctx, types.NamespacedName{Name: ed.Spec.EnvoyConfigRef, Namespace: ed.GetNamespace()})
 	if err != nil {
 		logger.Error(err, "unable to get EnvoyConfig", "EnvoyConfig", ed.Spec.EnvoyConfigRef)
+
 		return ctrl.Result{}, err
 	}
 
@@ -96,6 +99,7 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if ed.Spec.ClusterID != nil {
 				return *ed.Spec.ClusterID
 			}
+
 			return ec.Spec.NodeID
 		}(),
 		ClientCertificateName:     fmt.Sprintf("%s-%s", defaults.DeploymentClientCertificate, ed.GetName()),
@@ -136,8 +140,10 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		func() bool {
 			if ed.Status.DeploymentName == nil || *ed.Status.DeploymentName != gen.OwnedResourceKey().Name {
 				ed.Status.DeploymentName = ptr.To(gen.OwnedResourceKey().Name)
+
 				return true
 			}
+
 			return false
 		})
 	if result.ShouldReturn() {
@@ -165,10 +171,8 @@ func (r *EnvoyDeploymentReconciler) EnvoyConfigHandler() handler.EventHandler {
 		func(event client.Object, o client.Object) bool {
 			ec := event.(*marin3rv1alpha1.EnvoyConfig)
 			ed := o.(*operatorv1alpha1.EnvoyDeployment)
-			if ed.Spec.EnvoyConfigRef == ec.GetName() {
-				return true
-			}
-			return false
+
+			return ed.Spec.EnvoyConfigRef == ec.GetName()
 		},
 		logr.Discard(),
 	)
@@ -181,10 +185,8 @@ func (r *EnvoyDeploymentReconciler) DiscoveryServiceHandler() handler.EventHandl
 		func(event client.Object, o client.Object) bool {
 			ds := event.(*operatorv1alpha1.DiscoveryService)
 			ed := o.(*operatorv1alpha1.EnvoyDeployment)
-			if ed.Spec.DiscoveryServiceRef == ds.GetName() {
-				return true
-			}
-			return false
+
+			return ed.Spec.DiscoveryServiceRef == ds.GetName()
 		},
 		logr.Discard(),
 	)

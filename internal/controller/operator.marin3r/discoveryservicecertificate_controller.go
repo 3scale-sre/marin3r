@@ -41,9 +41,9 @@ type DiscoveryServiceCertificateReconciler struct {
 // +kubebuilder:rbac:groups="core",namespace=placeholder,resources=secrets,verbs=get;list;watch;create;update;patch
 
 func (r *DiscoveryServiceCertificateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	ctx, log := r.Logger(ctx, "name", req.Name, "namespace", req.Namespace)
 	dsc := &operatorv1alpha1.DiscoveryServiceCertificate{}
+
 	result := r.ManageResourceLifecycle(ctx, req, dsc,
 		reconciler.WithInitializationFunc(reconciler_util.ResourceDefaulter(dsc)),
 	)
@@ -54,8 +54,9 @@ func (r *DiscoveryServiceCertificateReconciler) Reconcile(ctx context.Context, r
 	// Only the internal certificate provider is currently supported
 	provider := marin3r_provider.NewCertificateProvider(ctx, log, r.Client, r.Scheme, dsc)
 
-	certificateReconciler := discoveryservicecertificate.NewCertificateReconciler(ctx, log, r.Client, r.Scheme, dsc, provider)
-	reconcilerResult, err := certificateReconciler.Reconcile()
+	certificateReconciler := discoveryservicecertificate.NewCertificateReconciler(r.Client, r.Scheme, dsc, provider, log)
+
+	reconcilerResult, err := certificateReconciler.Reconcile(ctx)
 	if reconcilerResult.Requeue || err != nil {
 		return reconcilerResult, err
 	}
@@ -64,14 +65,17 @@ func (r *DiscoveryServiceCertificateReconciler) Reconcile(ctx context.Context, r
 		certificateReconciler.IsReady(), certificateReconciler.NotBefore(), certificateReconciler.NotAfter()); !ok {
 		if err := r.Client.Status().Update(ctx, dsc); err != nil {
 			log.Error(err, "unable to update DiscoveryServiceCertificate status")
+
 			return ctrl.Result{}, err
 		}
+
 		log.Info("status updated for DiscoveryServiceCertificate resource")
 	}
 
 	if certificateReconciler.GetSchedule() == nil {
 		return ctrl.Result{}, nil
 	}
+
 	return ctrl.Result{RequeueAfter: *certificateReconciler.GetSchedule()}, nil
 }
 
@@ -83,11 +87,13 @@ func (r *DiscoveryServiceCertificateReconciler) IssuerChangedHandler() handler.E
 		func(event client.Object, o client.Object) bool {
 			issuer := event.(*operatorv1alpha1.DiscoveryServiceCertificate)
 			cert := o.(*operatorv1alpha1.DiscoveryServiceCertificate)
+
 			if issuer.IsCA() &&
 				cert.Spec.Signer.CASigned != nil &&
 				cert.Spec.Signer.CASigned.SecretRef.Name == issuer.Spec.SecretRef.Name {
 				return true
 			}
+
 			return false
 		},
 		logr.Discard(),

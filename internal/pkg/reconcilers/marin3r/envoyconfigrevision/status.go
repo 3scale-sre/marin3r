@@ -18,7 +18,6 @@ import (
 
 // IsStatusReconciled calculates the status of the resource
 func IsStatusReconciled(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1alpha1.VersionTracker, xdssCache xdss.Cache, dStats *stats.Stats) bool {
-
 	ok := true
 
 	if vt != nil && (ecr.Status.ProvidesVersions == nil || !reflect.DeepEqual(ecr.Status.ProvidesVersions, vt)) {
@@ -37,6 +36,7 @@ func IsStatusReconciled(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1a
 		equal := k8sutil.ConditionsEqual(taintedCond, meta.FindStatusCondition(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition))
 		if !equal {
 			meta.SetStatusCondition(&ecr.Status.Conditions, *taintedCond)
+
 			ok = false
 		}
 	}
@@ -46,11 +46,13 @@ func IsStatusReconciled(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1a
 		equal := k8sutil.ConditionsEqual(inSyncCond, meta.FindStatusCondition(ecr.Status.Conditions, marin3rv1alpha1.ResourcesInSyncCondition))
 		if !equal {
 			meta.SetStatusCondition(&ecr.Status.Conditions, *inSyncCond)
+
 			ok = false
 		}
 	} else {
 		if meta.FindStatusCondition(ecr.Status.Conditions, marin3rv1alpha1.ResourcesInSyncCondition) != nil {
 			meta.RemoveStatusCondition(&ecr.Status.Conditions, marin3rv1alpha1.ResourcesInSyncCondition)
+
 			ok = false
 		}
 	}
@@ -78,7 +80,6 @@ func IsStatusReconciled(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1a
 }
 
 func calculateResourcesInSyncCondition(ecr *marin3rv1alpha1.EnvoyConfigRevision, xdssCache xdss.Cache) *metav1.Condition {
-
 	if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 		// Check what is currently written in the xds server cache
 		_, err := xdssCache.GetSnapshot(ecr.Spec.NodeID)
@@ -104,7 +105,6 @@ func calculateResourcesInSyncCondition(ecr *marin3rv1alpha1.EnvoyConfigRevision,
 }
 
 func calculateRevisionTaintedCondition(ecr *marin3rv1alpha1.EnvoyConfigRevision, vt *marin3rv1alpha1.VersionTracker, dStats *stats.Stats, threshold float64) *metav1.Condition {
-
 	if dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Endpoint, ecr.GetEnvoyAPIVersion()), vt.Endpoints) == threshold ||
 		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Cluster, ecr.GetEnvoyAPIVersion()), vt.Clusters) == threshold ||
 		dStats.GetPercentageFailing(ecr.Spec.NodeID, envoy_resources.TypeURL(envoy.Route, ecr.GetEnvoyAPIVersion()), vt.Routes) == threshold ||

@@ -42,6 +42,7 @@ var _ = Describe("EnvoyDeployment", func() {
 		n := &corev1.Namespace{}
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: testNamespace}, n)
+
 			return err == nil
 		}, timeout, poll).Should(BeTrue())
 
@@ -67,6 +68,7 @@ var _ = Describe("EnvoyDeployment", func() {
 			if err := k8sClient.Get(context.Background(), key, dep); err != nil {
 				return 0
 			}
+
 			return int(dep.Status.ReadyReplicas)
 		}, timeout, poll).Should(Equal(1))
 	})
@@ -169,6 +171,7 @@ var _ = Describe("EnvoyDeployment", func() {
 				err = k8sClient.List(context.Background(), podList,
 					[]client.ListOption{selector, client.InNamespace(testNamespace)}...)
 				Expect(err).ToNot(HaveOccurred())
+
 				return len(podList.Items)
 			}, timeout, poll).Should(Equal(1))
 
@@ -190,6 +193,7 @@ var _ = Describe("EnvoyDeployment", func() {
 				Fail("timed out while waiting for port forward")
 			case <-readyCh:
 				ticker.Stop()
+
 				break
 			}
 
@@ -197,6 +201,7 @@ var _ = Describe("EnvoyDeployment", func() {
 			var resp *http.Response
 			Eventually(func() error {
 				resp, err = http.Get(fmt.Sprintf("http://localhost:%v/test", localPort))
+
 				return err
 			}, timeout, poll).ShouldNot(HaveOccurred())
 
@@ -206,7 +211,7 @@ var _ = Describe("EnvoyDeployment", func() {
 			scanner := bufio.NewScanner(resp.Body)
 			Expect(scanner.Scan()).To(BeTrue())
 			Expect(scanner.Scan()).To(BeTrue())
-			Expect(scanner.Text()).To(Equal(fmt.Sprintf("Server name: %s", nginxPodList.Items[0].GetName())))
+			Expect(scanner.Text()).To(Equal("Server name: " + nginxPodList.Items[0].GetName()))
 		})
 	})
 })

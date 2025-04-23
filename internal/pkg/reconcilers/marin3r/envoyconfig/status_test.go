@@ -17,6 +17,7 @@ func TestIsStatusReconciled(t *testing.T) {
 		publishedVersion string
 		list             *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -256,6 +257,7 @@ func Test_generateRevisionList(t *testing.T) {
 	type args struct {
 		list *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name string
 		args args

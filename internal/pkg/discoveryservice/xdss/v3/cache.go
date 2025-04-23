@@ -26,27 +26,24 @@ func NewCacheFromSnapshotCache(v3 cache_v3.SnapshotCache) Cache {
 
 // SetSnapshot updates a snapshot for a node.
 func (c Cache) SetSnapshot(ctx context.Context, nodeID string, snap xdss.Snapshot) error {
-
 	return c.v3.SetSnapshot(ctx, nodeID, snap.(Snapshot).v3)
 }
 
 // GetSnapshot gets the snapshot for a node, and returns an error if not found.
 func (c Cache) GetSnapshot(nodeID string) (xdss.Snapshot, error) {
-
 	snap, err := c.v3.GetSnapshot(nodeID)
 	if err != nil {
 		return &Snapshot{}, err
 	}
+
 	return &Snapshot{v3: snap.(*cache_v3.Snapshot)}, nil
 }
 
 // ClearSnapshot clears snapshot and info for a node.
 func (c Cache) ClearSnapshot(nodeID string) {
-
 	c.v3.ClearSnapshot(nodeID)
 }
 
 func (c Cache) NewSnapshot() xdss.Snapshot {
-
 	return NewSnapshot()
 }

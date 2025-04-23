@@ -4,13 +4,14 @@ import (
 	"crypto"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 )
 
 // LoadX509Certificate loads a x509.Certificate object from the given bytes
 func LoadX509Certificate(cert []byte) (*x509.Certificate, error) {
-
 	cpb, _ := pem.Decode(cert)
+
 	crt, err := x509.ParseCertificate(cpb.Bytes)
 	if err != nil {
 		return nil, err
@@ -25,7 +26,7 @@ func DecodePrivateKeyBytes(keyBytes []byte) (crypto.Signer, error) {
 	// decode the private key pem
 	block, _ := pem.Decode(keyBytes)
 	if block == nil {
-		return nil, fmt.Errorf("error decoding private key PEM block")
+		return nil, errors.New("error decoding private key PEM block")
 	}
 
 	switch block.Type {
@@ -37,8 +38,9 @@ func DecodePrivateKeyBytes(keyBytes []byte) (crypto.Signer, error) {
 
 		signer, ok := key.(crypto.Signer)
 		if !ok {
-			return nil, fmt.Errorf("error parsing pkcs#8 private key: invalid key type")
+			return nil, errors.New("error parsing pkcs#8 private key: invalid key type")
 		}
+
 		return signer, nil
 	case "RSA PRIVATE KEY":
 		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
@@ -50,6 +52,7 @@ func DecodePrivateKeyBytes(keyBytes []byte) (crypto.Signer, error) {
 		if err != nil {
 			return nil, fmt.Errorf("rsa private key failed validation: %s", err.Error())
 		}
+
 		return key, nil
 
 	default:

@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/3scale-sre/basereconciler/util"
@@ -54,9 +55,11 @@ var _ webhook.CustomValidator = &EnvoyConfigCustomValidator{}
 func (validator *EnvoyConfigCustomValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	ec := obj.(*marin3rv1alpha1.EnvoyConfig)
 	envoyconfiglog.Info("ValidateCreate", "type", "EnvoyConfig", "resource", util.ObjectKey(ec).String())
+
 	if err := validate(ec); err != nil {
 		return nil, err
 	}
+
 	return nil, nil
 }
 
@@ -64,9 +67,11 @@ func (validator *EnvoyConfigCustomValidator) ValidateCreate(ctx context.Context,
 func (validator *EnvoyConfigCustomValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	ec := newObj.(*marin3rv1alpha1.EnvoyConfig)
 	envoyconfiglog.Info("validateUpdate", "type", "EnvoyConfig", "resource", util.ObjectKey(ec).String())
+
 	if err := validate(ec); err != nil {
 		return nil, err
 	}
+
 	return nil, nil
 }
 
@@ -78,14 +83,13 @@ func (validator *EnvoyConfigCustomValidator) ValidateDelete(ctx context.Context,
 // Validates the EnvoyConfig resource
 func validate(ec *marin3rv1alpha1.EnvoyConfig) error {
 	if (ec.Spec.EnvoyResources == nil && ec.Spec.Resources == nil) || (ec.Spec.EnvoyResources != nil && ec.Spec.Resources != nil) {
-		return fmt.Errorf("one and only one of 'spec.EnvoyResources', 'spec.Resources' must be set")
+		return errors.New("one and only one of 'spec.EnvoyResources', 'spec.Resources' must be set")
 	}
 
 	if ec.Spec.EnvoyResources != nil {
 		if err := validateEnvoyResources(ec); err != nil {
 			return err
 		}
-
 	} else {
 		if err := validateResources(ec); err != nil {
 			return err
@@ -100,16 +104,16 @@ func validateResources(ec *marin3rv1alpha1.EnvoyConfig) error {
 	errList := []error{}
 
 	for _, res := range ec.Spec.Resources {
-
 		switch res.Type {
-
 		case envoy.Secret:
 			if res.GenerateFromTlsSecret == nil && res.GenerateFromOpaqueSecret == nil {
 				errList = append(errList, fmt.Errorf("one of 'generateFromTlsSecret', 'generateFromOpaqueSecret' must be set for type '%s'", envoy.Secret))
 			}
+
 			if res.Value != nil {
 				errList = append(errList, fmt.Errorf("'value' cannot be used for type '%s'", envoy.Secret))
 			}
+
 			if res.GenerateFromEndpointSlices != nil {
 				errList = append(errList, fmt.Errorf("'generateFromEndpointSlice' can only be used type '%s'", envoy.Endpoint))
 			}
@@ -118,17 +122,21 @@ func validateResources(ec *marin3rv1alpha1.EnvoyConfig) error {
 			if res.GenerateFromEndpointSlices != nil && res.Value != nil {
 				errList = append(errList, fmt.Errorf("only one of 'generateFromEndpointSlice', 'value' allowed for type '%s'", envoy.Secret))
 			}
+
 			if res.GenerateFromEndpointSlices == nil && res.Value == nil {
 				errList = append(errList, fmt.Errorf("one of 'generateFromEndpointSlice', 'value' must be set for type '%s'", envoy.Secret))
 			}
+
 			if res.Value != nil {
-				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, ec.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
+				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, ec.GetEnvoyAPIVersion(), res.Type); err != nil {
 					errList = append(errList, err)
 				}
 			}
+
 			if res.GenerateFromTlsSecret != nil {
 				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' can only be used type '%s'", envoy.Secret))
 			}
+
 			if res.Blueprint != nil {
 				errList = append(errList, fmt.Errorf("'blueprint' can only be used type '%s'", envoy.Secret))
 			}
@@ -137,26 +145,29 @@ func validateResources(ec *marin3rv1alpha1.EnvoyConfig) error {
 			if res.GenerateFromEndpointSlices != nil {
 				errList = append(errList, fmt.Errorf("'generateFromEndpointSlice' can only be used type '%s'", envoy.Endpoint))
 			}
+
 			if res.GenerateFromTlsSecret != nil {
 				errList = append(errList, fmt.Errorf("'generateFromTlsSecret' can only be used type '%s'", envoy.Secret))
 			}
+
 			if res.Blueprint != nil {
 				errList = append(errList, fmt.Errorf("'blueprint' cannot be empty for type '%s'", envoy.Secret))
 			}
+
 			if res.Value != nil {
-				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, ec.GetEnvoyAPIVersion(), envoy.Type(res.Type)); err != nil {
+				if err := envoy_resources.Validate(string(res.Value.Raw), envoy_serializer.JSON, ec.GetEnvoyAPIVersion(), res.Type); err != nil {
 					errList = append(errList, err)
 				}
 			} else {
 				errList = append(errList, fmt.Errorf("'value' cannot be empty for type '%s'", res.Type))
 			}
 		}
-
 	}
 
 	if len(errList) > 0 {
 		return errorutil.NewMultiError(errList)
 	}
+
 	return nil
 }
 
@@ -209,5 +220,6 @@ func validateEnvoyResources(ec *marin3rv1alpha1.EnvoyConfig) error {
 	if len(errList) > 0 {
 		return errorutil.NewMultiError(errList)
 	}
+
 	return nil
 }

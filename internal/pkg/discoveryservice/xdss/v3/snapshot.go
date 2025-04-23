@@ -18,7 +18,6 @@ type Snapshot struct {
 
 // NewSnapshot returns a Snapshot object
 func NewSnapshot() Snapshot {
-
 	snap, _ := cache_v3.NewSnapshot("",
 		map[resource_v3.Type][]cache_types.Resource{
 			resource_v3.EndpointType:        {},
@@ -49,7 +48,6 @@ func (s Snapshot) Consistent() error {
 }
 
 func (s Snapshot) SetResources(rType envoy.Type, resources []envoy.Resource) xdss.Snapshot {
-
 	items := make([]cache_types.Resource, 0, len(resources))
 	for _, r := range resources {
 		items = append(items, cache_types.Resource(r))
@@ -65,18 +63,20 @@ func (s Snapshot) SetResources(rType envoy.Type, resources []envoy.Resource) xds
 
 // GetResources selects snapshot resources by type.
 func (s Snapshot) GetResources(rType envoy.Type) map[string]envoy.Resource {
-
 	typeURLs := envoy_resources_v3.Mappings()
 	resources := map[string]envoy.Resource{}
+
 	for k, v := range s.v3.GetResources(typeURLs[rType]) {
 		resources[k] = v.(envoy.Resource)
 	}
+
 	return resources
 }
 
 // GetVersion returns the version for a resource type.
 func (s Snapshot) GetVersion(rType envoy.Type) string {
 	typeURLs := envoy_resources_v3.Mappings()
+
 	return s.v3.GetVersion(typeURLs[rType])
 }
 
@@ -87,14 +87,17 @@ func (s Snapshot) SetVersion(rType envoy.Type, version string) {
 
 func (s Snapshot) recalculateVersion(rType envoy.Type) string {
 	resources := map[string]string{}
+
 	encoder := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, envoy.APIv3)
 	for n, r := range s.v3.Resources[v3CacheResources(rType)].Items {
 		j, _ := encoder.Marshal(r.Resource)
-		resources[n] = string(j)
+		resources[n] = j
 	}
+
 	if len(resources) > 0 {
 		return apiutil.Hash(resources)
 	}
+
 	return ""
 }
 

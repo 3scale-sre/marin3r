@@ -20,7 +20,6 @@ import (
 
 // CertificateReconciler is a struct with methods to reconcile DiscoveryServiceCertificates
 type CertificateReconciler struct {
-	ctx      context.Context
 	logger   logr.Logger
 	client   client.Client
 	scheme   *runtime.Scheme
@@ -40,10 +39,9 @@ type CertificateReconciler struct {
 var _ providers.CertificateProvider = &internal_provider.CertificateProvider{}
 
 // NewCertificateReconciler returns a new RevisionReconciler
-func NewCertificateReconciler(ctx context.Context, logger logr.Logger, client client.Client,
-	s *runtime.Scheme, dsc *operatorv1alpha1.DiscoveryServiceCertificate, provider providers.CertificateProvider) CertificateReconciler {
-
-	return CertificateReconciler{ctx, logger, client, s, dsc, provider, clock.Real{}, false, "", nil, nil, nil}
+func NewCertificateReconciler(client client.Client,
+	s *runtime.Scheme, dsc *operatorv1alpha1.DiscoveryServiceCertificate, provider providers.CertificateProvider, logger logr.Logger) CertificateReconciler {
+	return CertificateReconciler{logger, client, s, dsc, provider, clock.Real{}, false, "", nil, nil, nil}
 }
 
 // IsReady returns true if the certificate is ready after the
@@ -61,7 +59,6 @@ func (r *CertificateReconciler) GetCertificateHash() string {
 // NotBefore returns the NotBefore property of the reconciled certificate.
 // Should be invoked only after running Reconcile()
 func (r *CertificateReconciler) NotBefore() time.Time {
-
 	return *r.notBefore
 }
 
@@ -80,26 +77,28 @@ func (r *CertificateReconciler) GetSchedule() *time.Duration {
 
 // Reconcile progresses DiscoveryServiceCertificates revisions to match the desired state.
 // It does so by creating/updating/deleting EnvoyConfigRevision API resources.
-func (r *CertificateReconciler) Reconcile() (ctrl.Result, error) {
-
+func (r *CertificateReconciler) Reconcile(ctx context.Context) (ctrl.Result, error) {
 	var err error
+
 	var certBytes []byte
 
 	// Get the certificate
-	certBytes, _, err = r.provider.GetCertificate()
+	certBytes, _, err = r.provider.GetCertificate(ctx)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			_, _, err = r.provider.CreateCertificate()
+			_, _, err = r.provider.CreateCertificate(ctx)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
+
 			return ctrl.Result{Requeue: true}, nil
 		}
+
 		return ctrl.Result{}, err
 	}
 
 	// Verify the certificate is valid
-	err = r.provider.VerifyCertificate()
+	err = r.provider.VerifyCertificate(ctx)
 	if err != nil {
 		if pki.IsVerifyError(err) {
 			// The certificate is invalid
@@ -128,12 +127,14 @@ func (r *CertificateReconciler) Reconcile() (ctrl.Result, error) {
 		renewBefore := time.Duration(int64(math.Floor(float64(duration) * 0.20)))
 
 		// If certificate is not valid or is within the renewal window, reissue it
-		if r.ready == false || timeToExpire < renewBefore {
-			certBytes, _, err = r.provider.UpdateCertificate()
+		if !r.ready || timeToExpire < renewBefore {
+			_, _, err = r.provider.UpdateCertificate(ctx)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
+
 			r.logger.Info("reissued certificate")
+
 			return ctrl.Result{Requeue: true}, nil
 		}
 
@@ -141,7 +142,6 @@ func (r *CertificateReconciler) Reconcile() (ctrl.Result, error) {
 		schedule := timeToExpire - renewBefore
 		r.schedule = &schedule
 		r.logger.Info("scheduled certificate renewal", "time", r.clock.Now().Add(schedule).String())
-
 	} else {
 		// schedule nextReconcile when certificate expires to update Ready = false in the status
 		if !r.clock.Now().After(cert.NotAfter) {
@@ -156,7 +156,7 @@ func (r *CertificateReconciler) Reconcile() (ctrl.Result, error) {
 	// store the certificate hash for status reconciliation
 	r.hash = apiutil.Hash(certBytes)
 
-	//store certificate validity times for status reconciliation
+	// store certificate validity times for status reconciliation
 	r.notBefore = &cert.NotBefore
 	r.notAfter = &cert.NotAfter
 

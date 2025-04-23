@@ -36,6 +36,7 @@ func TestNewCertificateProvider(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -51,7 +52,6 @@ func TestNewCertificateProvider(t *testing.T) {
 				dsc:    &operatorv1alpha1.DiscoveryServiceCertificate{},
 			},
 			want: &CertificateProvider{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -76,6 +76,7 @@ func TestCertificateProvider_CreateCertificate(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -126,13 +127,12 @@ func TestCertificateProvider_CreateCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &CertificateProvider{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				dsc:    tt.fields.dsc,
 			}
-			if _, _, err := p.CreateCertificate(); (err != nil) != tt.wantErr {
+			if _, _, err := p.CreateCertificate(context.TODO()); (err != nil) != tt.wantErr {
 				t.Errorf("Provider.CreateCertificate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -147,6 +147,7 @@ func TestCertificateProvider_GetCertificate(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -208,20 +209,23 @@ func TestCertificateProvider_GetCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &CertificateProvider{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				dsc:    tt.fields.dsc,
 			}
-			got, got1, err := p.GetCertificate()
+
+			got, got1, err := p.GetCertificate(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Provider.GetCertificate() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Provider.GetCertificate() got = %v, want %v", got, tt.want)
 			}
+
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("Provider.GetCertificate() got1 = %v, want %v", got1, tt.want1)
 			}
@@ -237,6 +241,7 @@ func TestCertificateProvider_UpdateCertificate(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -291,15 +296,16 @@ func TestCertificateProvider_UpdateCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &CertificateProvider{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				dsc:    tt.fields.dsc,
 			}
-			_, _, err := p.UpdateCertificate()
+
+			_, _, err := p.UpdateCertificate(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Provider.UpdateCertificate() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 		})
@@ -314,6 +320,7 @@ func TestCertificateProvider_VerifyCertificate(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -439,13 +446,12 @@ func TestCertificateProvider_VerifyCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cp := &CertificateProvider{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				dsc:    tt.fields.dsc,
 			}
-			if err := cp.VerifyCertificate(); (err != nil) != tt.wantErr {
+			if err := cp.VerifyCertificate(context.TODO()); (err != nil) != tt.wantErr {
 				t.Errorf("CertificateProvider.VerifyCertificate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -460,6 +466,7 @@ func TestCertificateProvider_getIssuerCertificate(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -497,10 +504,12 @@ func TestCertificateProvider_getIssuerCertificate(t *testing.T) {
 					}}},
 			want: func() *x509.Certificate {
 				cert, _ := pki.LoadX509Certificate(test.TestIssuerCertificate())
+
 				return cert
 			}(),
 			want1: func() interface{} {
 				signer, _ := pki.DecodePrivateKeyBytes(test.TestIssuerKey())
+
 				return signer
 			}(),
 			wantErr: false,
@@ -533,20 +542,23 @@ func TestCertificateProvider_getIssuerCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &CertificateProvider{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				dsc:    tt.fields.dsc,
 			}
-			got, got1, err := p.getIssuerCertificate()
+
+			got, got1, err := p.getIssuerCertificate(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Provider.getIssuerCertificate() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Provider.getIssuerCertificate() got = %v, want %v", got, tt.want)
 			}
+
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("Provider.getIssuerCertificate() got1 = %v, want %v", got1, tt.want1)
 			}
@@ -562,10 +574,12 @@ func TestCertificateProvider_genSecret(t *testing.T) {
 		scheme *runtime.Scheme
 		dsc    *operatorv1alpha1.DiscoveryServiceCertificate
 	}
+
 	type args struct {
 		issuerCert *x509.Certificate
 		issuerKey  interface{}
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -597,15 +611,16 @@ func TestCertificateProvider_genSecret(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &CertificateProvider{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				dsc:    tt.fields.dsc,
 			}
+
 			secret, err := p.genSecret(tt.args.issuerCert, tt.args.issuerKey)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Provider.genSecret() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 
@@ -613,16 +628,20 @@ func TestCertificateProvider_genSecret(t *testing.T) {
 				secret.GetNamespace() != tt.fields.dsc.GetNamespace() ||
 				secret.Type != corev1.SecretTypeTLS {
 				t.Errorf("Provider.genSecret() generated secret is not correct = %v", secret)
+
 				return
 			}
 
 			cert, err := pki.LoadX509Certificate(secret.Data[tlsCertificateKey])
 			if err != nil {
 				t.Errorf("Provider.genSecret() error loading generated certificate = %v", err)
+
 				return
 			}
+
 			if err := pki.Verify(cert, cert); err != nil {
 				t.Errorf("Provider.genSecret() certificate is not valid = %v", err)
+
 				return
 			}
 		})

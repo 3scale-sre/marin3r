@@ -16,6 +16,7 @@ func TestSortByPublication(t *testing.T) {
 		currentResourcesVersion string
 		list                    *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name string
 		args args

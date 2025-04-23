@@ -65,6 +65,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 			if err != nil && errors.IsNotFound(err) {
 				return false
 			}
+
 			return true
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 	})
@@ -100,6 +101,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 					if ec.Status.PublishedVersion == nil || *ec.Status.PublishedVersion == "" {
 						return false
 					}
+
 					return true
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -121,6 +123,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 					if err != nil {
 						return false
 					}
+
 					return testutil.SnapshotsAreEqual(gotV3Snap, wantSnap)
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -128,7 +131,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(*ec.Status.PublishedVersion).To(Equal(wantRevision))
 				Expect(*ec.Status.DesiredVersion).To(Equal(wantRevision))
-				Expect(len(ec.Status.ConfigRevisions)).To(Equal(1))
+				Expect(ec.Status.ConfigRevisions).To(HaveLen(1))
 				Expect(ec.Status.ConfigRevisions[0].Ref.Name).To(Equal(fmt.Sprintf("%s-%s-%s", ec.Spec.NodeID, string(ec.GetEnvoyAPIVersion()), wantRevision)))
 			})
 		})
@@ -159,6 +162,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 				if ec.Status.CacheState == nil || *ec.Status.CacheState != marin3rv1alpha1.InSyncState {
 					return false
 				}
+
 				return true
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 		})
@@ -182,6 +186,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 					if ec.Status.CacheState != nil && *ec.Status.CacheState == marin3rv1alpha1.RollbackState {
 						return true
 					}
+
 					return false
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			})
@@ -210,6 +215,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 						if ec.Status.CacheState != nil && *ec.Status.CacheState == marin3rv1alpha1.InSyncState {
 							return true
 						}
+
 						return false
 					}, 60*time.Second, 5*time.Second).Should(BeTrue())
 				})
@@ -251,6 +257,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 					if ec.Status.CacheState == nil || *ec.Status.CacheState != marin3rv1alpha1.RollbackFailedState {
 						return false
 					}
+
 					return true
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			})
@@ -279,6 +286,7 @@ var _ = Describe("EnvoyConfig controller", func() {
 						if ec.Status.CacheState != nil && *ec.Status.CacheState == marin3rv1alpha1.InSyncState {
 							return true
 						}
+
 						return false
 					}, 60*time.Second, 5*time.Second).Should(BeTrue())
 				})

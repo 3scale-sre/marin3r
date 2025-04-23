@@ -16,6 +16,7 @@ func TestStats_WriteResponseNonce(t *testing.T) {
 		rType   string
 		nonce   string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -39,6 +40,7 @@ func TestStats_WriteResponseNonce(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
 			s.WriteResponseNonce(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.nonce)
+
 			if _, ok := s.store.Get(tt.wantKey); !ok {
 				t.Errorf("Stats.WriteResponseNonce() = key not found")
 			}
@@ -53,6 +55,7 @@ func TestStats_ReportNACK(t *testing.T) {
 		podID  string
 		nonce  string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -100,11 +103,14 @@ func TestStats_ReportNACK(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
+
 			_, err := s.ReportNACK(tt.args.nodeID, tt.args.rType, tt.args.podID, tt.args.nonce)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Stats.ReportNACK() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got := s.store.Items(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Stats.ReportACK() = %v, want %v", got, tt.want)
 			}
@@ -119,6 +125,7 @@ func TestStats_ReportACK(t *testing.T) {
 		version string
 		podID   string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -169,6 +176,7 @@ func TestStats_ReportACK(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewWithItems(tt.cacheItems, tt.t)
 			s.ReportACK(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID)
+
 			if got := s.store.Items(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Stats.ReportACK() = %v, want %v", got, tt.want)
 			}
@@ -182,6 +190,7 @@ func TestStats_ReportRequest(t *testing.T) {
 		rType  string
 		podID  string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -222,6 +231,7 @@ func TestStats_ReportRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
 			s.ReportRequest(tt.args.nodeID, tt.args.rType, tt.args.podID)
+
 			if got := s.store.Items(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Stats.ReportRequest() = %v, want %v", got, tt.want)
 			}
@@ -234,6 +244,7 @@ func TestGetStringValueFromMetadata(t *testing.T) {
 		meta map[string]interface{}
 		key  string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -244,7 +255,11 @@ func TestGetStringValueFromMetadata(t *testing.T) {
 			name: "Returns the metadata value as a string",
 			args: args{
 				meta: map[string]interface{}{
-					"meta_key": func() interface{} { s := "name"; return s }(),
+					"meta_key": func() interface{} {
+						s := "name"
+
+						return s
+					}(),
 				},
 				key: "meta_key",
 			},
@@ -255,7 +270,11 @@ func TestGetStringValueFromMetadata(t *testing.T) {
 			name: "Not a string value",
 			args: args{
 				meta: map[string]interface{}{
-					"meta_key": func() interface{} { s := 3; return s }(),
+					"meta_key": func() interface{} {
+						s := 3
+
+						return s
+					}(),
 				},
 				key: "meta_key",
 			},
@@ -266,7 +285,11 @@ func TestGetStringValueFromMetadata(t *testing.T) {
 			name: "Not found",
 			args: args{
 				meta: map[string]interface{}{
-					"meta_key": func() interface{} { s := "name"; return s }(),
+					"meta_key": func() interface{} {
+						s := "name"
+
+						return s
+					}(),
 				},
 				key: "other_key",
 			},
@@ -279,8 +302,10 @@ func TestGetStringValueFromMetadata(t *testing.T) {
 			got, err := GetStringValueFromMetadata(tt.args.meta, tt.args.key)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetStringValueFromMetadata() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("GetStringValueFromMetadata() = %v, want %v", got, tt.want)
 			}
@@ -293,6 +318,7 @@ func TestStats_GetSubscribedPods(t *testing.T) {
 		nodeID string
 		rType  string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -316,6 +342,7 @@ func TestStats_GetSubscribedPods(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
+
 			got := s.GetSubscribedPods(tt.args.nodeID, tt.args.rType)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Stats.GetSubscribedPods() = %v, want %v", got, tt.want)
@@ -330,6 +357,7 @@ func TestStats_GetPercentageFailing(t *testing.T) {
 		rType   string
 		version string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item

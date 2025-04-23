@@ -6,7 +6,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) ServiceAccount() *corev1.ServiceAccount {
-
 	return &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.ResourceName(),

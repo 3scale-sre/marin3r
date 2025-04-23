@@ -9,7 +9,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) Role() *rbacv1.Role {
-
 	return &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.ResourceName(),

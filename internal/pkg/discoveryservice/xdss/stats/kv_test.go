@@ -16,6 +16,7 @@ func TestNewKey(t *testing.T) {
 		podID    string
 		statName string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -52,6 +53,7 @@ func TestNewKeyFromString(t *testing.T) {
 	type args struct {
 		key string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -88,6 +90,7 @@ func TestKey_String(t *testing.T) {
 		PodID        string
 		Key          string
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -129,6 +132,7 @@ func TestStats_GetString(t *testing.T) {
 		podID    string
 		statName string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -187,11 +191,14 @@ func TestStats_GetString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
+
 			got, err := s.GetString(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.statName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Stats.GetString() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("Stats.GetString() = %v, want %v", got, tt.want)
 			}
@@ -208,6 +215,7 @@ func TestStats_SetString(t *testing.T) {
 		statName string
 		value    string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -235,6 +243,7 @@ func TestStats_SetString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
 			s.SetString(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.statName, tt.args.value)
+
 			if got, _ := s.store.Get(NewKey(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.statName).String()); got != tt.want.Object {
 				t.Errorf("Stats.SetString() = %v, want %v", got, tt.want.Object)
 			}
@@ -252,6 +261,7 @@ func TestStats_SetStringWithExpiration(t *testing.T) {
 		value      string
 		expiration time.Duration
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -268,7 +278,7 @@ func TestStats_SetStringWithExpiration(t *testing.T) {
 				podID:      "pod-xxxx",
 				statName:   "stat",
 				value:      "value",
-				expiration: time.Duration(time.Second),
+				expiration: time.Second,
 			},
 			want: kv.Item{
 				Object:     "value",
@@ -280,6 +290,7 @@ func TestStats_SetStringWithExpiration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
 			s.SetStringWithExpiration(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.statName, tt.args.value, tt.args.expiration)
+
 			if got, _ := s.store.Get(NewKey(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.statName).String()); got != tt.want.Object {
 				t.Errorf("Stats.SetStringWithExpiration() = %v, want %v", got, tt.want.Object)
 			}
@@ -291,6 +302,7 @@ func TestStats_FilterKeys(t *testing.T) {
 	type args struct {
 		filters []string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -386,6 +398,7 @@ func TestStats_GetCounter(t *testing.T) {
 		podID    string
 		statName string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -440,11 +453,14 @@ func TestStats_GetCounter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
+
 			got, err := s.GetCounter(tt.args.nodeID, tt.args.rtype, tt.args.version, tt.args.podID, tt.args.statName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Stats.GetCounter() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("Stats.GetCounter() = %v, want %v", got, tt.want)
 			}
@@ -461,6 +477,7 @@ func TestStats_IncrementCounter(t *testing.T) {
 		statName  string
 		increment int64
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -501,6 +518,7 @@ func TestStats_IncrementCounter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
 			s.IncrementCounter(tt.args.nodeID, tt.args.rType, tt.args.version, tt.args.podID, tt.args.statName, tt.args.increment)
+
 			if got := s.store.Items(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Stats.IncrementCounter() = %v, want %v", got, tt.want)
 			}
@@ -512,6 +530,7 @@ func TestStats_DeleteKeysByFilter(t *testing.T) {
 	type args struct {
 		filters []string
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -539,6 +558,7 @@ func TestStats_DeleteKeysByFilter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Stats{store: kv.NewFrom(defaultExpiration, cleanupInterval, tt.cacheItems)}
 			s.DeleteKeysByFilter(tt.args.filters...)
+
 			if got := s.store.Items(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Stats.DeleteKeysByFilter() = %v, want %v", got, tt.want)
 			}

@@ -1,7 +1,6 @@
 package test
 
 func TestIssuerCertificate() []byte {
-
 	return []byte(`
 -----BEGIN CERTIFICATE-----
 MIIFmzCCA4OgAwIBAgIUTYj83F3iY96M93bV40y70VTy3E8wDQYJKoZIhvcNAQEL

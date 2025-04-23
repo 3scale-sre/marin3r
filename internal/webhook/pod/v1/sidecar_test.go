@@ -23,6 +23,7 @@ import (
 
 func init() {
 	operatorv1alpha1.AddToScheme(scheme.Scheme)
+
 	deep.CompareUnexportedFields = true
 }
 
@@ -33,6 +34,7 @@ func Test_envoySidecarConfig_PopulateFromAnnotation(t *testing.T) {
 		namespace   string
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name    string
 		esc     *envoySidecarConfig
@@ -202,9 +204,9 @@ func Test_envoySidecarConfig_PopulateFromAnnotation(t *testing.T) {
 			if err := tt.esc.PopulateFromAnnotations(tt.args.ctx, tt.args.clnt, tt.args.namespace, tt.args.annotations); (err != nil) != tt.wantErr {
 				t.Errorf("envoySidecarConfig.PopulateFromAnnotations() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			if diff := deep.Equal(tt.esc, tt.want); len(diff) > 0 {
 				t.Errorf("envoySidecarConfig.PopulateFromAnnotations() = diff %v", diff)
-
 			}
 		})
 	}
@@ -214,6 +216,7 @@ func Test_getContainerPorts(t *testing.T) {
 	type args struct {
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -281,8 +284,10 @@ func Test_getContainerPorts(t *testing.T) {
 			got, err := getContainerPorts(tt.args.annotations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getContainerPorts() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getContainerPorts() = %v, want %v", got, tt.want)
 			}
@@ -294,6 +299,7 @@ func Test_parsePortSpec(t *testing.T) {
 	type args struct {
 		spec string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -363,8 +369,10 @@ func Test_parsePortSpec(t *testing.T) {
 			got, err := parsePortSpec(tt.args.spec)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parsePortSpec() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("parsePortSpec() = %v, want %v", got, tt.want)
 			}
@@ -377,6 +385,7 @@ func Test_hostPortMapping(t *testing.T) {
 		portName    string
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -420,8 +429,10 @@ func Test_hostPortMapping(t *testing.T) {
 			got, err := hostPortMapping(tt.args.portName, tt.args.annotations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("hostPortMapping() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("hostPortMapping() = %v, want %v", got, tt.want)
 			}
@@ -433,6 +444,7 @@ func Test_portNumber(t *testing.T) {
 	type args struct {
 		sport string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -451,8 +463,10 @@ func Test_portNumber(t *testing.T) {
 			got, err := portNumber(tt.args.sport)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("portNumber() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if got != tt.want {
 				t.Errorf("portNumber() = %v, want %v", got, tt.want)
 			}
@@ -465,6 +479,7 @@ func Test_getStringParam(t *testing.T) {
 		key         string
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -501,6 +516,7 @@ func Test_getNodeID(t *testing.T) {
 	type args struct {
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -573,8 +589,10 @@ func Test_lookupMarin3rAnnotation(t *testing.T) {
 			got, ok := lookupMarin3rAnnotation(tt.args.key, tt.args.annotations)
 			if ok != tt.wantOk {
 				t.Errorf("lookupMarin3rAnnotation() ok = %v, wantOk %v", got, tt.wantOk)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("lookupMarin3rAnnotation() = %v, want %v", got, tt.want)
 			}
@@ -586,6 +604,7 @@ func Test_getContainerResourceRequirements(t *testing.T) {
 	type args struct {
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -689,20 +708,22 @@ func Test_getContainerResourceRequirements(t *testing.T) {
 			got, err := getContainerResourceRequirements(tt.args.annotations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getContainerResourceRequirements() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !equality.Semantic.DeepEqual(got, tt.want) {
 				t.Errorf("getContainerResourceRequirements() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-
 }
 
 func Test_isShtdnMgrEnabled(t *testing.T) {
 	type args struct {
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -754,6 +775,7 @@ func Test_getPortOrDefault(t *testing.T) {
 		annotations map[string]string
 		defaultPort uint32
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -809,6 +831,7 @@ func Test_envoySidecarConfig_GetDiscoveryServiceAddress(t *testing.T) {
 		namespace   string
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name       string
 		args       args
@@ -824,7 +847,11 @@ func Test_envoySidecarConfig_GetDiscoveryServiceAddress(t *testing.T) {
 					&operatorv1alpha1.DiscoveryService{
 						ObjectMeta: metav1.ObjectMeta{Name: "ds", Namespace: "test"},
 						Spec: operatorv1alpha1.DiscoveryServiceSpec{
-							XdsServerPort: func() *uint32 { var p uint32 = 20000; return &p }(),
+							XdsServerPort: func() *uint32 {
+								var p uint32 = 20000
+
+								return &p
+							}(),
 							ServiceConfig: &operatorv1alpha1.ServiceConfig{
 								Name: "example",
 							},
@@ -848,7 +875,11 @@ func Test_envoySidecarConfig_GetDiscoveryServiceAddress(t *testing.T) {
 					&operatorv1alpha1.DiscoveryService{
 						ObjectMeta: metav1.ObjectMeta{Name: "ds", Namespace: "test"},
 						Spec: operatorv1alpha1.DiscoveryServiceSpec{
-							XdsServerPort: func() *uint32 { var p uint32 = 20000; return &p }(),
+							XdsServerPort: func() *uint32 {
+								var p uint32 = 20000
+
+								return &p
+							}(),
 							ServiceConfig: &operatorv1alpha1.ServiceConfig{
 								Name: "example",
 							},
@@ -894,15 +925,17 @@ func Test_envoySidecarConfig_GetDiscoveryServiceAddress(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			gotServer, gotPort, err := getDiscoveryServiceAddress(tt.args.ctx, tt.args.clnt, tt.args.namespace, tt.args.annotations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("envoySidecarConfig.GetDiscoveryServiceAddress() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if gotServer != tt.wantServer {
 				t.Errorf("envoySidecarConfig.GetDiscoveryServiceAddress() got = %v, want %v", gotServer, tt.wantServer)
 			}
+
 			if gotPort != tt.wantPort {
 				t.Errorf("envoySidecarConfig.GetDiscoveryServiceAddress() got1 = %v, want %v", gotPort, tt.wantPort)
 			}
@@ -914,6 +947,7 @@ func Test_parseExtraLifecycleHooksAnnotation(t *testing.T) {
 	type args struct {
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -950,6 +984,7 @@ func Test_getContainerByName(t *testing.T) {
 		name       string
 		containers []corev1.Container
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -987,8 +1022,10 @@ func Test_getContainerByName(t *testing.T) {
 			got1, _, err := getContainerByName(tt.args.name, tt.args.containers)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getContainerByName() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("getContainerByName() = %v, want %v", got1, tt.want1)
 			}
@@ -1000,10 +1037,12 @@ func Test_envoySidecarConfig_addExtraLifecycleHooks(t *testing.T) {
 	type fields struct {
 		generator envoy_container.ContainerConfig
 	}
+
 	type args struct {
 		containers  []corev1.Container
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -1065,11 +1104,14 @@ func Test_envoySidecarConfig_addExtraLifecycleHooks(t *testing.T) {
 			esc := &envoySidecarConfig{
 				generator: tt.fields.generator,
 			}
+
 			got, err := esc.addExtraLifecycleHooks(tt.args.containers, tt.args.annotations)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("envoySidecarConfig.addExtraLifecycleHooks() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("envoySidecarConfig.addExtraLifecycleHooks() = %v, want %v", got, tt.want)
 			}
@@ -1082,6 +1124,7 @@ func Test_getInt64Param(t *testing.T) {
 		key         string
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -1129,6 +1172,7 @@ func Test_getDrainStrategy(t *testing.T) {
 	type args struct {
 		annotations map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args

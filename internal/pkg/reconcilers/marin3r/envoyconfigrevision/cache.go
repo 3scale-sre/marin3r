@@ -26,7 +26,6 @@ const (
 )
 
 type CacheReconciler struct {
-	ctx       context.Context
 	logger    logr.Logger
 	client    client.Client
 	xdsCache  xdss.Cache
@@ -34,16 +33,14 @@ type CacheReconciler struct {
 	generator envoy_resources.Generator
 }
 
-func NewCacheReconciler(ctx context.Context, logger logr.Logger, client client.Client, xdsCache xdss.Cache,
-	decoder envoy_serializer.ResourceUnmarshaller, generator envoy_resources.Generator) CacheReconciler {
-
-	return CacheReconciler{ctx, logger, client, xdsCache, decoder, generator}
+func NewCacheReconciler(client client.Client, xdsCache xdss.Cache, decoder envoy_serializer.ResourceUnmarshaller,
+	generator envoy_resources.Generator, logger logr.Logger) CacheReconciler {
+	return CacheReconciler{logger, client, xdsCache, decoder, generator}
 }
 
 func (r *CacheReconciler) Reconcile(ctx context.Context, req types.NamespacedName, resources []marin3rv1alpha1.Resource,
 	nodeID, version string) (*marin3rv1alpha1.VersionTracker, error) {
-
-	snap, err := r.GenerateSnapshot(req, resources)
+	snap, err := r.GenerateSnapshot(ctx, req, resources)
 
 	if err != nil {
 		return nil, err
@@ -51,12 +48,11 @@ func (r *CacheReconciler) Reconcile(ctx context.Context, req types.NamespacedNam
 
 	oldSnap, err := r.xdsCache.GetSnapshot(nodeID)
 	if err != nil || areDifferent(snap, oldSnap) {
-
 		r.logger.Info("Writing new snapshot to xDS cache", "Revision", version, "NodeID", nodeID)
+
 		if err := r.xdsCache.SetSnapshot(ctx, nodeID, snap); err != nil {
 			return nil, err
 		}
-
 	}
 
 	return &marin3rv1alpha1.VersionTracker{
@@ -71,7 +67,7 @@ func (r *CacheReconciler) Reconcile(ctx context.Context, req types.NamespacedNam
 	}, nil
 }
 
-func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources []marin3rv1alpha1.Resource) (xdss.Snapshot, error) {
+func (r *CacheReconciler) GenerateSnapshot(ctx context.Context, req types.NamespacedName, resources []marin3rv1alpha1.Resource) (xdss.Snapshot, error) {
 	snap := r.xdsCache.NewSnapshot()
 
 	endpoints := make([]envoy.Resource, 0, len(resources))
@@ -85,12 +81,10 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 
 	for idx, resourceDefinition := range resources {
 		switch resourceDefinition.Type {
-
 		case envoy.Endpoint:
-
 			if resourceDefinition.GenerateFromEndpointSlices != nil {
 				// Endpoint discovery enabled
-				endpoint, err := discover.Endpoints(r.ctx, r.client, req.Namespace,
+				endpoint, err := discover.Endpoints(ctx, r.client, req.Namespace,
 					resourceDefinition.GenerateFromEndpointSlices.ClusterName,
 					resourceDefinition.GenerateFromEndpointSlices.TargetPort,
 					resourceDefinition.GenerateFromEndpointSlices.Selector,
@@ -98,8 +92,8 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 				if err != nil {
 					return nil, err
 				}
-				endpoints = append(endpoints, endpoint)
 
+				endpoints = append(endpoints, endpoint)
 			} else {
 				// Raw value provided
 				res := r.generator.New(envoy.Endpoint)
@@ -110,6 +104,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 							fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 						)
 				}
+
 				endpoints = append(endpoints, res)
 			}
 
@@ -122,6 +117,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 						fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 					)
 			}
+
 			clusters = append(clusters, res)
 
 		case envoy.Route:
@@ -133,6 +129,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 						fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 					)
 			}
+
 			routes = append(routes, res)
 
 		case envoy.ScopedRoute:
@@ -144,6 +141,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 						fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 					)
 			}
+
 			scopedRoutes = append(scopedRoutes, res)
 
 		case envoy.Listener:
@@ -155,44 +153,51 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 						fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 					)
 			}
+
 			listeners = append(listeners, res)
 
 		case envoy.Secret:
 			var res envoy.Resource
+
 			s := &corev1.Secret{}
 
 			if resourceDefinition.GenerateFromTlsSecret != nil {
 				name := *resourceDefinition.GenerateFromTlsSecret
+
 				key := types.NamespacedName{Name: name, Namespace: req.Namespace}
-				if err := r.client.Get(r.ctx, key, s); err != nil {
+				if err := r.client.Get(ctx, key, s); err != nil {
 					return nil, fmt.Errorf("%s", err.Error())
 				}
+
 				if s.Type != corev1.SecretTypeTLS {
 					return nil, fmt.Errorf("expected Secret of '%s' type", corev1.SecretTypeTLS)
 				}
+
 				switch resourceDefinition.GetBlueprint() {
 				case marin3rv1alpha1.TlsCertificate:
 					res = r.generator.NewTlsCertificateSecret(name, string(s.Data[secretPrivateKey]), string(s.Data[secretCertificate]))
 				case marin3rv1alpha1.TlsValidationContext:
 					res = r.generator.NewValidationContextSecret(name, string(s.Data[secretCertificate]))
 				}
-
 			} else if resourceDefinition.GenerateFromOpaqueSecret != nil {
 				name := resourceDefinition.GenerateFromOpaqueSecret.Name
+
 				key := types.NamespacedName{Name: name, Namespace: req.Namespace}
-				if err := r.client.Get(r.ctx, key, s); err != nil {
+				if err := r.client.Get(ctx, key, s); err != nil {
 					return nil, fmt.Errorf("%s", err.Error())
 				}
+
 				if s.Type != corev1.SecretTypeOpaque {
 					return nil, fmt.Errorf("expected Secret of '%s' type", corev1.SecretTypeOpaque)
 				}
+
 				res = r.generator.NewGenericSecret(resourceDefinition.GenerateFromOpaqueSecret.Alias, string(s.Data[resourceDefinition.GenerateFromOpaqueSecret.Key]))
 				m := envoy_serializer.NewResourceMarshaller(envoy_serializer.YAML, envoy.APIv3)
 				yaml, _ := m.Marshal(res)
+
 				fmt.Println("###################################")
 				spew.Dump(yaml)
 				fmt.Println("###################################")
-
 			} else {
 				return nil, resourceLoaderError(
 					req, resourceDefinition, field.NewPath("spec", "resources").Index(idx),
@@ -211,6 +216,7 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 						fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 					)
 			}
+
 			runtimes = append(runtimes, res)
 
 		case envoy.ExtensionConfig:
@@ -222,12 +228,11 @@ func (r *CacheReconciler) GenerateSnapshot(req types.NamespacedName, resources [
 						fmt.Sprintf("Invalid envoy resource value: '%s'", err),
 					)
 			}
+
 			extensionConfigs = append(extensionConfigs, res)
 
 		default:
-
 		}
-
 	}
 
 	snap.SetResources(envoy.Endpoint, endpoints)
@@ -246,7 +251,7 @@ func resourceLoaderError(req types.NamespacedName, value interface{}, resPath *f
 	return errors.NewInvalid(
 		schema.GroupKind{Group: "envoy", Kind: "EnvoyConfig"},
 		fmt.Sprintf("%s/%s", req.Namespace, req.Name),
-		field.ErrorList{field.Invalid(resPath, value, fmt.Sprint(msg))},
+		field.ErrorList{field.Invalid(resPath, value, msg)},
 	)
 }
 
@@ -257,5 +262,6 @@ func areDifferent(a, b xdss.Snapshot) bool {
 			return true
 		}
 	}
+
 	return false
 }

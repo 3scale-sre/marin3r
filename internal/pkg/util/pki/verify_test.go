@@ -2,7 +2,7 @@ package pki
 
 import (
 	"crypto/x509"
-	"fmt"
+	"errors"
 	"reflect"
 	"testing"
 
@@ -11,11 +11,13 @@ import (
 
 func testValidCertificate() *x509.Certificate {
 	cert, _ := LoadX509Certificate(test.TestValidCertificate())
+
 	return cert
 }
 
 func testExpiredCertificate() *x509.Certificate {
 	cert, _ := LoadX509Certificate(test.TestExpiredCertificate())
+
 	return cert
 }
 
@@ -24,6 +26,7 @@ func TestVerify(t *testing.T) {
 		certificate *x509.Certificate
 		root        *x509.Certificate
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -59,6 +62,7 @@ func TestVerifyError_Error(t *testing.T) {
 	type fields struct {
 		msg string
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -86,6 +90,7 @@ func TestNewVerifyError(t *testing.T) {
 	type args struct {
 		msg string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -109,6 +114,7 @@ func TestIsVerifyError(t *testing.T) {
 	type args struct {
 		err error
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -121,7 +127,7 @@ func TestIsVerifyError(t *testing.T) {
 		},
 		{
 			name: "Returns false",
-			args: args{err: fmt.Errorf("teste")},
+			args: args{err: errors.New("teste")},
 			want: false,
 		},
 	}

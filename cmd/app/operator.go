@@ -68,7 +68,6 @@ func init() {
 }
 
 func runOperator(cmd *cobra.Command, args []string) {
-
 	ctrl.SetLogger(zap.New(zap.UseDevMode(debug)))
 	printVersion()
 
@@ -93,6 +92,7 @@ func runOperator(cmd *cobra.Command, args []string) {
 
 	if strings.Contains(watchNamespace, ",") {
 		setupLog.Info(fmt.Sprintf("manager in MultiNamespaced mode will be watching namespaces %q", watchNamespace))
+
 		options.Cache = cache.Options{DefaultNamespaces: map[string]cache.Config{}}
 		for _, ns := range strings.Split(watchNamespace, ",") {
 			options.Cache.DefaultNamespaces[ns] = cache.Config{}
@@ -142,12 +142,14 @@ func runOperator(cmd *cobra.Command, args []string) {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
+
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
 	setupLog.Info("starting the Operator.")
+
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "controller manager exited non-zero")
 		os.Exit(1)
@@ -156,10 +158,10 @@ func runOperator(cmd *cobra.Command, args []string) {
 
 // getWatchNamespace returns the Namespace the operator should be watching for changes
 func getWatchNamespace() (string, error) {
-
 	ns, found := os.LookupEnv(watchNamespaceEnvVar)
 	if !found {
 		return "", fmt.Errorf("%s must be set", watchNamespaceEnvVar)
 	}
+
 	return ns, nil
 }

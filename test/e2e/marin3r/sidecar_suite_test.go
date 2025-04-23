@@ -41,6 +41,7 @@ var _ = Describe("Envoy sidecars", func() {
 		n := &corev1.Namespace{}
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: testNamespace}, n)
+
 			return err == nil
 		}, timeout, poll).Should(BeTrue())
 
@@ -66,6 +67,7 @@ var _ = Describe("Envoy sidecars", func() {
 			if err := k8sClient.Get(context.Background(), key, dep); err != nil {
 				return 0
 			}
+
 			return int(dep.Status.ReadyReplicas)
 		}, timeout, poll).Should(Equal(1))
 	})
@@ -131,8 +133,8 @@ var _ = Describe("Envoy sidecars", func() {
 			err := k8sClient.List(context.Background(), podList,
 				[]client.ListOption{selector, client.InNamespace(testNamespace)}...)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(len(podList.Items)).To(Equal(1))
-			Expect(len(podList.Items[0].Spec.Containers)).To(Equal(2))
+			Expect(podList.Items).To(HaveLen(1))
+			Expect(podList.Items[0].Spec.Containers).To(HaveLen(2))
 
 			By(fmt.Sprintf("forwarding the Pod's port to localhost: %v", localPort))
 			stopCh := make(chan struct{})
@@ -152,6 +154,7 @@ var _ = Describe("Envoy sidecars", func() {
 				Fail("timed out while waiting for port forward")
 			case <-readyCh:
 				ticker.Stop()
+
 				break
 			}
 
@@ -159,6 +162,7 @@ var _ = Describe("Envoy sidecars", func() {
 			var resp *http.Response
 			Eventually(func() error {
 				resp, err = http.Get(fmt.Sprintf("http://localhost:%v", localPort))
+
 				return err
 			}, timeout, poll).ShouldNot(HaveOccurred())
 
@@ -169,7 +173,7 @@ var _ = Describe("Envoy sidecars", func() {
 			Expect(scanner.Scan()).To(BeTrue())
 			Expect(scanner.Text()).To(Equal("Server address: 127.0.0.1:80"))
 			Expect(scanner.Scan()).To(BeTrue())
-			Expect(scanner.Text()).To(Equal(fmt.Sprintf("Server name: %s", podList.Items[0].GetName())))
+			Expect(scanner.Text()).To(Equal("Server name: " + podList.Items[0].GetName()))
 
 		})
 

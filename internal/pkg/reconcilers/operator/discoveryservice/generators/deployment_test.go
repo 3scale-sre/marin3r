@@ -17,6 +17,7 @@ func TestGeneratorOptions_Deployment(t *testing.T) {
 	type args struct {
 		hash string
 	}
+
 	tests := []struct {
 		name string
 		opts GeneratorOptions

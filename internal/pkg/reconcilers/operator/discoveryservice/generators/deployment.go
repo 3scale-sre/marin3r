@@ -12,9 +12,7 @@ import (
 )
 
 func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
-
 	return func() *appsv1.Deployment {
-
 		deployment := &appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      cfg.ResourceName(),
@@ -32,6 +30,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 						Labels: func() (labels map[string]string) {
 							labels = cfg.labels()
 							labels[operatorv1alpha1.DiscoveryServiceCertificateHashLabelKey] = hash
+
 							return
 						}(),
 					},
@@ -82,17 +81,18 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 									if cfg.Debug {
 										args = append(args, "--debug")
 									}
+
 									return
 								}(),
 								Ports: []corev1.ContainerPort{
 									{
 										Name:          "discovery",
-										ContainerPort: int32(cfg.XdsServerPort),
+										ContainerPort: cfg.XdsServerPort,
 										Protocol:      corev1.ProtocolTCP,
 									},
 									{
 										Name:          "metrics",
-										ContainerPort: int32(cfg.MetricsServerPort),
+										ContainerPort: cfg.MetricsServerPort,
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},

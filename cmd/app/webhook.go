@@ -80,7 +80,6 @@ func init() {
 }
 
 func runWebhook(cmd *cobra.Command, args []string) {
-
 	ctrl.SetLogger(zap.New(zap.UseDevMode(debug)))
 	printVersion()
 
@@ -110,6 +109,7 @@ func runWebhook(cmd *cobra.Command, args []string) {
 
 	if strings.Contains(watchNamespace, ",") {
 		setupLog.Info(fmt.Sprintf("manager in MultiNamespaced mode will be watching namespaces %q", watchNamespace))
+
 		options.Cache = cache.Options{DefaultNamespaces: map[string]cache.Config{}}
 		for _, ns := range strings.Split(watchNamespace, ",") {
 			options.Cache.DefaultNamespaces[ns] = cache.Config{}
@@ -131,6 +131,7 @@ func runWebhook(cmd *cobra.Command, args []string) {
 
 	// Register the Pod mutating webhook
 	hookServer := mgr.GetWebhookServer()
+
 	ctrl.Log.Info("registering the pod mutating webhook with webhook server")
 	hookServer.Register(webhookpodv1.MutatePath, &webhook.Admission{
 		Handler: &webhookpodv1.PodMutator{
@@ -155,12 +156,14 @@ func runWebhook(cmd *cobra.Command, args []string) {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
+
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
 	setupLog.Info("starting the webhook")
+
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "controller manager exited non-zero")
 		os.Exit(1)

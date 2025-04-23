@@ -41,6 +41,7 @@ var _ server_v3.Callbacks = &Callbacks{}
 // Returning an error will end processing and close the stream. OnStreamClosed will still be called.
 func (cb *Callbacks) OnStreamOpen(ctx context.Context, id int64, typ string) error {
 	cb.Logger.V(1).Info("Stream opened", "StreamId", id)
+
 	return nil
 }
 
@@ -55,9 +56,10 @@ func (cb *Callbacks) OnStreamClosed(id int64, node *envoy_config_core_v3.Node) {
 // Returning an error will end processing and close the stream. OnStreamClosed will still be called.
 func (cb *Callbacks) OnStreamRequest(id int64, req *envoy_service_discovery_v3.DiscoveryRequest) error {
 	// Try to get the Pod name associated with the request
-	podName, err := stats.GetStringValueFromMetadata(req.GetNode().Metadata.AsMap(), "pod_name")
+	podName, err := stats.GetStringValueFromMetadata(req.GetNode().GetMetadata().AsMap(), "pod_name")
 	if err != nil {
-		cb.Logger.Error(err, "an error ocurred, Pod name could not be retrieved", "NodeID", req.GetNode().GetId(), "StreamID", id)
+		cb.Logger.Error(err, "an error occurred, Pod name could not be retrieved", "NodeID", req.GetNode().GetId(), "StreamID", id)
+
 		podName = "unknown"
 	}
 
@@ -67,6 +69,7 @@ func (cb *Callbacks) OnStreamRequest(id int64, req *envoy_service_discovery_v3.D
 	if req.GetResponseNonce() != "" {
 		if req.GetErrorDetail() != nil {
 			log.Info("Discovery NACK")
+
 			failures, err := cb.Stats.ReportNACK(req.GetNode().GetId(), req.GetTypeUrl(), podName, req.GetResponseNonce())
 			if err != nil {
 				log.Error(err, "error trying to report a response NACK")
@@ -78,12 +81,10 @@ func (cb *Callbacks) OnStreamRequest(id int64, req *envoy_service_discovery_v3.D
 			} else {
 				time.Sleep(backoff.Default.Duration(int(failures)))
 			}
-
 		} else {
 			log.Info("Discovery ACK")
 			cb.Stats.ReportACK(req.GetNode().GetId(), req.GetTypeUrl(), req.GetVersionInfo(), podName)
 		}
-
 	} else {
 		log.Info("Discovery Request")
 		cb.Stats.ReportRequest(req.GetNode().GetId(), req.GetTypeUrl(), podName)
@@ -96,26 +97,27 @@ func (cb *Callbacks) OnStreamRequest(id int64, req *envoy_service_discovery_v3.D
 // OnStreamResponse is called immediately prior to sending a response on a stream.
 func (cb *Callbacks) OnStreamResponse(ctx context.Context, id int64, req *envoy_service_discovery_v3.DiscoveryRequest,
 	rsp *envoy_service_discovery_v3.DiscoveryResponse) {
-
 	log := cb.Logger.WithValues("TypeURL", req.GetTypeUrl(), "NodeID", req.GetNode().GetId(), "StreamID", id, "Version", rsp.GetVersionInfo())
 
 	// Track the nonce of this response in the stats cache
-	podName, err := stats.GetStringValueFromMetadata(req.GetNode().Metadata.AsMap(), "pod_name")
+	podName, err := stats.GetStringValueFromMetadata(req.GetNode().GetMetadata().AsMap(), "pod_name")
 	if err != nil {
-		log.Error(err, "an error ocurred, nonce won't be tracked")
+		log.Error(err, "an error occurred, nonce won't be tracked")
 	} else {
 		cb.Stats.WriteResponseNonce(req.GetNode().GetId(), rsp.GetTypeUrl(), rsp.GetVersionInfo(), podName, rsp.GetNonce())
 	}
 
 	// Log resources when in debug mode
 	resources := []string{}
-	for _, r := range rsp.Resources {
+
+	for _, r := range rsp.GetResources() {
 		j, _ := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, envoy.APIv3).Marshal(r)
-		resources = append(resources, string(j))
+		resources = append(resources, j)
 	}
-	if rsp.TypeUrl == envoy_resources_v3.Mappings()[envoy.Secret] {
+
+	if rsp.GetTypeUrl() == envoy_resources_v3.Mappings()[envoy.Secret] {
 		// Do not log secret contents
-		log.V(1).Info("Discovery Response", "ResourcesNames", req.ResourceNames, "Pod", podName)
+		log.V(1).Info("Discovery Response", "ResourcesNames", req.GetResourceNames(), "Pod", podName)
 	} else {
 		log.V(1).Info("Discovery Response", "Resources", resources, "Pod", podName)
 	}

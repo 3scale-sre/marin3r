@@ -22,7 +22,7 @@ func TestGeneratorOptions_ClientCertificate(t *testing.T) {
 				InstanceName:              "instance",
 				Namespace:                 "default",
 				RootCertificateNamePrefix: "signing-cert",
-				ClientCertificateDuration: time.Duration(20 * time.Second),
+				ClientCertificateDuration: 20 * time.Second,
 			},
 			want: &operatorv1alpha1.DiscoveryServiceCertificate{
 				ObjectMeta: metav1.ObjectMeta{
@@ -37,7 +37,7 @@ func TestGeneratorOptions_ClientCertificate(t *testing.T) {
 				},
 				Spec: operatorv1alpha1.DiscoveryServiceCertificateSpec{
 					CommonName: "envoy-sidecar-client-cert",
-					ValidFor:   int64(time.Duration(20 * time.Second).Seconds()),
+					ValidFor:   int64(20 * time.Second.Seconds()),
 					Signer: operatorv1alpha1.DiscoveryServiceCertificateSigner{
 						CASigned: &operatorv1alpha1.CASignedConfig{
 							SecretRef: corev1.SecretReference{
