@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ../default
 images:
-  - name: quay.io/3scale/marin3r
+  - name: quay.io/3scale-sre/marin3r
     newTag: test
 patches:
   - path: manager_patch.yaml

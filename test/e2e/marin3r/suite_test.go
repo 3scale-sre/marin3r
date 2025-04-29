@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	image             string = "quay.io/3scale/marin3r:test"
+	image             string = "quay.io/3scale-sre/marin3r:test"
 	targetNamespace   string = "default"
 	envoyListenerPort uint32 = 8080
 	// From v1.17.0 forwards only v3 API is supported

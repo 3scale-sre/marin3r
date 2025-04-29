@@ -5,7 +5,7 @@ metadata:
     capabilities: Full Lifecycle
     categories: Networking
     certified: "false"
-    containerImage: quay.io/3scale/marin3r
+    containerImage: quay.io/3scale-sre/marin3r
     description: Lighweight, CRD based Envoy control plane for Kubernetes
     operators.operatorframework.io/internal-objects: '["envoyconfigrevisions.marin3r.3scale.net","discoveryservicecertificates.operator.marin3r.3scale.net"]'
     repository: https://github.com/3scale-sre/marin3r
