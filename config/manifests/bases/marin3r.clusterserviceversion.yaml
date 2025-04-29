@@ -10,6 +10,10 @@ metadata:
     operators.operatorframework.io/internal-objects: '["envoyconfigrevisions.marin3r.3scale.net","discoveryservicecertificates.operator.marin3r.3scale.net"]'
     repository: https://github.com/3scale-sre/marin3r
     support: Red Hat, Inc.
+  labels:
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.arm64: supported
+    operatorframework.io/os.linux: supported
   name: marin3r.v0.0.0
   namespace: placeholder
 spec:

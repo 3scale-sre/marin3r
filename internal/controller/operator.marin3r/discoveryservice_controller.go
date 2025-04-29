@@ -83,6 +83,7 @@ func (r *DiscoveryServiceReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		DeploymentResources: ds.Resources(),
 		Debug:               ds.Debug(),
 		PodPriorityClass:    ds.GetPriorityClass(),
+		Affinity:            ds.Affinity(),
 	}
 
 	serverCertHash, err := r.calculateServerCertificateHash(ctx, types.NamespacedName{Name: gen.ServerCertName(), Namespace: gen.Namespace})

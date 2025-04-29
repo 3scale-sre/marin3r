@@ -397,7 +397,7 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	cd config/webhook && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
-	$(OPERATOR_SDK) bundle validate ./bundle
+	$(OPERATOR_SDK) bundle validate ./bundle --select-optional name=multiarch
 
 
 .PHONY: bundle-build
@@ -508,7 +508,7 @@ prepare-alpha-release: generate fmt vet manifests go-generate vendor bundle ## G
 prepare-stable-release: generate fmt vet manifests go-generate vendor bundle refdocs ## Generates bundle manifests for stable channel release
 	$(MAKE) bundle CHANNELS=alpha,stable DEFAULT_CHANNEL=stable
 
-bundle-publish: container-build container-push bundle-build bundle-push ## Builds and pushes operator and bundle images
+bundle-publish: container-buildx container-pushx bundle-build bundle-push ## Builds and pushes operator and bundle images
 
 catalog-publish: catalog-build catalog-push catalog-retag-latest ## Builds and pushes the catalog image
 
