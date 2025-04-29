@@ -316,7 +316,30 @@ func (d *DiscoveryService) OwnedObjectName() string {
 
 // Returns configured Affinity for the Discovery Service Server
 func (d *DiscoveryService) Affinity() *corev1.Affinity {
-	return d.Spec.Affinity
+	if d.Spec.Affinity != nil {
+		return d.Spec.Affinity
+	} else {
+		return &corev1.Affinity{
+			NodeAffinity: &corev1.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+					NodeSelectorTerms: []corev1.NodeSelectorTerm{{
+						MatchExpressions: []corev1.NodeSelectorRequirement{
+							{
+								Key:      "kubernetes.io/arch",
+								Operator: "In",
+								Values:   []string{"amd64", "arm64"},
+							},
+							{
+								Key:      "kubernetes.io/os",
+								Operator: "In",
+								Values:   []string{"linux"},
+							},
+						}},
+					},
+				},
+			},
+		}
+	}
 }
 
 // +kubebuilder:object:root=true
