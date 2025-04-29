@@ -48,6 +48,7 @@ var _ webhook.CustomValidator = &EnvoyDeploymentCustomValidator{}
 func (validator *EnvoyDeploymentCustomValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	ed := obj.(*operatorv1alpha1.EnvoyDeployment)
 	envoydeploymentlog.V(1).Info("validate create", "name", ed.Name)
+
 	return nil, validate(ed)
 }
 
@@ -55,6 +56,7 @@ func (validator *EnvoyDeploymentCustomValidator) ValidateCreate(ctx context.Cont
 func (validator *EnvoyDeploymentCustomValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	ed := newObj.(*operatorv1alpha1.EnvoyDeployment)
 	envoydeploymentlog.V(1).Info("validate update", "name", ed.Name)
+
 	return nil, validate(ed)
 }
 
@@ -65,7 +67,6 @@ func (validator *EnvoyDeploymentCustomValidator) ValidateDelete(ctx context.Cont
 
 // Validate checks that the spec of the EnvoyDeployment resource is correct
 func validate(ed *operatorv1alpha1.EnvoyDeployment) error {
-
 	if ed.Spec.Replicas != nil {
 		if err := ed.Spec.Replicas.Validate(); err != nil {
 			return err

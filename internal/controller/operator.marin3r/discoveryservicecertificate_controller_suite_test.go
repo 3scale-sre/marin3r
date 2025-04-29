@@ -36,6 +36,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 		n := &corev1.Namespace{}
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: namespace}, n)
+
 			return err == nil
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -57,6 +58,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 			if err != nil && errors.IsNotFound(err) {
 				return false
 			}
+
 			return true
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 	})
@@ -89,6 +91,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 			Eventually(func() bool {
 				err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "dsc", Namespace: namespace}, dsc)
 				Expect(err).ToNot(HaveOccurred())
+
 				return dsc.Status.IsReady()
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 		})
@@ -110,6 +113,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 			Eventually(func() string {
 				err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "dsc", Namespace: namespace}, dsc)
 				Expect(err).ToNot(HaveOccurred())
+
 				return dsc.Status.GetCertificateHash()
 			}, 60*time.Second, 5*time.Second).ShouldNot(Equal(hash))
 		})
@@ -204,6 +208,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
 				err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "cert", Namespace: namespace}, dsc)
+
 				return err == nil && dsc.Status.IsReady()
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -216,6 +221,7 @@ var _ = Describe("DiscoveryServiceCertificate controller", func() {
 			Eventually(func() string {
 				err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "cert", Namespace: namespace}, dsc)
 				Expect(err).ToNot(HaveOccurred())
+
 				return dsc.Status.GetCertificateHash()
 			}, 60*time.Second, 5*time.Second).ShouldNot(Equal(hash))
 		})

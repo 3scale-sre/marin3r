@@ -17,6 +17,7 @@ package discoveryservice
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"time"
@@ -56,7 +57,6 @@ var (
 // XdsServer is a type that holds configuration
 // and runtime objects for the envoy xds server
 type XdsServer struct {
-	ctx              context.Context
 	xDSPort          uint
 	tlsConfig        *tls.Config
 	serverV3         server_v3.Server
@@ -67,7 +67,6 @@ type XdsServer struct {
 
 // NewXdsServer creates a new XdsServer object fron the given params
 func NewXdsServer(ctx context.Context, xDSPort uint, tlsConfig *tls.Config, logger logr.Logger) *XdsServer {
-
 	xdsLogger := logger.WithName("xds")
 
 	discoveryStatsV3 := stats.New()
@@ -90,7 +89,6 @@ func NewXdsServer(ctx context.Context, xDSPort uint, tlsConfig *tls.Config, logg
 	srvV3 := server_v3.NewServer(ctx, snapshotCacheV3, callbacksV3)
 
 	return &XdsServer{
-		ctx:              ctx,
 		xDSPort:          xDSPort,
 		tlsConfig:        tlsConfig,
 		serverV3:         srvV3,
@@ -101,8 +99,7 @@ func NewXdsServer(ctx context.Context, xDSPort uint, tlsConfig *tls.Config, logg
 }
 
 // Start starts an xDS server at the given port.
-func (xdss *XdsServer) Start(client kubernetes.Interface, namespace string) error {
-
+func (xdss *XdsServer) Start(ctx context.Context, client kubernetes.Interface, namespace string) error {
 	// gRPC golang library sets a very small upper bound for the number gRPC/h2
 	// streams over a single TCP connection. If a proxy multiplexes requests over
 	// a single connection to the management server, then it might lead to
@@ -123,6 +120,7 @@ func (xdss *XdsServer) Start(client kubernetes.Interface, namespace string) erro
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", xdss.xDSPort))
 	if err != nil {
 		setupLog.Error(err, "Error starting ADS server")
+
 		return err
 	}
 
@@ -150,13 +148,14 @@ func (xdss *XdsServer) Start(client kubernetes.Interface, namespace string) erro
 		return err
 	}
 
-	// wait until channel stopCh closed or an error is received
+	// wait until context is closed or an error is received
 	select {
-
-	case <-xdss.ctx.Done():
+	case <-ctx.Done():
 		setupLog.Info("shutting down xds server")
 		close(stopGC)
+
 		stopped := make(chan struct{})
+
 		go func() {
 			// don't wait, stop immediately
 			grpcServer.Stop()
@@ -171,13 +170,14 @@ func (xdss *XdsServer) Start(client kubernetes.Interface, namespace string) erro
 		case <-stopped:
 			t.Stop()
 		}
+
 		return nil
 
 	case err := <-errCh:
 		setupLog.Error(err, "Server failed")
+
 		return err
 	}
-
 }
 
 // GetCache returns the Cache
@@ -207,5 +207,5 @@ func (cl clogger) Warnf(format string, args ...interface{}) {
 }
 
 func (cl clogger) Errorf(format string, args ...interface{}) {
-	cl.Logger.Error(fmt.Errorf("xds cache error"), fmt.Sprintf(format, args...))
+	cl.Logger.Error(errors.New("xds cache error"), fmt.Sprintf(format, args...))
 }

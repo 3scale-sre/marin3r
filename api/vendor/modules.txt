@@ -358,7 +358,7 @@ github.com/x448/float16
 # go.opentelemetry.io/proto/otlp v1.3.1
 ## explicit; go 1.17
 go.opentelemetry.io/proto/otlp/common/v1
-# golang.org/x/net v0.37.0
+# golang.org/x/net v0.38.0
 ## explicit; go 1.23.0
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2

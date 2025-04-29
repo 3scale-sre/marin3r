@@ -43,6 +43,7 @@ var _ = Describe("Envoy pods", func() {
 		n := &corev1.Namespace{}
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: testNamespace}, n)
+
 			return err == nil
 		}, timeout, poll).Should(BeTrue())
 
@@ -68,6 +69,7 @@ var _ = Describe("Envoy pods", func() {
 			if err := k8sClient.Get(context.Background(), key, dep); err != nil {
 				return 0
 			}
+
 			return int(dep.Status.ReadyReplicas)
 		}, 600*time.Second, poll).Should(Equal(1))
 
@@ -148,6 +150,7 @@ var _ = Describe("Envoy pods", func() {
 				Fail("timed out while waiting for port forward")
 			case <-readyCh:
 				ticker.Stop()
+
 				break
 			}
 		})
@@ -164,6 +167,7 @@ var _ = Describe("Envoy pods", func() {
 
 			Eventually(func() error {
 				resp, err = http.Get(fmt.Sprintf("http://localhost:%v", localPort))
+
 				return err
 			}, timeout, poll).ShouldNot(HaveOccurred())
 
@@ -195,6 +199,7 @@ var _ = Describe("Envoy pods", func() {
 
 			Eventually(func() bool {
 				err = k8sClient.Get(context.Background(), key, ec)
+
 				return *ec.Status.CacheState == marin3rv1alpha1.RollbackState
 			}, timeout, poll).ShouldNot(BeTrue())
 
@@ -202,6 +207,7 @@ var _ = Describe("Envoy pods", func() {
 			var resp *http.Response
 			Eventually(func() error {
 				resp, err = http.Get(fmt.Sprintf("http://localhost:%v", localPort))
+
 				return err
 			}, timeout, poll).ShouldNot(HaveOccurred())
 
@@ -258,11 +264,13 @@ var _ = Describe("Envoy pods", func() {
 								RootCAs: func() *x509.CertPool {
 									roots := x509.NewCertPool()
 									Expect(roots.AppendCertsFromPEM(secret.Data["tls.crt"])).To(BeTrue())
+
 									return roots
 								}(),
 							}}}
 					Eventually(func() error {
 						resp, err = tlsClient.Get(fmt.Sprintf("https://localhost:%v", localPort))
+
 						return err
 					}, timeout, poll).ShouldNot(HaveOccurred())
 
@@ -282,6 +290,7 @@ var _ = Describe("Envoy pods", func() {
 						key := types.NamespacedName{Name: "self-signed-cert"}
 						secret, err := testutil.GenerateTLSSecret(key, "127.0.0.1", "10m")
 						Expect(err).ToNot(HaveOccurred())
+
 						return secret.Data
 					}()
 					err := k8sClient.Patch(context.Background(), secret, patch)
@@ -299,6 +308,7 @@ var _ = Describe("Envoy pods", func() {
 								RootCAs: func() *x509.CertPool {
 									roots := x509.NewCertPool()
 									Expect(roots.AppendCertsFromPEM(secret.Data["tls.crt"])).To(BeTrue())
+
 									return roots
 								}(),
 							}}}
@@ -307,6 +317,7 @@ var _ = Describe("Envoy pods", func() {
 						if err != nil {
 							return ""
 						}
+
 						return resp.TLS.VerifiedChains[0][0].Subject.CommonName
 					}, timeout, poll).Should(Equal("127.0.0.1"))
 				}

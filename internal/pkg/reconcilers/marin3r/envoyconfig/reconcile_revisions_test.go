@@ -33,10 +33,16 @@ func init() {
 	)
 }
 
-func testRevisionReconcilerBuilder(s *runtime.Scheme, instance *marin3rv1alpha1.EnvoyConfig, objs ...client.Object) RevisionReconciler {
-	return RevisionReconciler{context.TODO(), ctrl.Log.WithName("test"),
-		fake.NewClientBuilder().WithScheme(s).WithObjects(objs...).WithStatusSubresource(&marin3rv1alpha1.EnvoyConfig{}).WithStatusSubresource(&marin3rv1alpha1.EnvoyConfigRevision{}).Build(),
-		s, instance, nil, nil, nil, nil}
+func testRevisionReconcilerBuilder(s *runtime.Scheme, instance *marin3rv1alpha1.EnvoyConfig) RevisionReconciler {
+	return RevisionReconciler{
+		logger: ctrl.Log.WithName("test"),
+		client: fake.NewClientBuilder().WithScheme(s).
+			WithStatusSubresource(&marin3rv1alpha1.EnvoyConfig{}).
+			WithStatusSubresource(&marin3rv1alpha1.EnvoyConfigRevision{}).
+			Build(),
+		scheme: s,
+		ec:     instance,
+	}
 }
 
 func TestNewRevisionReconciler(t *testing.T) {
@@ -47,6 +53,7 @@ func TestNewRevisionReconciler(t *testing.T) {
 		s      *runtime.Scheme
 		ec     *marin3rv1alpha1.EnvoyConfig
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -55,7 +62,7 @@ func TestNewRevisionReconciler(t *testing.T) {
 		{
 			name: "Returns a RevisionReconciler",
 			args: args{context.TODO(), logr.Logger{}, fake.NewFakeClient(), s, nil},
-			want: RevisionReconciler{context.TODO(), logr.Logger{}, fake.NewFakeClient(), s, nil, nil, nil, nil, nil},
+			want: RevisionReconciler{logr.Logger{}, fake.NewFakeClient(), s, nil, nil, nil, nil, nil},
 		},
 	}
 	for _, tt := range tests {
@@ -193,6 +200,7 @@ func TestRevisionReconciler_DesiredVersion(t *testing.T) {
 		cacheState       *string
 		revisionList     *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -207,7 +215,6 @@ func TestRevisionReconciler_DesiredVersion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &RevisionReconciler{
-				ctx:              tt.fields.ctx,
 				logger:           tt.fields.logger,
 				client:           tt.fields.client,
 				scheme:           tt.fields.scheme,
@@ -236,6 +243,7 @@ func TestRevisionReconciler_GetRevisionList(t *testing.T) {
 		cacheState       *string
 		revisionList     *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -250,7 +258,6 @@ func TestRevisionReconciler_GetRevisionList(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &RevisionReconciler{
-				ctx:              tt.fields.ctx,
 				logger:           tt.fields.logger,
 				client:           tt.fields.client,
 				scheme:           tt.fields.scheme,
@@ -279,6 +286,7 @@ func TestRevisionReconciler_PublishedVersion(t *testing.T) {
 		cacheState       *string
 		revisionList     *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -293,7 +301,6 @@ func TestRevisionReconciler_PublishedVersion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &RevisionReconciler{
-				ctx:              tt.fields.ctx,
 				logger:           tt.fields.logger,
 				client:           tt.fields.client,
 				scheme:           tt.fields.scheme,
@@ -322,6 +329,7 @@ func TestRevisionReconciler_GetCacheState(t *testing.T) {
 		cacheState       *string
 		revisionList     *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -336,7 +344,6 @@ func TestRevisionReconciler_GetCacheState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &RevisionReconciler{
-				ctx:              tt.fields.ctx,
 				logger:           tt.fields.logger,
 				client:           tt.fields.client,
 				scheme:           tt.fields.scheme,
@@ -361,6 +368,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 		scheme *runtime.Scheme
 		ec     *marin3rv1alpha1.EnvoyConfig
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -474,17 +482,19 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &RevisionReconciler{
-				ctx:    tt.fields.ctx,
 				logger: tt.fields.logger,
 				client: tt.fields.client,
 				scheme: tt.fields.scheme,
 				ec:     tt.fields.ec,
 			}
-			got, err := r.Reconcile()
+
+			got, err := r.Reconcile(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RevisionReconciler.Reconcile() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("RevisionReconciler.Reconcile() = %v, want %v", got, tt.want)
 			}
@@ -527,7 +537,7 @@ func TestRevisionReconciler_getVersionToPublish(t *testing.T) {
 			wantCacheState: marin3rv1alpha1.RollbackState,
 		},
 		{
-			name: "Returns no version and and RollbackFailed state",
+			name: "Returns no version and RollbackFailed state",
 			revisionList: &marin3rv1alpha1.EnvoyConfigRevisionList{
 				Items: []marin3rv1alpha1.EnvoyConfigRevision{
 					{Spec: marin3rv1alpha1.EnvoyConfigRevisionSpec{Version: "aaaa"},
@@ -552,10 +562,12 @@ func TestRevisionReconciler_getVersionToPublish(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := testRevisionReconcilerBuilder(s, &marin3rv1alpha1.EnvoyConfig{})
 			r.revisionList = tt.revisionList
+
 			gotVersion, gotCacheState := r.getVersionToPublish()
 			if gotVersion != tt.wantVersion {
 				t.Errorf("RevisionReconciler.getVersionToPublish() got = %v, want %v", gotVersion, tt.wantVersion)
 			}
+
 			if gotCacheState != tt.wantCacheState {
 				t.Errorf("RevisionReconciler.getVersionToPublish() got1 = %v, want %v", gotCacheState, tt.wantCacheState)
 			}
@@ -736,10 +748,10 @@ func TestRevisionReconciler_isRevisionPublishedConditionReconciled(t *testing.T)
 					t.Errorf("RevisionReconciler.isRevisionPublishedConditionReconciled() gotUnpublished '%v', wantUnpublished 'nil'", got)
 				}
 			} else {
-
 				if len(*tt.wantUnpublished) != len(got1) {
 					t.Errorf("RevisionReconciler.isRevisionPublishedConditionReconciled() got wrong number of unpublished revisions")
 				}
+
 				for idx, ecr := range got1 {
 					if ecr.GetName() != (*tt.wantUnpublished)[idx].Name || ecr.GetNamespace() != (*tt.wantUnpublished)[idx].Namespace || meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 						t.Errorf("RevisionReconciler.isRevisionPublishedConditionReconciled() gotUnpublished '%v', wantUnpublished %v", ecr, (*tt.wantUnpublished)[idx])
@@ -821,9 +833,11 @@ func TestRevisionReconciler_isRevisionRetentionReconciled(t *testing.T) {
 		cacheState       *string
 		revisionList     *marin3rv1alpha1.EnvoyConfigRevisionList
 	}
+
 	type args struct {
 		retention int
 	}
+
 	tests := []struct {
 		name        string
 		fields      fields
@@ -874,7 +888,6 @@ func TestRevisionReconciler_isRevisionRetentionReconciled(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &RevisionReconciler{
-				ctx:              tt.fields.ctx,
 				logger:           tt.fields.logger,
 				client:           tt.fields.client,
 				scheme:           tt.fields.scheme,
@@ -887,6 +900,7 @@ func TestRevisionReconciler_isRevisionRetentionReconciled(t *testing.T) {
 			if got := r.isRevisionRetentionReconciled(tt.args.retention); !reflect.DeepEqual(got, tt.wantTrimmed) {
 				t.Errorf("RevisionReconciler.isRevisionRetentionReconciled() = %v, want %v", got, tt.wantTrimmed)
 			}
+
 			if !reflect.DeepEqual(r.GetRevisionList(), tt.wantList) {
 				t.Errorf("RevisionReconciler.isRevisionRetentionReconciled() = %v, want %v", tt.fields.revisionList, tt.wantList)
 			}
@@ -895,9 +909,6 @@ func TestRevisionReconciler_isRevisionRetentionReconciled(t *testing.T) {
 }
 
 func Test_popRevision(t *testing.T) {
-	type args struct {
-		list *[]marin3rv1alpha1.EnvoyConfigRevision
-	}
 	tests := []struct {
 		name     string
 		list     []marin3rv1alpha1.EnvoyConfigRevision
@@ -923,6 +934,7 @@ func Test_popRevision(t *testing.T) {
 			if got := popRevision(&tt.list); !reflect.DeepEqual(got, tt.wantItem) {
 				t.Errorf("popRevision() = %v, want %v", got, tt.wantItem)
 			}
+
 			if !reflect.DeepEqual(tt.list, tt.wantList) {
 				t.Errorf("popRevision() = %v, want %v", tt.list, tt.wantList)
 			}

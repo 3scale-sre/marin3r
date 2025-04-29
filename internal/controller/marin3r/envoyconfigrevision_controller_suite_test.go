@@ -67,6 +67,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 			if err != nil && errors.IsNotFound(err) {
 				return false
 			}
+
 			return true
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 	})
@@ -127,6 +128,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				var gotV3Snap xdss.Snapshot
 				Eventually(func() error {
 					gotV3Snap, err = ecrV3Reconciler.XdsCache.GetSnapshot(ecr.Spec.NodeID)
+
 					return err
 				}, 60*time.Second, 5*time.Second).ShouldNot(HaveOccurred())
 
@@ -183,7 +185,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 			})
 			err = k8sClient.Status().Patch(context.Background(), ecr, patch)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition))
+			Expect(meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition)).To(BeTrue())
 
 			wantSnap := xdss_v3.NewSnapshot().SetResources(envoy.Secret, []envoy.Resource{
 				&envoy_extensions_transport_sockets_tls_v3.Secret{
@@ -223,6 +225,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 
 				Eventually(func() bool {
 					err = k8sClient.Get(context.Background(), types.NamespacedName{Name: "secret", Namespace: namespace}, secret)
+
 					return string(secret.Data["tls.crt"]) == "new-cert"
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -245,6 +248,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 					if err != nil {
 						return false
 					}
+
 					return testutil.SnapshotsAreEqual(gotV3Snap, wantSnap)
 					// this should occur triggered by an event, before the 60 seconds
 					// ECR reconcile period
@@ -282,6 +286,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Eventually(func() bool {
 					err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "ecr", Namespace: namespace}, ecr)
 					Expect(err).ToNot(HaveOccurred())
+
 					return len(ecr.GetFinalizers()) == 1
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			})
@@ -303,6 +308,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				By("waiting for the EnvoyConfigRevision to get published")
 				Eventually(func() error {
 					_, err := ecrV3Reconciler.XdsCache.GetSnapshot(ecr.Spec.NodeID)
+
 					return err
 				}, 60*time.Second, 5*time.Second).ShouldNot(HaveOccurred())
 
@@ -312,6 +318,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 			Specify("Snapshot for the nodeID should have been cleared in the xDS cache", func() {
 				Eventually(func() error {
 					_, err := ecrV3Reconciler.XdsCache.GetSnapshot(ecr.Spec.NodeID)
+
 					return err
 				}, 60*time.Second, 5*time.Second).Should(HaveOccurred())
 			})
@@ -358,6 +365,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Eventually(func() bool {
 					err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "ecr", Namespace: namespace}, ecr)
 					Expect(err).ToNot(HaveOccurred())
+
 					return ecr.Status.IsTainted()
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			})
@@ -378,6 +386,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Eventually(func() bool {
 					err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "ecr", Namespace: namespace}, ecr)
 					Expect(err).ToNot(HaveOccurred())
+
 					return !ecr.Status.IsTainted()
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			})
@@ -411,6 +420,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Eventually(func() bool {
 					err := k8sClient.Get(context.Background(), key, ecr)
 					Expect(err).ToNot(HaveOccurred())
+
 					return meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition)
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			})
@@ -440,6 +450,7 @@ var _ = Describe("EnvoyConfigRevision controller", func() {
 				Eventually(func() bool {
 					err := k8sClient.Get(context.Background(), key, ecr)
 					Expect(err).ToNot(HaveOccurred())
+
 					return meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition)
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 

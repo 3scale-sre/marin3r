@@ -8,7 +8,7 @@ replace github.com/3scale-sre/marin3r/api => ./api
 // replace github.com/3scale-sre/basereconciler => /home/rvazquez/projects/basereconciler
 
 require (
-	github.com/3scale-sre/basereconciler v0.5.5
+	github.com/3scale-sre/basereconciler v0.5.6
 	github.com/3scale-sre/marin3r/api v0.0.0-00010101000000-000000000000
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc

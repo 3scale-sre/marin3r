@@ -19,6 +19,7 @@ func TestStats_RunGC(t *testing.T) {
 		namespace string
 		stopCh    <-chan struct{}
 	}
+
 	tests := []struct {
 		name       string
 		cacheItems map[string]kv.Item
@@ -71,6 +72,7 @@ func TestStats_RunGC(t *testing.T) {
 			s := NewWithItems(tt.cacheItems, time.Now())
 			s.RunGC(tt.args.client, tt.args.namespace, tt.args.stopCh)
 			tt.execute(tt.args.client, tt.args.namespace)
+
 			if got := s.DumpAll(); !reflect.DeepEqual(got, tt.wantItems) {
 				t.Errorf("Stats.RunGC() got diff: %v, want %v", got, tt.wantItems)
 			}

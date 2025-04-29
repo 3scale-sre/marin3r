@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= 0.13.2-alpha.5
+VERSION ?= 0.13.2-alpha.9
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
@@ -120,8 +120,7 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 
 .PHONY: go-generate
 go-generate: gen-pkg-version gen-pkg-image gen-pkg-envoy-proto
-	IMAGE=$(IMG) VERSION=$(VERSION) PATH=$$PATH:$$PWD/bin go generate ./...
-
+	cd api && IMAGE=$(IMG) VERSION=$(VERSION) PATH=$$PATH:$$PWD/../bin go generate ./...
 .PHONY=gen-pkg-envoy-proto
 gen-pkg-envoy-proto: export TARGET_PATH = $(PWD)/bin
 gen-pkg-envoy-proto: ## builds the gen-pkg-envoy-proto binary
@@ -174,7 +173,7 @@ CONTAINER_TOOL ?= podman
 
 
 .PHONY: build
-build: manifests generate fmt vet ## Build manager binary.
+build: manifests generate fmt vet vendor ## Build manager binary.
 	go build -o bin/manager cmd/main.go
 
 .PHONY: run
@@ -227,7 +226,7 @@ endef
 # LOCAL PLATFORM BUILD
 
 .PHONY: container-build
-container-build:
+container-build: manifests generate fmt vet vendor ## local platfrom build
 	$(call container-build-multiplatform,$(IMG),$(CONTAINER_TOOL),Dockerfile,.,$(shell go env GOARCH))
 	$(CONTAINER_TOOL) tag $(IMG) $(IMAGE_TAG_BASE):test
 
@@ -241,7 +240,7 @@ container-push:
 PLATFORMS ?= linux/arm64,linux/amd64
 
 .PHONY: container-buildx
-container-buildx: ## cross-platfrom build
+container-buildx: manifests generate fmt vet vendor ## cross-platfrom build
 	$(call container-build-multiplatform,$(IMG),$(CONTAINER_TOOL),Dockerfile,.,$(PLATFORMS))
 	
 .PHONY: container-pushx
@@ -504,9 +503,9 @@ kind-delete: kind
 
 ##@ Release
 
-prepare-alpha-release: generate fmt vet manifests go-generate bundle ## Generates bundle manifests for alpha channel release
+prepare-alpha-release: generate fmt vet manifests go-generate vendor bundle ## Generates bundle manifests for alpha channel release
 
-prepare-stable-release: generate fmt vet manifests go-generate bundle refdocs ## Generates bundle manifests for stable channel release
+prepare-stable-release: generate fmt vet manifests go-generate vendor bundle refdocs ## Generates bundle manifests for stable channel release
 	$(MAKE) bundle CHANNELS=alpha,stable DEFAULT_CHANNEL=stable
 
 bundle-publish: container-build container-push bundle-build bundle-push ## Builds and pushes operator and bundle images

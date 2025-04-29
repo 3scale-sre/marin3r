@@ -15,6 +15,7 @@ func TestGeneratorOptions_ServerCertificate(t *testing.T) {
 	type args struct {
 		hash string
 	}
+
 	tests := []struct {
 		name string
 		opts GeneratorOptions
@@ -27,11 +28,11 @@ func TestGeneratorOptions_ServerCertificate(t *testing.T) {
 				Namespace:                         "default",
 				RootCertificateNamePrefix:         "ca-cert",
 				RootCertificateCommonNamePrefix:   "test",
-				RootCertificateDuration:           time.Duration(10 * time.Second), // 3 years
+				RootCertificateDuration:           10 * time.Second, // 3 years
 				ServerCertificateNamePrefix:       "server-cert",
 				ServerCertificateCommonNamePrefix: "test",
-				ServerCertificateDuration:         time.Duration(10 * time.Second), // 90 days,
-				ClientCertificateDuration:         time.Duration(10 * time.Second),
+				ServerCertificateDuration:         10 * time.Second, // 90 days,
+				ClientCertificateDuration:         10 * time.Second,
 				XdsServerPort:                     1000,
 				MetricsServerPort:                 1001,
 				ServiceType:                       operatorv1alpha1.ClusterIPType,

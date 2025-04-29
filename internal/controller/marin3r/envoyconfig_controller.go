@@ -40,9 +40,9 @@ type EnvoyConfigReconciler struct {
 // +kubebuilder:rbac:groups=marin3r.3scale.net,namespace=placeholder,resources=envoyconfigrevisions/status,verbs=get;update;patch
 
 func (r *EnvoyConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	ctx, logger := r.Logger(ctx, "name", req.Name, "namespace", req.Namespace)
 	ec := &marin3rv1alpha1.EnvoyConfig{}
+
 	result := r.ManageResourceLifecycle(ctx, req, ec,
 		// Apply defaults
 		reconciler.WithInitializationFunc(reconciler_util.ResourceDefaulter(ec)),
@@ -57,6 +57,7 @@ func (r *EnvoyConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 					ec.Spec.EnvoyResources = nil
 				}
 			}
+
 			return nil
 		}),
 	)
@@ -70,7 +71,7 @@ func (r *EnvoyConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		ctx, logger, r.Client, r.Scheme, ec,
 	)
 
-	reconcilerResult, err := revisionReconciler.Reconcile()
+	reconcilerResult, err := revisionReconciler.Reconcile(ctx)
 	if reconcilerResult.Requeue || err != nil {
 		return reconcilerResult, err
 	}
@@ -78,9 +79,12 @@ func (r *EnvoyConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	if ok := envoyconfig.IsStatusReconciled(ec, revisionReconciler.GetCacheState(), revisionReconciler.PublishedVersion(), revisionReconciler.GetRevisionList()); !ok {
 		if err := r.Client.Status().Update(ctx, ec); err != nil {
 			logger.Error(err, "unable to update EnvoyConfig status")
+
 			return ctrl.Result{}, err
 		}
+
 		logger.Info("status updated for EnvoyConfig resource")
+
 		return reconcile.Result{}, nil
 	}
 

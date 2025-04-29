@@ -41,26 +41,31 @@ type testCertificateProvider struct {
 	currentTime  time.Time
 }
 
-func (tcp *testCertificateProvider) CreateCertificate() ([]byte, []byte, error) {
+func (tcp *testCertificateProvider) CreateCertificate(ctx context.Context) ([]byte, []byte, error) {
 	tcp.index = 0
 	cert := tcp.certificates[tcp.index]
+
 	return cert, []byte("key"), nil
 }
-func (tcp *testCertificateProvider) GetCertificate() ([]byte, []byte, error) {
+func (tcp *testCertificateProvider) GetCertificate(ctx context.Context) ([]byte, []byte, error) {
 	if tcp.index < 0 {
 		return []byte{}, []byte{}, errors.NewNotFound(schema.GroupResource{}, "test")
 	}
+
 	cert := tcp.certificates[tcp.index]
+
 	return cert, []byte("key"), nil
 }
-func (tcp *testCertificateProvider) UpdateCertificate() ([]byte, []byte, error) {
+func (tcp *testCertificateProvider) UpdateCertificate(ctx context.Context) ([]byte, []byte, error) {
 	tcp.index = tcp.index + 1
 	cert := tcp.certificates[tcp.index]
+
 	return cert, []byte("key"), nil
 }
 
-func (tcp *testCertificateProvider) VerifyCertificate() error {
+func (tcp *testCertificateProvider) VerifyCertificate(ctx context.Context) error {
 	var cert *x509.Certificate
+
 	cert, err := pki.LoadX509Certificate(tcp.certificates[tcp.index])
 	if err != nil {
 		return err
@@ -91,6 +96,7 @@ func TestNewCertificateReconciler(t *testing.T) {
 		dsc      *operatorv1alpha1.DiscoveryServiceCertificate
 		provider providers.CertificateProvider
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -107,7 +113,6 @@ func TestNewCertificateReconciler(t *testing.T) {
 				provider: &testCertificateProvider{},
 			},
 			want: CertificateReconciler{
-				ctx:      context.TODO(),
 				logger:   ctrl.Log.WithName("test"),
 				client:   fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme:   s,
@@ -121,7 +126,7 @@ func TestNewCertificateReconciler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewCertificateReconciler(tt.args.ctx, tt.args.logger, tt.args.client, tt.args.s, tt.args.dsc, tt.args.provider); !reflect.DeepEqual(got, tt.want) {
+			if got := NewCertificateReconciler(tt.args.client, tt.args.s, tt.args.dsc, tt.args.provider, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewCertificateReconciler() = %v, want %v", got, tt.want)
 			}
 		})
@@ -137,7 +142,6 @@ func TestCertificateReconciler_IsReady(t *testing.T) {
 		{
 			name: "Returns r.ready",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -164,7 +168,6 @@ func TestCertificateReconciler_GetCertificateHash(t *testing.T) {
 		{
 			name: "Returns r.hash",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -197,7 +200,6 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 		{
 			name: "Creates a new certificate",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -235,7 +237,6 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 		{
 			name: "Verifies a certificate, schedules renewal",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -259,22 +260,41 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 						-----END CERTIFICATE-----
 						`)),
 					},
-					currentTime: func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z"); return t }(),
+					currentTime: func() time.Time {
+						t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z")
+
+						return t
+					}(),
 				},
-				clock: clock.NewTest(func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z"); return t }()),
+				clock: clock.NewTest(func() time.Time {
+					t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z")
+
+					return t
+				}()),
 			},
-			want:          ctrl.Result{},
-			wantErr:       false,
-			wantIsReady:   true,
-			wantHash:      "5c78c58c76",
-			wantNotBefore: func() *time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z"); return &t }(),
-			wantNotAfter:  func() *time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:40Z"); return &t }(),
-			wantSchedule:  func() *time.Duration { d := time.Duration(20 * time.Second); return &d }(),
+			want:        ctrl.Result{},
+			wantErr:     false,
+			wantIsReady: true,
+			wantHash:    "5c78c58c76",
+			wantNotBefore: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z")
+
+				return &t
+			}(),
+			wantNotAfter: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:40Z")
+
+				return &t
+			}(),
+			wantSchedule: func() *time.Duration {
+				d := 20 * time.Second
+
+				return &d
+			}(),
 		},
 		{
 			name: "Verifies a certificate, renewal disabled",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -300,22 +320,41 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 						-----END CERTIFICATE-----
 						`)),
 					},
-					currentTime: func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z"); return t }(),
+					currentTime: func() time.Time {
+						t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z")
+
+						return t
+					}(),
 				},
-				clock: clock.NewTest(func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z"); return t }()),
+				clock: clock.NewTest(func() time.Time {
+					t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:00Z")
+
+					return t
+				}()),
 			},
-			want:          ctrl.Result{},
-			wantErr:       false,
-			wantIsReady:   true,
-			wantHash:      "5c78c58c76",
-			wantNotBefore: func() *time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z"); return &t }(),
-			wantNotAfter:  func() *time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:40Z"); return &t }(),
-			wantSchedule:  func() *time.Duration { d := time.Duration(41 * time.Second); return &d }(),
+			want:        ctrl.Result{},
+			wantErr:     false,
+			wantIsReady: true,
+			wantHash:    "5c78c58c76",
+			wantNotBefore: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z")
+
+				return &t
+			}(),
+			wantNotAfter: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:40Z")
+
+				return &t
+			}(),
+			wantSchedule: func() *time.Duration {
+				d := 41 * time.Second
+
+				return &d
+			}(),
 		},
 		{
 			name: "Returns not ready on verify error, renewal disabled",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -341,22 +380,37 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 						-----END CERTIFICATE-----
 						`)),
 					},
-					currentTime: func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z"); return t }(),
+					currentTime: func() time.Time {
+						t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z")
+
+						return t
+					}(),
 				},
-				clock: clock.NewTest(func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z"); return t }()),
+				clock: clock.NewTest(func() time.Time {
+					t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z")
+
+					return t
+				}()),
 			},
-			want:          ctrl.Result{},
-			wantErr:       false,
-			wantIsReady:   false,
-			wantHash:      "5c78c58c76",
-			wantNotBefore: func() *time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z"); return &t }(),
-			wantNotAfter:  func() *time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:40Z"); return &t }(),
-			wantSchedule:  nil,
+			want:        ctrl.Result{},
+			wantErr:     false,
+			wantIsReady: false,
+			wantHash:    "5c78c58c76",
+			wantNotBefore: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, "2021-01-01T00:00:00Z")
+
+				return &t
+			}(),
+			wantNotAfter: func() *time.Time {
+				t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:40Z")
+
+				return &t
+			}(),
+			wantSchedule: nil,
 		},
 		{
 			name: "Renewes certificate when it is expired (renewal enabled)",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -394,9 +448,17 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 						-----END CERTIFICATE-----
 						`)),
 					},
-					currentTime: func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z"); return t }(),
+					currentTime: func() time.Time {
+						t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z")
+
+						return t
+					}(),
 				},
-				clock: clock.NewTest(func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z"); return t }()),
+				clock: clock.NewTest(func() time.Time {
+					t, _ := time.Parse(time.RFC3339, "2021-01-01T00:02:00Z")
+
+					return t
+				}()),
 			},
 			want:        ctrl.Result{Requeue: true},
 			wantErr:     false,
@@ -405,7 +467,6 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 		{
 			name: "Renewes certificate when within renewal window (renewal enabled)",
 			r: &CertificateReconciler{
-				ctx:    context.TODO(),
 				logger: ctrl.Log.WithName("test"),
 				client: fake.NewClientBuilder().WithScheme(s).Build(),
 				scheme: s,
@@ -443,9 +504,17 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 						-----END CERTIFICATE-----
 						`)),
 					},
-					currentTime: func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:21Z"); return t }(),
+					currentTime: func() time.Time {
+						t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:21Z")
+
+						return t
+					}(),
 				},
-				clock:     clock.NewTest(func() time.Time { t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:21Z"); return t }()),
+				clock: clock.NewTest(func() time.Time {
+					t, _ := time.Parse(time.RFC3339, "2021-01-01T00:01:21Z")
+
+					return t
+				}()),
 				ready:     true,
 				hash:      "",
 				notBefore: &time.Time{},
@@ -462,14 +531,17 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.r.Reconcile()
+			got, err := tt.r.Reconcile(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CertificateReconciler.Reconcile() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CertificateReconciler.Reconcile() = %v, want %v", got, tt.want)
 			}
+
 			if tt.wantIsReady != tt.r.IsReady() {
 				t.Errorf("CertificateReconciler.Reconcile() IsReady = %v, want %v", tt.r.IsReady(), tt.wantIsReady)
 			}
@@ -478,17 +550,19 @@ func TestCertificateReconciler_Reconcile(t *testing.T) {
 				if tt.wantHash != tt.r.GetCertificateHash() {
 					t.Errorf("CertificateReconciler.Reconcile() GetCertificateHash = %v, want %v", tt.r.GetCertificateHash(), tt.wantHash)
 				}
+
 				if *tt.wantNotBefore != tt.r.NotBefore() {
 					t.Errorf("CertificateReconciler.Reconcile() NotBefore = %v, want %v", tt.r.NotBefore(), *tt.wantNotBefore)
 				}
+
 				if *tt.wantNotAfter != tt.r.NotAfter() {
 					t.Errorf("CertificateReconciler.Reconcile() NotAfter = %v, want %v", tt.r.NotAfter(), *tt.wantNotAfter)
 				}
+
 				if tt.wantSchedule != nil && *tt.wantSchedule != *tt.r.GetSchedule() {
 					t.Errorf("CertificateReconciler.Reconcile() GetSchedule = %v, want %v", tt.r.GetSchedule(), tt.wantSchedule)
 				}
 			}
 		})
 	}
-
 }

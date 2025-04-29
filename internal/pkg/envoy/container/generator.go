@@ -2,6 +2,7 @@ package container
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/3scale-sre/marin3r/api/envoy/defaults"
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
@@ -48,7 +49,6 @@ type ContainerConfig struct {
 }
 
 func (cc *ContainerConfig) Containers() []corev1.Container {
-
 	containers := []corev1.Container{{
 		Name:    cc.Name,
 		Image:   cc.Image,
@@ -63,13 +63,14 @@ func (cc *ContainerConfig) Containers() []corev1.Container {
 			}
 			if cc.ShutdownManagerEnabled {
 				args = append(args,
-					"--drain-time-s", fmt.Sprintf("%d", cc.ShutdownManagerDrainSeconds),
+					"--drain-time-s", strconv.FormatInt(cc.ShutdownManagerDrainSeconds, 10),
 					"--drain-strategy", string(cc.ShutdownManagerDrainStrategy),
 				)
 			}
 			if len(cc.ExtraArgs) > 0 {
 				args = append(args, cc.ExtraArgs...)
 			}
+
 			return args
 		}(),
 		Resources: cc.Resources,
@@ -130,7 +131,7 @@ func (cc *ContainerConfig) Containers() []corev1.Container {
 			Args: []string{
 				"shutdown-manager",
 				"--port",
-				fmt.Sprintf("%d", cc.ShutdownManagerPort),
+				strconv.Itoa(int(cc.ShutdownManagerPort)),
 			},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
@@ -227,7 +228,7 @@ func (cc *ContainerConfig) InitContainers() []corev1.Container {
 			"--resources-path", cc.ConfigBasePath,
 			"--rtds-resource-name", defaults.InitMgrRtdsLayerResourceName,
 			"--xdss-host", cc.XdssHost,
-			"--xdss-port", fmt.Sprintf("%d", cc.XdssPort),
+			"--xdss-port", strconv.Itoa(cc.XdssPort),
 			"--envoy-image", cc.Image,
 		},
 		VolumeMounts: []corev1.VolumeMount{
@@ -246,7 +247,6 @@ func (cc *ContainerConfig) InitContainers() []corev1.Container {
 }
 
 func (cc *ContainerConfig) Volumes() []corev1.Volume {
-
 	return []corev1.Volume{
 		{
 			Name: cc.TLSVolume,

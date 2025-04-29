@@ -7,15 +7,16 @@ import (
 )
 
 func SnapshotsAreEqual(x xdss.Snapshot, y xdss.Snapshot) bool {
-
 	rTypesV3 := envoy_resources_v3.Mappings()
 	for rType := range rTypesV3 {
 		if !envoy_resources.ResourcesEqual(x.GetResources(rType), y.GetResources(rType)) {
 			return false
 		}
+
 		if x.GetVersion(rType) != y.GetVersion(rType) {
 			return false
 		}
 	}
+
 	return true
 }

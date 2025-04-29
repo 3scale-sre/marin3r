@@ -1,7 +1,7 @@
 package revisions
 
 import (
-	"fmt"
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -12,6 +12,7 @@ func TestNew(t *testing.T) {
 		method string
 		msg    string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -57,6 +58,7 @@ func TestReasonForError(t *testing.T) {
 	type args struct {
 		err error
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -69,7 +71,7 @@ func TestReasonForError(t *testing.T) {
 		},
 		{
 			"Returns the Unknown reason if not an Error",
-			args{fmt.Errorf("unknown error")},
+			args{errors.New("unknown error")},
 			UnknownError,
 		},
 	}
@@ -86,6 +88,7 @@ func TestIsNoMatchesForFilter(t *testing.T) {
 	type args struct {
 		err error
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -115,6 +118,7 @@ func TestIsMultipleMatchesForFilter(t *testing.T) {
 	type args struct {
 		err error
 	}
+
 	tests := []struct {
 		name string
 		args args

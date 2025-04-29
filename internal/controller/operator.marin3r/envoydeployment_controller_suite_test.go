@@ -72,6 +72,7 @@ var _ = Describe("EnvoyDeployment controller", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: "config", Namespace: namespace}, ec)
+
 			return err == nil
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 

@@ -21,9 +21,10 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 	logger := logr.FromContextOrDiscard(ctx)
 	update := false
 
+	var ok bool
+
 	// ensure the received object implements ObjectWithAppStatus
 	var obj ObjectWithAppStatus
-	var ok bool
 	if obj, ok = instance.(ObjectWithAppStatus); !ok {
 		return Result{Error: fmt.Errorf(
 			"object '%s' with GVK '%s' does not implement ObjectWithAppStatus interface",
@@ -32,7 +33,15 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 		)}
 	}
 
-	status := obj.GetStatus()
+	// ensure the object's status implements AppStatus
+	var status AppStatus
+	if status, ok = (obj.GetStatus()).(AppStatus); !ok {
+		return Result{Error: fmt.Errorf(
+			"status for '%s' with GVK '%s' does not implement AppStatus interface",
+			instance.GetName(),
+			instance.GetObjectKind().GroupVersionKind(),
+		)}
+	}
 
 	// Aggregate the status of all Deployments owned
 	// by this instance
@@ -87,7 +96,7 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 // both client.Object and AppStatus
 type ObjectWithAppStatus interface {
 	client.Object
-	GetStatus() AppStatus
+	GetStatus() any
 }
 
 // Health not yet implemented

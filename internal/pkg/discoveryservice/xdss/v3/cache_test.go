@@ -15,10 +15,12 @@ func TestCache_SetSnapshot(t *testing.T) {
 	type fields struct {
 		v3 cache_v3.SnapshotCache
 	}
+
 	type args struct {
 		nodeID string
 		snap   xdss.Snapshot
 	}
+
 	tests := []struct {
 		name     string
 		fields   fields
@@ -48,6 +50,7 @@ func TestCache_SetSnapshot(t *testing.T) {
 			if err := c.SetSnapshot(context.TODO(), tt.args.nodeID, tt.args.snap); (err != nil) != tt.wantErr {
 				t.Errorf("Cache.SetSnapshot() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			gotSnap, _ := c.GetSnapshot("node")
 			if !tt.wantErr && !testutil.SnapshotsAreEqual(gotSnap, tt.wantSnap) {
 				t.Errorf("Cache.SetSnapshot() got = %v, wantSnap %v", gotSnap, tt.wantSnap)
@@ -60,6 +63,7 @@ func TestCache_GetSnapshot(t *testing.T) {
 	type args struct {
 		nodeID string
 	}
+
 	tests := []struct {
 		name    string
 		cache   xdss.Cache
@@ -74,6 +78,7 @@ func TestCache_GetSnapshot(t *testing.T) {
 				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}))
+
 				return c
 			}(),
 			args: args{nodeID: "node"},
@@ -89,6 +94,7 @@ func TestCache_GetSnapshot(t *testing.T) {
 				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}))
+
 				return c
 			}(),
 			args:    args{nodeID: "other-node"},
@@ -99,11 +105,14 @@ func TestCache_GetSnapshot(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := tt.cache
+
 			got, err := c.GetSnapshot(tt.args.nodeID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Cache.GetSnapshot() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !testutil.SnapshotsAreEqual(got, tt.want) {
 				t.Errorf("Cache.GetSnapshot() = %v, want %v", got, tt.want)
 			}
@@ -115,6 +124,7 @@ func TestCache_ClearSnapshot(t *testing.T) {
 	type args struct {
 		nodeID string
 	}
+
 	tests := []struct {
 		name  string
 		cache xdss.Cache
@@ -127,6 +137,7 @@ func TestCache_ClearSnapshot(t *testing.T) {
 				c.SetSnapshot(context.TODO(), "node", NewSnapshot().SetResources(envoy.Endpoint, []envoy.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				}))
+
 				return c
 			}(),
 			args: args{nodeID: "node"},
@@ -136,6 +147,7 @@ func TestCache_ClearSnapshot(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := tt.cache
 			c.ClearSnapshot(tt.args.nodeID)
+
 			if _, err := c.GetSnapshot("node"); err == nil {
 				t.Errorf("Cache.ClearSnapshot() = not found error expected")
 			}

@@ -27,10 +27,12 @@ func TestPodMutator_Handle(t *testing.T) {
 		client  client.Client
 		decoder admission.Decoder
 	}
+
 	type args struct {
 		ctx context.Context
 		req admission.Request
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -104,6 +106,7 @@ func TestPodMutator_Handle(t *testing.T) {
 			if err != nil {
 				t.Errorf("Could not serialize got.Patches")
 			}
+
 			if string(gotPatches) != string(tt.want) {
 				t.Errorf("PodMutator.Handle() = %v, want %v", string(gotPatches), string(tt.want))
 			}
@@ -116,9 +119,11 @@ func TestPodMutator_InjectDecoder(t *testing.T) {
 		client  client.Client
 		decoder admission.Decoder
 	}
+
 	type args struct {
 		d admission.Decoder
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields

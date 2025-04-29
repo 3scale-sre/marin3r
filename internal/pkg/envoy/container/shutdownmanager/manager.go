@@ -2,6 +2,7 @@ package shutdownmanager
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	ioutil "github.com/3scale-sre/marin3r/internal/pkg/util/io"
+	"github.com/go-logr/logr"
 	"github.com/prometheus/common/expfmt"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/retry"
@@ -62,7 +65,6 @@ func (mgr *Manager) envoyShutdownURL() string {
 
 // Starts the shutdown manager
 func (mgr *Manager) Start(ctx context.Context) error {
-
 	logger.Info("started envoy shutdown manager")
 	defer logger.Info("stopped")
 
@@ -75,18 +77,17 @@ func (mgr *Manager) Start(ctx context.Context) error {
 	mux.HandleFunc(DrainEndpoint, mgr.drainHandler)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
 		}
 	}()
 
-	<-ctx.Done()
-	srv.Shutdown(ctx)
-
 	select {
 	case <-ctx.Done():
 		// Shutdown the server when the context is canceled
-		srv.Shutdown(ctx)
+		if err := srv.Shutdown(ctx); err != nil {
+			return err
+		}
 	case err := <-errCh:
 		return err
 	}
@@ -109,16 +110,18 @@ func (s *Manager) healthzHandler(w http.ResponseWriter, r *http.Request) {
 func (mgr *Manager) shutdownHandler(w http.ResponseWriter, r *http.Request) {
 	l := logger.WithValues("context", "waitForDrainHandler")
 	ctx := r.Context()
+
 	for {
 		_, err := os.Stat(mgr.ShutdownReadyFile)
 
 		if err == nil {
 			l.Info(fmt.Sprintf("file %s exists, sending HTTP response", mgr.ShutdownReadyFile))
+
 			if _, err := w.Write([]byte("OK")); err != nil {
 				l.Error(err, "error sending HTTP response")
 			}
-			return
 
+			return
 		} else if os.IsNotExist(err) {
 			l.Info(fmt.Sprintf("file %s does not exist, recheck in %v", mgr.ShutdownReadyFile, mgr.ShutdownReadyCheckInterval))
 		} else {
@@ -129,6 +132,7 @@ func (mgr *Manager) shutdownHandler(w http.ResponseWriter, r *http.Request) {
 		case <-time.After(mgr.ShutdownReadyCheckInterval):
 		case <-ctx.Done():
 			l.Info("client request cancelled")
+
 			return
 		}
 	}
@@ -153,7 +157,11 @@ func (mgr *Manager) drainHandler(w http.ResponseWriter, r *http.Request) {
 	err := retry.OnError(
 		wait.Backoff{Steps: 4, Duration: 200 * time.Millisecond, Factor: 5.0, Jitter: 0.1},
 		func(err error) bool { return true },
-		func() error { l.Info("signaling start drain"); return mgr.shutdownEnvoy() },
+		func() error {
+			l.Info("signaling start drain")
+
+			return mgr.shutdownEnvoy(ctx, l)
+		},
 	)
 
 	if err != nil {
@@ -164,22 +172,26 @@ func (mgr *Manager) drainHandler(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(mgr.CheckDrainDelay)
 
 	for {
-		openConnections, err := mgr.getOpenConnections()
+		openConnections, err := mgr.getOpenConnections(ctx, l)
 		if err == nil {
 			if openConnections <= mgr.MinOpenConnections {
 				l.Info("min number of open connections found, shutting down", "open_connections", openConnections, "min_connections", mgr.MinOpenConnections)
+
 				file, err := os.Create(mgr.ShutdownReadyFile)
 				if err != nil {
 					l.Error(err, "")
 				}
-				defer file.Close()
+
+				defer ioutil.CloseOrLog(file, mgr.ShutdownReadyFile, l)
+
 				if _, err := w.Write([]byte("OK")); err != nil {
 					l.Error(err, "error sending HTTP response")
 				}
+
 				return
 			}
-			l.Info("polled open connections", "open_connections", openConnections, "min_connections", mgr.MinOpenConnections)
 
+			l.Info("polled open connections", "open_connections", openConnections, "min_connections", mgr.MinOpenConnections)
 		} else {
 			l.Error(err, "")
 		}
@@ -189,32 +201,53 @@ func (mgr *Manager) drainHandler(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			l.Info("request cancelled")
 			w.WriteHeader(499)
+
 			return
 		}
 	}
 }
 
 // shutdownEnvoy sends a POST request to /healthcheck/fail to start draining listeners
-func (mgr *Manager) shutdownEnvoy() error {
-	resp, err := http.Post(mgr.envoyShutdownURL(), "", nil)
-	if err != nil {
-		return fmt.Errorf("creating POST request to %s failed: %s", mgr.envoyShutdownURL(), err)
+func (mgr *Manager) shutdownEnvoy(ctx context.Context, log logr.Logger) error {
+	var req *http.Request
+
+	var err error
+	if req, err = http.NewRequestWithContext(ctx, http.MethodPost, mgr.envoyShutdownURL(), nil); err != nil {
+		return err
 	}
-	defer resp.Body.Close()
+
+	//nolint:bodyclose
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("POST request to %s failed: %s", mgr.envoyShutdownURL(), err)
+	}
+
+	defer ioutil.CloseOrLog(resp.Body, mgr.ShutdownReadyFile, log)
+
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("POST for %q returned HTTP status %s", mgr.envoyShutdownURL(), resp.Status)
 	}
+
 	return nil
 }
 
 // getOpenConnections parses a http request to a prometheus endpoint returning the sum of values found
-func (mgr *Manager) getOpenConnections() (int, error) {
-	// Make request to Envoy Prometheus endpoint
-	resp, err := http.Get(mgr.envoyPrometheusURL())
-	if err != nil {
-		return -1, fmt.Errorf("creating GET request to %s failed: %s", mgr.envoyPrometheusURL(), err)
+func (mgr *Manager) getOpenConnections(ctx context.Context, log logr.Logger) (int, error) {
+	var req *http.Request
+
+	var err error
+	if req, err = http.NewRequestWithContext(ctx, http.MethodGet, mgr.envoyPrometheusURL(), nil); err != nil {
+		return -1, err
 	}
-	defer resp.Body.Close()
+
+	// Make request to Envoy Prometheus endpoint
+	//nolint:bodyclose
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return -1, fmt.Errorf("GET request to %s failed: %s", mgr.envoyPrometheusURL(), err)
+	}
+	defer ioutil.CloseOrLog(resp.Body, mgr.ShutdownReadyFile, log)
+
 	if resp.StatusCode != http.StatusOK {
 		return -1, fmt.Errorf("GET for %q returned HTTP status %s", mgr.envoyPrometheusURL(), resp.Status)
 	}
@@ -226,10 +259,11 @@ func (mgr *Manager) getOpenConnections() (int, error) {
 // parseOpenConnections returns the sum of open connections from a Prometheus HTTP request
 func parseOpenConnections(stats io.Reader) (int, error) {
 	var parser expfmt.TextParser
+
 	openConnections := 0
 
 	if stats == nil {
-		return -1, fmt.Errorf("stats input was nil")
+		return -1, errors.New("stats input was nil")
 	}
 
 	// Parse Prometheus http response
@@ -244,12 +278,13 @@ func parseOpenConnections(stats io.Reader) (int, error) {
 	}
 
 	// Look up open connections value
-	for _, metrics := range metricFamilies[prometheusStat].Metric {
-		for _, lp := range metrics.Label {
+	for _, metrics := range metricFamilies[prometheusStat].GetMetric() {
+		for _, lp := range metrics.GetLabel() {
 			if lp.GetValue() != adminListenerPrefix {
-				openConnections += int(metrics.Gauge.GetValue())
+				openConnections += int(metrics.GetGauge().GetValue())
 			}
 		}
 	}
+
 	return openConnections, nil
 }

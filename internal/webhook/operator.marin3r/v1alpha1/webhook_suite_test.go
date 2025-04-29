@@ -47,14 +47,12 @@ import (
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
-var (
-	ctx           context.Context
-	cancel        context.CancelFunc
-	k8sClient     client.Client
-	cfg           *rest.Config
-	testEnv       *envtest.Environment
-	nameGenerator namegenerator.Generator
-)
+var k8sClient client.Client
+var cfg *rest.Config
+var testEnv *envtest.Environment
+var nameGenerator namegenerator.Generator
+var ctx context.Context
+var cancel context.CancelFunc
 
 func TestAPIs(t *testing.T) {
 	if os.Getenv("RUN_ENVTEST") == "0" {
@@ -69,6 +67,7 @@ func TestAPIs(t *testing.T) {
 var _ = BeforeSuite(func() {
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 
+	// nolint:fatcontext
 	ctx, cancel = context.WithCancel(context.TODO())
 
 	var err error
@@ -160,14 +159,18 @@ var _ = AfterSuite(func() {
 func getFirstFoundEnvTestBinaryDir() string {
 	basePath := filepath.Join("..", "..", "..", "..", "bin", "k8s")
 	entries, err := os.ReadDir(basePath)
+
 	if err != nil {
 		logf.Log.Error(err, "Failed to read directory", "path", basePath)
+
 		return ""
 	}
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			return filepath.Join(basePath, entry.Name())
 		}
 	}
+
 	return ""
 }

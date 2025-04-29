@@ -8,7 +8,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) Service() *corev1.Service {
-
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.ResourceName(),
@@ -20,12 +19,14 @@ func (cfg *GeneratorOptions) Service() *corev1.Service {
 				if cfg.ServiceType == operatorv1alpha1.LoadBalancerType {
 					return corev1.ServiceTypeLoadBalancer
 				}
+
 				return corev1.ServiceTypeClusterIP
 			}(),
 			ClusterIP: func() string {
 				if cfg.ServiceType == operatorv1alpha1.HeadlessType {
 					return "None"
 				}
+
 				return ""
 			}(),
 			Selector:        cfg.labels(),

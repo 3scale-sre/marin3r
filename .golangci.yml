@@ -9,13 +9,12 @@ issues:
   # restore some of the defaults
   # (fill in the rest as needed)
   exclude-rules:
-    - path: "api/*"
-      linters:
-        - lll
-    - path: "internal/*"
+    - path: ".*_test.go"
       linters:
         - dupl
-        - lll
+        - errcheck
+        - containedctx
+        - gosec
 linters:
   disable-all: true
   enable:
@@ -30,7 +29,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - lll
     - misspell
     - nakedret
     - prealloc
@@ -40,6 +38,37 @@ linters:
     - unconvert
     - unparam
     - unused
+    - bodyclose
+    - asasalint
+    - containedctx
+    - contextcheck
+    - decorder
+    - dogsled
+    - dupword
+    - durationcheck
+    - errchkjson
+    - fatcontext
+    - godox
+    - importas
+    - intrange
+    - loggercheck
+    - nilerr
+    - nlreturn
+    - nosprintfhostport
+    - prealloc
+    - promlinter
+    - reassign
+    - tagliatelle
+    - tagalign
+    - wastedassign
+    - whitespace
+    - wsl
+    - usestdlibvars
+    - recvcheck
+    - protogetter
+    - predeclared
+    - perfsprint
+    - noctx
 
 linters-settings:
   revive:

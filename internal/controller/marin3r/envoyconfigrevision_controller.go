@@ -60,9 +60,9 @@ type EnvoyConfigRevisionReconciler struct {
 // +kubebuilder:rbac:groups="core",namespace=placeholder,resources=secrets,verbs=get;list;watch
 // +kubebuilder:rbac:groups="discovery.k8s.io",namespace=placeholder,resources=endpointslices,verbs=get;list;watch
 func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	ctx, logger := r.Logger(ctx, "name", req.Name, "namespace", req.Namespace)
 	ecr := &marin3rv1alpha1.EnvoyConfigRevision{}
+
 	result := r.ManageResourceLifecycle(ctx, req, ecr,
 		// Apply defaults
 		reconciler.WithInitializationFunc(reconciler_util.ResourceDefaulter(ecr)),
@@ -77,6 +77,7 @@ func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.
 					ecr.Spec.EnvoyResources = nil
 				}
 			}
+
 			return nil
 		}),
 		// set finalizer
@@ -85,6 +86,7 @@ func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.
 		reconciler.WithFinalizationFunc(func(context.Context, client.Client) error {
 			envoyconfigrevision.CleanupLogic(ecr, r.XdsCache, r.DiscoveryStats, logger)
 			logger.Info("finalized EnvoyConfigRevision resource")
+
 			return nil
 		}),
 	)
@@ -98,13 +100,11 @@ func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.
 	// to the xds server cache
 	if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 		var err error
+
 		decoder := envoy_serializer.NewResourceUnmarshaller(envoy_serializer.JSON, r.APIVersion)
 
 		cacheReconciler := envoyconfigrevision.NewCacheReconciler(
-			ctx, logger, r.Client, r.XdsCache,
-			decoder,
-			envoy_resources.NewGenerator(r.APIVersion),
-		)
+			r.Client, r.XdsCache, decoder, envoy_resources.NewGenerator(r.APIVersion), logger)
 
 		vt, err = cacheReconciler.Reconcile(ctx, req.NamespacedName, ecr.Spec.Resources, ecr.Spec.NodeID, ecr.Spec.Version)
 
@@ -116,6 +116,7 @@ func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.
 			switch err.(type) {
 			case *errors.StatusError:
 				logger.Error(err, fmt.Sprintf("%v", err))
+
 				if err := r.taintSelf(ctx, ecr, "FailedLoadingResources", err.Error(), logger); err != nil {
 					return ctrl.Result{}, err
 				}
@@ -129,6 +130,7 @@ func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.
 		if err := r.Client.Status().Update(ctx, ecr); err != nil {
 			logger.Error(err, "unable to update EnvoyConfigRevision status")
 		}
+
 		logger.Info("status updated for EnvoyConfigRevision resource")
 	}
 
@@ -137,12 +139,10 @@ func (r *EnvoyConfigRevisionReconciler) Reconcile(ctx context.Context, req ctrl.
 	}
 
 	return ctrl.Result{}, nil
-
 }
 
 func (r *EnvoyConfigRevisionReconciler) taintSelf(ctx context.Context, ecr *marin3rv1alpha1.EnvoyConfigRevision,
 	reason, msg string, logger logr.Logger) error {
-
 	if !meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionTaintedCondition) {
 		patch := client.MergeFrom(ecr.DeepCopy())
 		meta.SetStatusCondition(&ecr.Status.Conditions, metav1.Condition{
@@ -151,6 +151,7 @@ func (r *EnvoyConfigRevisionReconciler) taintSelf(ctx context.Context, ecr *mari
 			Reason:  reason,
 			Message: msg,
 		})
+
 		ecr.Status.Tainted = ptr.To(true)
 
 		if err := r.Client.Status().Patch(ctx, ecr, patch); err != nil {
@@ -159,6 +160,7 @@ func (r *EnvoyConfigRevisionReconciler) taintSelf(ctx context.Context, ecr *mari
 
 		logger.Info(fmt.Sprintf("Tainted revision: %q", msg))
 	}
+
 	return nil
 }
 
@@ -168,6 +170,7 @@ func filterByAPIVersion(obj runtime.Object, version envoy.APIVersion) bool {
 		if o.GetEnvoyAPIVersion() == version {
 			return true
 		}
+
 		return false
 
 	default:
@@ -177,14 +180,12 @@ func filterByAPIVersion(obj runtime.Object, version envoy.APIVersion) bool {
 
 func filterByAPIVersionPredicate(version envoy.APIVersion,
 	filter func(runtime.Object, envoy.APIVersion) bool) predicate.Predicate {
-
 	return predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
 			return filter(e.Object, version)
 		},
 		UpdateFunc: func(e event.UpdateEvent) bool {
 			return filter(e.ObjectNew, version)
-
 		},
 		DeleteFunc: func(e event.DeleteEvent) bool {
 			return filter(e.Object, version)
@@ -202,6 +203,7 @@ func (r *EnvoyConfigRevisionReconciler) SecretsEventHandler() handler.EventHandl
 			if secret.Type != corev1.SecretTypeTLS && secret.Type != corev1.SecretTypeOpaque {
 				return false
 			}
+
 			ecr := o.(*marin3rv1alpha1.EnvoyConfigRevision)
 			if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 				// check if the k8s Secret is relevant for this EnvoyConfigRevision
@@ -212,9 +214,9 @@ func (r *EnvoyConfigRevisionReconciler) SecretsEventHandler() handler.EventHandl
 							return true
 						}
 					}
-
 				}
 			}
+
 			return false
 		},
 		logr.Discard(),
@@ -228,12 +230,12 @@ func (r *EnvoyConfigRevisionReconciler) EndpointSlicesEventHandler() handler.Eve
 		&marin3rv1alpha1.EnvoyConfigRevisionList{},
 		func(event client.Object, o client.Object) bool {
 			endpointSlice := event.(*discoveryv1.EndpointSlice)
+
 			ecr := o.(*marin3rv1alpha1.EnvoyConfigRevision)
 			if meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
 				// check if the k8s EndpointSlice is relevant for this EnvoyConfigRevision
 				for _, r := range ecr.Spec.Resources {
 					if r.Type == envoy.Endpoint && r.GenerateFromEndpointSlices != nil {
-
 						selector, err := metav1.LabelSelectorAsSelector(r.GenerateFromEndpointSlices.Selector)
 						if err != nil {
 							// skip this item in case of error
@@ -247,6 +249,7 @@ func (r *EnvoyConfigRevisionReconciler) EndpointSlicesEventHandler() handler.Eve
 					}
 				}
 			}
+
 			return false
 		},
 		logr.Discard(),

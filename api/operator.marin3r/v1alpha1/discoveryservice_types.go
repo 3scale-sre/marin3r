@@ -182,7 +182,7 @@ type DiscoveryService struct {
 	Status DiscoveryServiceStatus `json:"status,omitempty"`
 }
 
-func (d *DiscoveryService) GetStatus() *DiscoveryServiceStatus {
+func (d *DiscoveryService) GetStatus() any {
 	return &d.Status
 }
 

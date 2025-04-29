@@ -6,7 +6,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) RoleBinding() *rbacv1.RoleBinding {
-
 	return &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.ResourceName(),

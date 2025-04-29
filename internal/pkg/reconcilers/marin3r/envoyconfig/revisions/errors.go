@@ -40,23 +40,18 @@ func ReasonForError(err error) ErrorReason {
 	case Error:
 		return t.Reason
 	}
+
 	return UnknownError
 }
 
 // ErrorIsNoMatchesForFilter returns true if the Reason field
 // of an Error is a NoMatchesForFilterError. Returns false otherwise.
 func ErrorIsNoMatchesForFilter(err error) bool {
-	if ReasonForError(err) == NoMatchesForFilterError {
-		return true
-	}
-	return false
+	return ReasonForError(err) == NoMatchesForFilterError
 }
 
 // ErrorIsMultipleMatchesForFilter returns true if the Reason field of
 // an Error is a MultipleRevisionsForFilterError. Returns false otherwise
 func ErrorIsMultipleMatchesForFilter(err error) bool {
-	if ReasonForError(err) == MultipleMatchesForFilterError {
-		return true
-	}
-	return false
+	return ReasonForError(err) == MultipleMatchesForFilterError
 }

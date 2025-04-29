@@ -11,7 +11,6 @@ import (
 
 // IsStatusReconciled calculates the status of the resource
 func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVersion string, list *marin3rv1alpha1.EnvoyConfigRevisionList) bool {
-
 	ok := true
 
 	revisionList := generateRevisionList(list)
@@ -50,8 +49,8 @@ func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVe
 			Reason:  "CantPublishDesiredVersion",
 			Message: "Desired resources spec cannot be applied",
 		})
-		ok = false
 
+		ok = false
 	} else if desiredVersion == publishedVersion && meta.IsStatusConditionTrue(ec.Status.Conditions, marin3rv1alpha1.CacheOutOfSyncCondition) {
 		meta.SetStatusCondition(&ec.Status.Conditions, metav1.Condition{
 			Type:    marin3rv1alpha1.CacheOutOfSyncCondition,
@@ -59,6 +58,7 @@ func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVe
 			Reason:  "DesiredVersionPublished",
 			Message: "Desired version successfully published",
 		})
+
 		ok = false
 	}
 
@@ -70,8 +70,8 @@ func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVe
 			Status:  metav1.ConditionFalse,
 			Message: "Recovered from RollbackFailed condition",
 		})
-		ok = false
 
+		ok = false
 	} else if cacheState == marin3rv1alpha1.RollbackFailedState && !meta.IsStatusConditionTrue(ec.Status.Conditions, marin3rv1alpha1.RollbackFailedCondition) {
 		meta.SetStatusCondition(&ec.Status.Conditions, metav1.Condition{
 			Type:    marin3rv1alpha1.RollbackFailedCondition,
@@ -79,6 +79,7 @@ func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVe
 			Reason:  "AllRevisionsTainted",
 			Message: "All revisions are tainted, rollback failed",
 		})
+
 		ok = false
 	}
 
@@ -87,6 +88,7 @@ func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVe
 	if cond := meta.FindStatusCondition(ec.Status.Conditions, marin3rv1alpha1.RollbackFailedCondition); cond != nil && cond.Message == "" {
 		cond.Message = "Recovered from RollbackFailed condition"
 		meta.SetStatusCondition(&ec.Status.Conditions, *cond)
+
 		ok = false
 	}
 
@@ -94,7 +96,6 @@ func IsStatusReconciled(ec *marin3rv1alpha1.EnvoyConfig, cacheState, publishedVe
 }
 
 func generateRevisionList(list *marin3rv1alpha1.EnvoyConfigRevisionList) []marin3rv1alpha1.ConfigRevisionRef {
-
 	revisionList := make([]marin3rv1alpha1.ConfigRevisionRef, len(list.Items))
 	for idx, ecr := range list.Items {
 		revisionList[idx] = marin3rv1alpha1.ConfigRevisionRef{

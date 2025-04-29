@@ -33,6 +33,7 @@ func NewKey(nodeID, rType, version, podID, statName string) *Key {
 
 func NewKeyFromString(key string) *Key {
 	values := strings.Split(key, ":")
+
 	return &Key{
 		NodeID:       values[0],
 		ResourceType: values[1],
@@ -54,7 +55,6 @@ func (s *Stats) GetString(nodeID, rtype, version, podID, statName string) (strin
 		} else {
 			return value, nil
 		}
-
 	} else {
 		return "", fmt.Errorf("key %s not found", k)
 	}
@@ -80,7 +80,6 @@ func (s *Stats) GetCounter(nodeID, rtype, version, podID, statName string) (int6
 		} else {
 			return value, nil
 		}
-
 	} else {
 		return 0, fmt.Errorf("key %s not found", k)
 	}
@@ -97,18 +96,22 @@ func (s *Stats) IncrementCounter(nodeID, rType, version, podID, statName string,
 func (s *Stats) FilterKeys(filters ...string) map[string]kv.Item {
 	all := s.store.Items()
 	selected := map[string]kv.Item{}
+
 	var isSelected bool
 	for key, value := range all {
 		isSelected = true
+
 		for _, filter := range filters {
 			if !strings.Contains(key, filter) {
 				isSelected = false
 			}
 		}
+
 		if isSelected {
 			selected[key] = value
 		}
 	}
+
 	return selected
 }
 

@@ -14,7 +14,6 @@ var t1, t2 time.Time
 func init() {
 	t1, _ = time.Parse(time.RFC3339, "2020-12-19T00:00:00Z")
 	t2, _ = time.Parse(time.RFC3339, "2020-12-20T00:00:00Z")
-
 }
 
 func TestIsStatusReconciled(t *testing.T) {
@@ -25,6 +24,7 @@ func TestIsStatusReconciled(t *testing.T) {
 		notBefore       time.Time
 		notAfter        time.Time
 	}
+
 	tests := []struct {
 		name string
 		args args

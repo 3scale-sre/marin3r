@@ -41,6 +41,14 @@ entries:
     replaces: marin3r.v0.13.2-alpha.3
   - name: marin3r.v0.13.2-alpha.5
     replaces: marin3r.v0.13.2-alpha.4
+  - name: marin3r.v0.13.2-alpha.6
+    replaces: marin3r.v0.13.2-alpha.5
+  - name: marin3r.v0.13.2-alpha.7
+    replaces: marin3r.v0.13.2-alpha.6
+  - name: marin3r.v0.13.2-alpha.8
+    replaces: marin3r.v0.13.2-alpha.7
+  - name: marin3r.v0.13.2-alpha.9
+    replaces: marin3r.v0.13.2-alpha.8
 name: alpha
 package: marin3r
 schema: olm.channel

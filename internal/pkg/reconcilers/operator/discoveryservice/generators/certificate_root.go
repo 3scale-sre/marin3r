@@ -10,7 +10,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) RootCertificationAuthority() *operatorv1alpha1.DiscoveryServiceCertificate {
-
 	return &operatorv1alpha1.DiscoveryServiceCertificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.RootCertName(),

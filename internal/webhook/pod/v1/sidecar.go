@@ -16,6 +16,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -86,10 +87,12 @@ func (esc *envoySidecarConfig) PopulateFromAnnotations(ctx context.Context, clnt
 
 	esc.generator.Name = getStringParam(paramContainerName, annotations)
 	esc.generator.Image = getStringParam(paramImage, annotations)
+
 	esc.generator.Ports, err = getContainerPorts(annotations)
 	if err != nil {
 		return err
 	}
+
 	esc.generator.ConfigBasePath = defaults.EnvoyConfigBasePath
 	esc.generator.ConfigFileName = defaults.EnvoyConfigFileName
 	esc.generator.ConfigVolume = getStringParam(paramConfigVolume, annotations)
@@ -103,12 +106,15 @@ func (esc *envoySidecarConfig) PopulateFromAnnotations(ctx context.Context, clnt
 		if extraArgs != "" {
 			return strings.Split(extraArgs, " ")
 		}
+
 		return nil
 	}()
+
 	esc.generator.Resources, err = getContainerResourceRequirements(annotations)
 	if err != nil {
 		return err
 	}
+
 	esc.generator.AdminBindAddress = getStringParam(paramEnvoyAdminBindAddress, annotations)
 	esc.generator.AdminPort = getPortOrDefault(paramEnvoyAdminPort, annotations, defaults.EnvoyAdminPort)
 	esc.generator.AdminAccessLogPath = getStringParam(paramEnvoyAdminAccessLogPath, annotations)
@@ -139,6 +145,7 @@ func (esc *envoySidecarConfig) PopulateFromAnnotations(ctx context.Context, clnt
 	if err != nil {
 		return err
 	}
+
 	esc.generator.XdssHost = xdssHost
 	esc.generator.XdssPort = xdssPort
 	esc.generator.APIVersion = getStringParam(paramEnvoyAPIVersion, annotations)
@@ -147,14 +154,15 @@ func (esc *envoySidecarConfig) PopulateFromAnnotations(ctx context.Context, clnt
 }
 
 func getDiscoveryServiceAddress(ctx context.Context, clnt client.Client, namespace string, annotations map[string]string) (string, int, error) {
-
 	if dsName := getStringParam(paramDiscoveryServiceName, annotations); dsName != "" {
 		// Get the address of the DiscoveryService instance
 		ds := &operatorv1alpha1.DiscoveryService{}
 		dsKey := types.NamespacedName{Name: dsName, Namespace: namespace}
+
 		if err := clnt.Get(ctx, dsKey, ds); err != nil {
 			return "", -1, err
 		}
+
 		return fmt.Sprintf("%s.%s.%s", ds.GetServiceConfig().Name, namespace, "svc"), int(ds.GetXdsServerPort()), nil
 	}
 
@@ -163,19 +171,21 @@ func getDiscoveryServiceAddress(ctx context.Context, clnt client.Client, namespa
 	if err := clnt.List(ctx, dsList, client.InNamespace(namespace)); err != nil {
 		return "", -1, err
 	}
+
 	if n := len(dsList.Items); n != 1 {
 		return "", -1, fmt.Errorf("expected just one DiscoveryService, got %d", n)
 	}
+
 	return fmt.Sprintf("%s.%s.%s", dsList.Items[0].GetServiceConfig().Name, namespace, "svc"), int(dsList.Items[0].GetXdsServerPort()), nil
 }
 
 func lookupMarin3rAnnotation(key string, annotations map[string]string) (string, bool) {
 	value, ok := annotations[fmt.Sprintf("%s/%s", marin3rAnnotationsDomain, key)]
+
 	return value, ok
 }
 
 func getStringParam(key string, annotations map[string]string) string {
-
 	var defaults = map[string]string{
 		paramContainerName:           defaults.SidecarContainerName,
 		paramImage:                   defaults.Image,
@@ -209,7 +219,6 @@ func getStringParam(key string, annotations map[string]string) string {
 }
 
 func getInt64Param(key string, annotations map[string]string) int64 {
-
 	var defaults = map[string]int64{
 		paramShtdnMgrDrainTime: defaults.GracefulShutdownTimeoutSeconds,
 	}
@@ -231,6 +240,7 @@ func getDrainStrategy(annotations map[string]string) defaults.DrainStrategy {
 			return defaults.DrainStrategy(value)
 		}
 	}
+
 	return defaults.GracefulShutdownStrategy
 }
 
@@ -238,11 +248,13 @@ func getNodeID(annotations map[string]string) string {
 	// the node-id annotation is always present, otherwise
 	// mutation won't even be triggered
 	res, _ := lookupMarin3rAnnotation(paramNodeID, annotations)
+
 	return res
 }
 
 func getContainerResourceRequirements(annotations map[string]string) (corev1.ResourceRequirements, error) {
 	var res corev1.ResourceRequirements
+
 	strCPURequests, okCPURequests := lookupMarin3rAnnotation(paramResourceRequestsCPU, annotations)
 	strMemoryRequests, okMemoryRequests := lookupMarin3rAnnotation(paramResourceRequestsMemory, annotations)
 	strCPULimits, okCPULimits := lookupMarin3rAnnotation(paramResourceLimitsCPU, annotations)
@@ -251,6 +263,7 @@ func getContainerResourceRequirements(annotations map[string]string) (corev1.Res
 	if okCPURequests || okMemoryRequests {
 		res.Requests = corev1.ResourceList{}
 	}
+
 	if okCPULimits || okMemoryLimits {
 		res.Limits = corev1.ResourceList{}
 	}
@@ -260,6 +273,7 @@ func getContainerResourceRequirements(annotations map[string]string) (corev1.Res
 		if err != nil {
 			return corev1.ResourceRequirements{}, err
 		}
+
 		res.Requests[corev1.ResourceCPU] = cpuRequests
 	}
 
@@ -268,6 +282,7 @@ func getContainerResourceRequirements(annotations map[string]string) (corev1.Res
 		if err != nil {
 			return corev1.ResourceRequirements{}, err
 		}
+
 		res.Requests[corev1.ResourceMemory] = memoryRequests
 	}
 
@@ -276,6 +291,7 @@ func getContainerResourceRequirements(annotations map[string]string) (corev1.Res
 		if err != nil {
 			return corev1.ResourceRequirements{}, err
 		}
+
 		res.Limits[corev1.ResourceCPU] = cpuLimits
 	}
 
@@ -284,6 +300,7 @@ func getContainerResourceRequirements(annotations map[string]string) (corev1.Res
 		if err != nil {
 			return corev1.ResourceRequirements{}, err
 		}
+
 		res.Limits[corev1.ResourceMemory] = memoryLimits
 	}
 
@@ -297,8 +314,10 @@ func getPortOrDefault(key string, annotations map[string]string, defaultPort uin
 		if err != nil {
 			return int32(defaultPort)
 		}
+
 		return p
 	}
+
 	return int32(defaultPort)
 }
 
@@ -308,7 +327,6 @@ func getContainerPorts(annotations map[string]string) ([]corev1.ContainerPort, e
 
 	if ports, ok := lookupMarin3rAnnotation(paramPorts, annotations); ok {
 		for _, containerPort := range strings.Split(ports, ",") {
-
 			p, err := parsePortSpec(containerPort)
 			if err != nil {
 				return []corev1.ContainerPort{}, err
@@ -318,13 +336,13 @@ func getContainerPorts(annotations map[string]string) ([]corev1.ContainerPort, e
 			if err != nil {
 				return []corev1.ContainerPort{}, err
 			}
+
 			if hp != 0 {
 				p.HostPort = hp
 			}
+
 			plist = append(plist, *p)
-
 		}
-
 	} else {
 		// no ports defined for envoy sidecar
 		return []corev1.ContainerPort{}, nil
@@ -339,52 +357,53 @@ func parsePortSpec(spec string) (*corev1.ContainerPort, error) {
 	params := strings.Split(spec, ":")
 	// Each port spec should at least contain name and port number
 	if len(params) < 2 {
-		return nil, fmt.Errorf("incorrect format, the por specification format for the envoy sidecar container is 'name:port[:protocol]'")
+		return nil, errors.New("incorrect format, the por specification format for the envoy sidecar container is 'name:port[:protocol]'")
 	}
 
 	port.Name = params[0]
+
 	p, err := portNumber(params[1])
 	if err != nil {
 		return nil, err
 	}
-	port.ContainerPort = int32(p)
+
+	port.ContainerPort = p
 
 	// Check that protocol matches one of the allowed protocols
 	if len(params) == 3 {
 		if params[2] == "TCP" || params[2] == "UDP" || params[2] == "SCTP" {
 			port.Protocol = corev1.Protocol(params[2])
-
 		} else {
 			return nil, fmt.Errorf("unsupported port protocol '%s'", params[2])
 		}
 	}
 
 	return &port, nil
-
 }
 
 func hostPortMapping(portName string, annotations map[string]string) (int32, error) {
-
 	if specs, ok := lookupMarin3rAnnotation(paramHostPortMapings, annotations); ok {
 		for _, spec := range strings.Split(specs, ",") {
 			params := strings.Split(spec, ":")
 			if len(params) != 2 {
 				return 0, fmt.Errorf("incorrect number of params in host-port-mapping spec '%v'", spec)
 			}
+
 			if params[0] == portName {
 				p, err := portNumber(params[1])
 				if err != nil {
 					return 0, err
 				}
+
 				return p, nil
 			}
 		}
 	}
+
 	return 0, nil
 }
 
 func portNumber(sport string) (int32, error) {
-
 	// Parse and validate the port number
 	iport, err := strconv.Atoi(sport)
 	if err != nil {
@@ -394,6 +413,7 @@ func portNumber(sport string) (int32, error) {
 	if iport < 1024 || iport > 65535 {
 		return 0, fmt.Errorf("port number %v is not in the range 1024-65535", iport)
 	}
+
 	return int32(iport), nil
 }
 
@@ -402,21 +422,19 @@ func isShtdnMgrEnabled(annotations map[string]string) bool {
 	if err != nil {
 		return false
 	}
+
 	return b
 }
 
 func (esc *envoySidecarConfig) containers() []corev1.Container {
-
 	return esc.generator.Containers()
 }
 
 func (esc *envoySidecarConfig) initContainers() []corev1.Container {
-
 	return esc.generator.InitContainers()
 }
 
 func (esc *envoySidecarConfig) volumes() []corev1.Volume {
-
 	return esc.generator.Volumes()
 }
 
@@ -425,7 +443,9 @@ func parseExtraLifecycleHooksAnnotation(annotations map[string]string) []string 
 	if c == "" {
 		return []string{}
 	}
+
 	hooks := strings.Split(c, ",")
+
 	return hooks
 }
 
@@ -435,6 +455,7 @@ func getContainerByName(name string, containers []corev1.Container) (corev1.Cont
 			return c, pos, nil
 		}
 	}
+
 	return corev1.Container{}, -1, fmt.Errorf("container '%s' specified in the 'shutdown-manager.extra-lifecycle-hooks' annotation was not found", name)
 }
 
@@ -445,6 +466,7 @@ func (esc *envoySidecarConfig) addExtraLifecycleHooks(containers []corev1.Contai
 		if err != nil {
 			return nil, err
 		}
+
 		containers[pos].Lifecycle = &corev1.Lifecycle{
 			PreStop: &corev1.LifecycleHandler{
 				HTTPGet: &corev1.HTTPGetAction{
@@ -455,5 +477,6 @@ func (esc *envoySidecarConfig) addExtraLifecycleHooks(containers []corev1.Contai
 			},
 		}
 	}
+
 	return containers, nil
 }

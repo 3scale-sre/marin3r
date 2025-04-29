@@ -50,6 +50,7 @@ var _ = Describe("EnvoyDeployment webhook", func() {
 		n := &v1.Namespace{}
 		Eventually(func() bool {
 			err := k8sClient.Get(context.Background(), types.NamespacedName{Name: namespace}, n)
+
 			return err == nil
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -72,6 +73,7 @@ var _ = Describe("EnvoyDeployment webhook", func() {
 			if err != nil && errors.IsNotFound(err) {
 				return false
 			}
+
 			return true
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 	})

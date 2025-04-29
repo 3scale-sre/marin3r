@@ -74,6 +74,7 @@ var _ = Describe("DiscoveryService controller", func() {
 			if err != nil && errors.IsNotFound(err) {
 				return false
 			}
+
 			return true
 		}, 60*time.Second, 5*time.Second).Should(BeTrue())
 	})
@@ -160,6 +161,7 @@ var _ = Describe("DiscoveryService controller", func() {
 					if !ok || hash == "" {
 						return false
 					}
+
 					return true
 				}, 60*time.Second, 5*time.Second).Should(BeTrue())
 			}

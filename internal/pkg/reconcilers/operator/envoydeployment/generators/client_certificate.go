@@ -7,7 +7,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) ClientCertificate() *operatorv1alpha1.DiscoveryServiceCertificate {
-
 	return &operatorv1alpha1.DiscoveryServiceCertificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.ClientCertificateName,

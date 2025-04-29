@@ -37,13 +37,13 @@ var (
 )
 
 func TestNewXdsServer(t *testing.T) {
-
 	type args struct {
 		ctx       context.Context
 		adsPort   uint
 		tlsConfig *tls.Config
 		logger    logr.Logger
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -64,12 +64,11 @@ func TestNewXdsServer(t *testing.T) {
 }
 
 func TestXdsServer_Start(t *testing.T) {
-
 	t.Run("Runs the ads server", func(t *testing.T) {
 		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
 		defer cancel()
+
 		xdss := &XdsServer{
-			ctx,
 			10000,
 			&tls.Config{},
 			server_v3.NewServer(context.Background(), snapshotCacheV3, &xdss_v3.Callbacks{Logger: ctrl.Log}),
@@ -79,12 +78,12 @@ func TestXdsServer_Start(t *testing.T) {
 		}
 
 		go func() {
-			if err := xdss.Start(fake.NewSimpleClientset(), "ns"); err != nil {
+			if err := xdss.Start(ctx, fake.NewSimpleClientset(), "ns"); err != nil {
 				t.Errorf("TestXdsServer_Start = non nil error: '%s'", err)
 			}
 		}()
 
-		<-xdss.ctx.Done()
+		<-ctx.Done()
 	})
 }
 
@@ -98,7 +97,6 @@ func TestXdsServer_GetCache(t *testing.T) {
 		{
 			"Gets the server's Cache",
 			&XdsServer{
-				context.Background(),
 				10000,
 				&tls.Config{},
 				server_v3.NewServer(context.Background(), snapshotCacheV3, &xdss_v3.Callbacks{Logger: ctrl.Log}),

@@ -431,7 +431,7 @@ type EnvoyDeployment struct {
 	Status EnvoyDeploymentStatus `json:"status,omitempty"`
 }
 
-func (ed *EnvoyDeployment) GetStatus() *EnvoyDeploymentStatus {
+func (ed *EnvoyDeployment) GetStatus() any {
 	return &ed.Status
 }
 

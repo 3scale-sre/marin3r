@@ -38,7 +38,6 @@ func (c *Config) getAdminAccessLogPath() string {
 // bootstrap object that can be passed as the configuration file to an envoy proxy
 // so it can connect to the discovery service.
 func (c *Config) GenerateStatic() (string, error) {
-
 	tlsContext, err := anypb.New(&envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
 		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
 			TlsCertificateSdsSecretConfigs: []*envoy_extensions_transport_sockets_tls_v3.SdsSecretConfig{
@@ -218,13 +217,12 @@ func (c *Config) GenerateStatic() (string, error) {
 		return "", err
 	}
 
-	return string(json), nil
+	return json, nil
 }
 
 // GenerateSdsResources generates the envoy static config required for
 // filesystem discovery of certificates.
 func (c *Config) GenerateSdsResources() (map[string]string, error) {
-
 	generator := envoy_resources.NewGenerator(envoy.APIv3)
 	secret := generator.NewTlsSecretFromPath("xds_client_certificate", c.Options.XdsClientCertificatePath, c.Options.XdsClientCertificateKeyPath)
 
@@ -232,6 +230,7 @@ func (c *Config) GenerateSdsResources() (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	cfg := &envoy_service_discovery_v3.DiscoveryResponse{
 		Resources: []*anypb.Any{a},
 	}
@@ -242,7 +241,7 @@ func (c *Config) GenerateSdsResources() (map[string]string, error) {
 	}
 
 	return map[string]string{
-		envoy_bootstrap_options.TlsCertificateSdsSecretFileName: string(json),
+		envoy_bootstrap_options.TlsCertificateSdsSecretFileName: json,
 	}, nil
 }
 
@@ -250,6 +249,7 @@ func stringOrDefault(s, def string) string {
 	if s == "" {
 		return def
 	}
+
 	return s
 }
 
@@ -257,5 +257,6 @@ func intOrDefault(i, def uint32) uint32 {
 	if i == 0 {
 		return def
 	}
+
 	return i
 }

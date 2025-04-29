@@ -25,6 +25,7 @@ func TestVersionFilter_ApplyToLabelSelector(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.filter.ApplyToLabelSelector(tt.selector)
+
 			if !reflect.DeepEqual(tt.selector, tt.want) {
 				t.Errorf("VersionFilter_ApplyToLabelSelector() = %v, want %v", tt.selector, tt.want)
 			}
@@ -36,6 +37,7 @@ func TestByVersion(t *testing.T) {
 	type args struct {
 		version string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -57,7 +59,6 @@ func TestByVersion(t *testing.T) {
 }
 
 func TestNodeIDFilter_ApplyToLabelSelector(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		filter   *NodeIDFilter
@@ -74,6 +75,7 @@ func TestNodeIDFilter_ApplyToLabelSelector(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.filter.ApplyToLabelSelector(tt.selector)
+
 			if !reflect.DeepEqual(tt.selector, tt.want) {
 				t.Errorf("NodeIDFilter_ApplyToLabelSelector() = %v, want %v", tt.selector, tt.want)
 			}
@@ -85,6 +87,7 @@ func TestByNodeID(t *testing.T) {
 	type args struct {
 		nodeID string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -122,6 +125,7 @@ func TestEnvoyAPIFilter_ApplyToLabelSelector(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.filter.ApplyToLabelSelector(tt.selector)
+
 			if !reflect.DeepEqual(tt.selector, tt.want) {
 				t.Errorf("EnvoyAPIFilter_ApplyToLabelSelector() = %v, want %v", tt.selector, tt.want)
 			}
@@ -133,6 +137,7 @@ func TestByEnvoyAPI(t *testing.T) {
 	type args struct {
 		envoyAPI envoy.APIVersion
 	}
+
 	tests := []struct {
 		name string
 		args args

@@ -30,6 +30,7 @@ func TestEndpoints(t *testing.T) {
 		generator     envoy_resources.Generator
 		log           logr.Logger
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -193,8 +194,10 @@ func TestEndpoints(t *testing.T) {
 			got, err := Endpoints(tt.args.ctx, tt.args.cl, tt.args.namespace, tt.args.clusterName, tt.args.portName, tt.args.labelSelector, tt.args.generator, tt.args.log)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Endpoints() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Endpoints() = %v, want %v", got, tt.want)
 			}
@@ -208,6 +211,7 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 		portName string
 		log      logr.Logger
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -346,8 +350,10 @@ func Test_endpointSlices_to_UpstreamHosts(t *testing.T) {
 			got, err := endpointSlices_to_UpstreamHosts(tt.args.esl, tt.args.portName, tt.args.log)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("endpointSlices_to_UpstreamHosts() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("endpointSlices_to_UpstreamHosts() = %v, want %v", got, tt.want)
 			}
@@ -359,6 +365,7 @@ func Test_health(t *testing.T) {
 	type args struct {
 		ec discoveryv1.EndpointConditions
 	}
+
 	tests := []struct {
 		name string
 		args args

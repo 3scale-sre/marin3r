@@ -21,6 +21,7 @@ func TestSnapshot_SetResources(t *testing.T) {
 		rType     envoy.Type
 		resources []envoy.Resource
 	}
+
 	tests := []struct {
 		name     string
 		snapshot xdss.Snapshot
@@ -41,6 +42,7 @@ func TestSnapshot_SetResources(t *testing.T) {
 				s.v3.Resources[cache_types.Endpoint] = cache_v3.NewResources("845f965864", []cache_types.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				})
+
 				return s
 			}(),
 		},
@@ -59,6 +61,7 @@ func TestSnapshot_GetResources(t *testing.T) {
 	type args struct {
 		rType envoy.Type
 	}
+
 	tests := []struct {
 		name     string
 		snapshot xdss.Snapshot
@@ -90,6 +93,7 @@ func TestSnapshot_GetVersion(t *testing.T) {
 	type args struct {
 		rType envoy.Type
 	}
+
 	tests := []struct {
 		name     string
 		snapshot xdss.Snapshot
@@ -128,6 +132,7 @@ func TestSnapshot_SetVersion(t *testing.T) {
 		rType   envoy.Type
 		version string
 	}
+
 	tests := []struct {
 		name     string
 		snapshot xdss.Snapshot
@@ -145,6 +150,7 @@ func TestSnapshot_SetVersion(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := tt.snapshot
 			s.SetVersion(tt.args.rType, tt.args.version)
+
 			if s.GetVersion(tt.args.rType) != tt.args.version {
 				t.Errorf("Snapshot.SetVersion() = %v, want %v", s.GetVersion(tt.args.rType), tt.args.version)
 			}
@@ -156,6 +162,7 @@ func Test_v3CacheResources(t *testing.T) {
 	type args struct {
 		rType envoy.Type
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -180,6 +187,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 	type args struct {
 		rType envoy.Type
 	}
+
 	tests := []struct {
 		name     string
 		snapshot Snapshot
@@ -194,6 +202,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 				s.v3.Resources[cache_types.Endpoint] = cache_v3.NewResources("xxxx", []cache_types.Resource{
 					&envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: "endpoint"},
 				})
+
 				return s
 			}(),
 			args: args{rType: envoy.Endpoint},
@@ -206,6 +215,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 				s.v3.Resources[cache_types.Cluster] = cache_v3.NewResources("xxxx", []cache_types.Resource{
 					&envoy_config_cluster_v3.Cluster{Name: "cluster"},
 				})
+
 				return s
 			}(),
 			args: args{
@@ -229,6 +239,7 @@ func TestSnapshot_recalculateVersion(t *testing.T) {
 									Specifier: &envoy_config_core_v3.DataSource_InlineBytes{InlineBytes: []byte("cert")},
 								}}}},
 				})
+
 				return s
 			}(),
 			args: args{rType: envoy.Secret},

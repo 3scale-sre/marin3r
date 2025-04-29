@@ -7,7 +7,6 @@ import (
 )
 
 func (cfg *GeneratorOptions) HPA() *autoscalingv2.HorizontalPodAutoscaler {
-
 	return &autoscalingv2.HorizontalPodAutoscaler{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cfg.resourceName(),
@@ -18,6 +17,7 @@ func (cfg *GeneratorOptions) HPA() *autoscalingv2.HorizontalPodAutoscaler {
 			if cfg.Replicas.Dynamic == nil {
 				return autoscalingv2.HorizontalPodAutoscalerSpec{}
 			}
+
 			return autoscalingv2.HorizontalPodAutoscalerSpec{
 				ScaleTargetRef: autoscalingv2.CrossVersionObjectReference{
 					APIVersion: appsv1.SchemeGroupVersion.String(),

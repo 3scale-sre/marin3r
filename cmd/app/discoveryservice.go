@@ -32,6 +32,7 @@ import (
 	operatorv1alpha1 "github.com/3scale-sre/marin3r/api/operator.marin3r/v1alpha1"
 	marin3rcontroller "github.com/3scale-sre/marin3r/internal/controller/marin3r"
 	"github.com/3scale-sre/marin3r/internal/pkg/discoveryservice"
+	ioutil "github.com/3scale-sre/marin3r/internal/pkg/util/io"
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -86,11 +87,9 @@ func init() {
 		fmt.Sprintf("The path where the CA certificate '%s' and key '%s' files are located", certificateFile, certificateKeyFile))
 	discoveryServiceCmd.Flags().StringVar(&xdssTLSClientCertificatePath, "client-certificate-path", "/etc/marin3r/tls/client",
 		fmt.Sprintf("The path where the client certificate '%s' and key '%s' files are located", certificateFile, certificateKeyFile))
-
 }
 
 func runDiscoveryService(cmd *cobra.Command, args []string) {
-
 	ctrl.SetLogger(zap.New(zap.UseDevMode(debug)))
 	printVersion()
 
@@ -139,14 +138,17 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 	)
 
 	wait.Add(1)
+
 	go func() {
 		defer wait.Done()
+
 		client, err := kubernetes.NewForConfig(cfg)
 		if err != nil {
 			setupLog.Error(err, "unable to create k8s client for xdss")
 			os.Exit(1)
 		}
-		if err := xdss.Start(client, os.Getenv("WATCH_NAMESPACE")); err != nil {
+
+		if err := xdss.Start(ctx, client, os.Getenv("WATCH_NAMESPACE")); err != nil {
 			setupLog.Error(err, "xDS server returned an unrecoverable error, shutting down")
 			os.Exit(1)
 		}
@@ -163,12 +165,12 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 
 	if err := (&marin3rcontroller.EnvoyConfigRevisionReconciler{
 		Reconciler: reconciler.NewFromManager(mgr).
-			WithLogger(ctrl.Log.WithName("controllers").WithName(fmt.Sprintf("envoyconfigrevision_%s", string(envoy.APIv3)))),
+			WithLogger(ctrl.Log.WithName("controllers").WithName("envoyconfigrevision_" + string(envoy.APIv3))),
 		XdsCache:       xdss.GetCache(envoy.APIv3),
 		APIVersion:     envoy.APIv3,
 		DiscoveryStats: xdss.GetDiscoveryStats(envoy.APIv3),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", fmt.Sprintf("envoyconfigrevision_%s", string(envoy.APIv3)))
+		setupLog.Error(err, "unable to create controller", "controller", "envoyconfigrevision_"+string(envoy.APIv3))
 		os.Exit(1)
 	}
 
@@ -177,6 +179,7 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
+
 	if err := mgr.AddHealthzCheck("ping", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
@@ -186,6 +189,7 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
+
 	if err := mgr.AddReadyzCheck("ping", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
@@ -193,8 +197,10 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 
 	// Start the controllers
 	wait.Add(1)
+
 	go func() {
 		defer wait.Done()
+
 		if err := mgr.Start(ctx); err != nil {
 			setupLog.Error(err, "Controller manager exited non-zero")
 			os.Exit(1)
@@ -208,21 +214,23 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 
 func xdssHealthzCheck(logger logr.Logger) healthz.Checker {
 	return func(_ *http.Request) error {
-
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{loadCertificate(xdssTLSClientCertificatePath, setupLog)},
 			ClientCAs:          loadCA(xdssTLSCACertificatePath, setupLog),
 			InsecureSkipVerify: true,
 		}
 
-		transport, err := grpc.Dial(fmt.Sprintf("localhost:%d", xdssPort),
+		server := fmt.Sprintf("localhost:%d", xdssPort)
+
+		transport, err := grpc.NewClient(server,
 			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 		)
 		if err != nil {
 			logger.Error(err, "could not connect with gRPC server")
 			os.Exit(1)
 		}
-		defer transport.Close()
+
+		defer ioutil.CloseOrLog(transport, server, logger)
 
 		client := grpc_health_v1.NewHealthClient(transport)
 
@@ -231,6 +239,7 @@ func xdssHealthzCheck(logger logr.Logger) healthz.Checker {
 
 		if _, err := client.Check(ctx, &grpc_health_v1.HealthCheckRequest{}); err != nil {
 			logger.Error(err, "healthcheck failed")
+
 			return err
 		}
 
@@ -247,11 +256,13 @@ func loadCertificate(directory string, logger logr.Logger) tls.Certificate {
 		logger.Error(err, "Could not load server certificate")
 		os.Exit(1)
 	}
+
 	return certificate
 }
 
 func loadCA(directory string, logger logr.Logger) *x509.CertPool {
 	certPool := x509.NewCertPool()
+
 	if bs, err := os.ReadFile(fmt.Sprintf("%s/%s", directory, certificateFile)); err != nil {
 		logger.Error(err, "Failed to read client ca cert")
 		os.Exit(1)
@@ -262,5 +273,6 @@ func loadCA(directory string, logger logr.Logger) *x509.CertPool {
 			os.Exit(1)
 		}
 	}
+
 	return certPool
 }

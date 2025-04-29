@@ -12,7 +12,6 @@ import (
 // IsStatusReconciled calculates the status of the resource
 func IsStatusReconciled(dsc *operatorv1alpha1.DiscoveryServiceCertificate, certificateHash string,
 	ready bool, notBefore, notAfter time.Time) bool {
-
 	ok := true
 
 	if dsc.Status.GetCertificateHash() != certificateHash {

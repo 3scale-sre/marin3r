@@ -51,7 +51,6 @@ var (
 )
 
 func init() {
-
 	// Shutdown manager subcommand
 	rootCmd.AddCommand(shutdownManagerCmd)
 
@@ -75,7 +74,6 @@ func init() {
 }
 
 func runShutdownManager(cmd *cobra.Command, args []string) {
-
 	ctrl.SetLogger(zap.New(zap.UseDevMode(debug)))
 	printVersion()
 

@@ -53,9 +53,9 @@ type DiscoveryServiceReconciler struct {
 // +kubebuilder:rbac:groups="discovery.k8s.io",namespace=placeholder,resources=endpointslices,verbs=get;list;watch
 
 func (r *DiscoveryServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	ctx, _ = r.Logger(ctx, "name", req.Name, "namespace", req.Namespace)
 	ds := &operatorv1alpha1.DiscoveryService{}
+
 	result := r.ManageResourceLifecycle(ctx, req, ds)
 	if result.ShouldReturn() {
 		return result.Values()
@@ -70,15 +70,19 @@ func (r *DiscoveryServiceReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		ServerCertificateNamePrefix:       "marin3r-server-cert",
 		ServerCertificateCommonNamePrefix: "marin3r-server",
 		ServerCertificateDuration:         ds.GetServerCertificateOptions().Duration.Duration,
-		ClientCertificateDuration:         func() (d time.Duration) { d, _ = time.ParseDuration("48h"); return }(),
-		XdsServerPort:                     int32(ds.GetXdsServerPort()),
-		MetricsServerPort:                 int32(ds.GetMetricsPort()),
-		ProbePort:                         int32(ds.GetProbePort()),
-		ServiceType:                       operatorv1alpha1.ClusterIPType,
-		DeploymentImage:                   ds.GetImage(),
-		DeploymentResources:               ds.Resources(),
-		Debug:                             ds.Debug(),
-		PodPriorityClass:                  ds.GetPriorityClass(),
+		ClientCertificateDuration: func() (d time.Duration) {
+			d, _ = time.ParseDuration("48h")
+
+			return
+		}(),
+		XdsServerPort:       int32(ds.GetXdsServerPort()),
+		MetricsServerPort:   int32(ds.GetMetricsPort()),
+		ProbePort:           int32(ds.GetProbePort()),
+		ServiceType:         operatorv1alpha1.ClusterIPType,
+		DeploymentImage:     ds.GetImage(),
+		DeploymentResources: ds.Resources(),
+		Debug:               ds.Debug(),
+		PodPriorityClass:    ds.GetPriorityClass(),
 	}
 
 	serverCertHash, err := r.calculateServerCertificateHash(ctx, types.NamespacedName{Name: gen.ServerCertName(), Namespace: gen.Namespace})
@@ -111,8 +115,10 @@ func (r *DiscoveryServiceReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		func() bool {
 			if ds.Status.DeploymentName == nil || *ds.Status.DeploymentName != gen.ResourceName() {
 				ds.Status.DeploymentName = ptr.To(gen.ResourceName())
+
 				return true
 			}
+
 			return false
 		})
 	if result.ShouldReturn() {
@@ -127,26 +133,29 @@ func (r *DiscoveryServiceReconciler) calculateServerCertificateHash(ctx context.
 	// populate the deployment's label.
 	// This will trigger rollouts on server certificate changes.
 	serverDSC := &operatorv1alpha1.DiscoveryServiceCertificate{}
+
 	err := r.Client.Get(ctx, key, serverDSC)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// The server certificate hasn't been created yet
 			return "", nil
 		}
+
 		return "", err
 	}
+
 	return serverDSC.Status.GetCertificateHash(), nil
 }
 
 func dscDefaulter(o client.Object) (*operatorv1alpha1.DiscoveryServiceCertificate, error) {
 	dsc := o.(*operatorv1alpha1.DiscoveryServiceCertificate)
 	dsc.Default()
+
 	return dsc, nil
 }
 
 // SetupWithManager adds the controller to the manager
 func (r *DiscoveryServiceReconciler) SetupWithManager(mgr ctrl.Manager) error {
-
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&operatorv1alpha1.DiscoveryService{}).
 		Owns(&appsv1.Deployment{}).
