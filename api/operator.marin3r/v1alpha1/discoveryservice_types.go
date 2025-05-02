@@ -110,7 +110,7 @@ type DiscoveryServiceSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	PodPriorityClass *string `json:"podPriorityClass,omitempty"`
-	// Affinity configuration for the envoy pods
+	// Affinity configuration for the discovery service pods
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	Affinity *corev1.Affinity `json:"affinity,omitempty"`
