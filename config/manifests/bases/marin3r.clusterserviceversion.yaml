@@ -181,6 +181,9 @@ spec:
       kind: DiscoveryService
       name: discoveryservices.operator.marin3r.3scale.net
       specDescriptors:
+      - description: Affinity configuration for the discovery service pods
+        displayName: Affinity
+        path: affinity
       - description: |-
           Debug enables debugging log level for the discovery service controllers. It is safe to
           use since secret data is never shown in the logs.
