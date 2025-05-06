@@ -27,6 +27,7 @@ type GeneratorOptions struct {
 	DeploymentResources               corev1.ResourceRequirements
 	Debug                             bool
 	PodPriorityClass                  *string
+	Affinity                          *corev1.Affinity
 }
 
 func (cfg *GeneratorOptions) labels() map[string]string {

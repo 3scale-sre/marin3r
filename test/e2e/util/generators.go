@@ -40,7 +40,7 @@ const (
 func GeneratePod(key types.NamespacedName, nodeID, envoyAPI, envoyVersion, discoveryService string) *corev1.Pod {
 	initContainers := []corev1.Container{{
 		Name:  "init-manager",
-		Image: "quay.io/3scale/marin3r:test",
+		Image: "quay.io/3scale-sre/marin3r:test",
 		Args: []string{
 			"init-manager",
 			"--api-version", envoyAPI,
@@ -158,7 +158,7 @@ func GenerateDeploymentWithInjection(key types.NamespacedName, nodeID, envoyAPI,
 	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/ports"] = fmt.Sprintf("envoy-http:%v", envoyPort)
 	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-api-version"] = envoyAPI
 	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-image"] = fmt.Sprintf("%s:%s", defaults.ImageRepo, envoyVersion)
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/init-manager.image"] = "quay.io/3scale/marin3r:test"
+	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/init-manager.image"] = "quay.io/3scale-sre/marin3r:test"
 
 	return dep
 }

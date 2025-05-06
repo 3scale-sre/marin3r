@@ -35,6 +35,7 @@ func (cfg *GeneratorOptions) Deployment(hash string) func() *appsv1.Deployment {
 						}(),
 					},
 					Spec: corev1.PodSpec{
+						Affinity: cfg.Affinity,
 						Volumes: []corev1.Volume{
 							{
 								Name: "server-cert",

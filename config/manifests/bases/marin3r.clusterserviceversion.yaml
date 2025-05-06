@@ -5,11 +5,15 @@ metadata:
     capabilities: Full Lifecycle
     categories: Networking
     certified: "false"
-    containerImage: quay.io/3scale/marin3r
+    containerImage: quay.io/3scale-sre/marin3r
     description: Lighweight, CRD based Envoy control plane for Kubernetes
     operators.operatorframework.io/internal-objects: '["envoyconfigrevisions.marin3r.3scale.net","discoveryservicecertificates.operator.marin3r.3scale.net"]'
     repository: https://github.com/3scale-sre/marin3r
     support: Red Hat, Inc.
+  labels:
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.arm64: supported
+    operatorframework.io/os.linux: supported
   name: marin3r.v0.0.0
   namespace: placeholder
 spec:
@@ -177,6 +181,9 @@ spec:
       kind: DiscoveryService
       name: discoveryservices.operator.marin3r.3scale.net
       specDescriptors:
+      - description: Affinity configuration for the discovery service pods
+        displayName: Affinity
+        path: affinity
       - description: |-
           Debug enables debugging log level for the discovery service controllers. It is safe to
           use since secret data is never shown in the logs.

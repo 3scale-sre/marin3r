@@ -110,6 +110,10 @@ type DiscoveryServiceSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// +optional
 	PodPriorityClass *string `json:"podPriorityClass,omitempty"`
+	// Affinity configuration for the discovery service pods
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +optional
+	Affinity *corev1.Affinity `json:"affinity,omitempty"`
 }
 
 // DiscoveryServiceStatus defines the observed state of DiscoveryService
@@ -308,6 +312,34 @@ func (d *DiscoveryService) GetPriorityClass() *string {
 // needs to create
 func (d *DiscoveryService) OwnedObjectName() string {
 	return fmt.Sprintf("%s-%s", "marin3r", d.GetName())
+}
+
+// Returns configured Affinity for the Discovery Service Server
+func (d *DiscoveryService) Affinity() *corev1.Affinity {
+	if d.Spec.Affinity != nil {
+		return d.Spec.Affinity
+	} else {
+		return &corev1.Affinity{
+			NodeAffinity: &corev1.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+					NodeSelectorTerms: []corev1.NodeSelectorTerm{{
+						MatchExpressions: []corev1.NodeSelectorRequirement{
+							{
+								Key:      "kubernetes.io/arch",
+								Operator: "In",
+								Values:   []string{"amd64", "arm64"},
+							},
+							{
+								Key:      "kubernetes.io/os",
+								Operator: "In",
+								Values:   []string{"linux"},
+							},
+						}},
+					},
+				},
+			},
+		}
+	}
 }
 
 // +kubebuilder:object:root=true

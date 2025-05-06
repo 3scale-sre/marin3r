@@ -16,4 +16,4 @@ spec:
             - --debug
           env:
             - name: MARIN3R_IMAGE
-              value: quay.io/3scale/marin3r:test
+              value: quay.io/3scale-sre/marin3r:test

@@ -27,7 +27,7 @@ Run a Kind cluster locally by using the following command. The Makefile will tak
 make kind-create
 ```
 
-The make target will also load the latest locally generated image into the cluster, which will be always tagged as `quay.io/3scale/marin3r:test`. This tag is updated each time you issue a `make docker-build` command.
+The make target will also load the latest locally generated image into the cluster, which will be always tagged as `quay.io/3scale-sre/marin3r:test`. This tag is updated each time you issue a `make docker-build` command.
 
 Once the Kind cluster is up and running export the kubeconfig file into your shell:
 

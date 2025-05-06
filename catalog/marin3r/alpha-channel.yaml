@@ -31,24 +31,9 @@ entries:
   - name: marin3r.v0.13.1
     replaces: marin3r.v0.13.0
     skipRange: ">=0.13.0 <0.13.1"
-  - name: marin3r.v0.13.2-alpha.1
+  - name: marin3r.v0.13.2-alpha.11
     replaces: marin3r.v0.13.1
-  - name: marin3r.v0.13.2-alpha.2
-    replaces: marin3r.v0.13.2-alpha.1
-  - name: marin3r.v0.13.2-alpha.3
-    replaces: marin3r.v0.13.2-alpha.2
-  - name: marin3r.v0.13.2-alpha.4
-    replaces: marin3r.v0.13.2-alpha.3
-  - name: marin3r.v0.13.2-alpha.5
-    replaces: marin3r.v0.13.2-alpha.4
-  - name: marin3r.v0.13.2-alpha.6
-    replaces: marin3r.v0.13.2-alpha.5
-  - name: marin3r.v0.13.2-alpha.7
-    replaces: marin3r.v0.13.2-alpha.6
-  - name: marin3r.v0.13.2-alpha.8
-    replaces: marin3r.v0.13.2-alpha.7
-  - name: marin3r.v0.13.2-alpha.9
-    replaces: marin3r.v0.13.2-alpha.8
+    skipRange: ">=0.13.1 <0.13.2-alpha.11"
 name: alpha
 package: marin3r
 schema: olm.channel
