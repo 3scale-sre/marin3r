@@ -309,7 +309,7 @@ ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
 GOLANGCI_LINT_VERSION ?= v1.63.4
 GINKGO_VERSION ?= v2.23.3
-CRD_REFDOCS_VERSION ?= v0.0.8
+CRD_REFDOCS_VERSION ?= v0.1.0
 KIND_VERSION ?= v0.27.0
 
 .PHONY: kustomize
@@ -552,7 +552,7 @@ run-envoy: $(TMP)/certs
 refdocs: ## Generates api reference documentation from code
 refdocs: crd-ref-docs
 	$(CRD_REFDOCS) \
-		--source-path=apis \
+		--source-path=api \
 		--config=docs/api-reference/config.yaml \
 		--templates-dir=docs/api-reference/templates/asciidoctor \
 		--renderer=asciidoctor \
