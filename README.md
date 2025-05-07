@@ -1,9 +1,10 @@
 <img src="docs/logos/white.svg" height="150px" alt="MARIN3R"></img>
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/3scale-sre/marin3r)](https://goreportcard.com/report/github.com/3scale-sre/marin3r)
-[![codecov](https://codecov.io/gh/3scale-ops/marin3r/branch/main/graph/badge.svg)](https://codecov.io/gh/3scale-ops/marin3r)
-[![build](https://github.com/3scale-sre/marin3r/actions/workflows/build.yaml/badge.svg)](https://github.com/3scale-sre/marin3r/actions/workflows/build.yaml)
-[![license](https://badgen.net/github/license/3scale-ops/marin3r)](https://github.com/3scale-sre/marin3r/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/3scale-sre/marin3r/branch/main/graph/badge.svg)](https://codecov.io/gh/3scale-sre/marin3r)
+[![test](https://github.com/3scale-sre/marin3r/actions/workflows/test.yaml/badge.svg)](https://github.com/3scale-sre/marin3r/actions/workflows/test.yaml)
+[![release](https://github.com/3scale-sre/marin3r/actions/workflows/release.yaml/badge.svg)](https://github.com/3scale-sre/marin3r/actions/workflows/release.yaml)
+[![license](https://badgen.net/github/license/3scale-sre/marin3r)](https://github.com/3scale-sre/marin3r/blob/master/LICENSE)
 
 Lighweight, CRD based Envoy control plane for Kubernetes:
 
@@ -18,6 +19,7 @@ Lighweight, CRD based Envoy control plane for Kubernetes:
 - Controls Envoy connnection draining and graceful shutdown whenever pods are terminated
 
 <!-- omit in toc -->
+
 ## Table of Contents
 
 - [**Overview**](#overview)
@@ -330,11 +332,13 @@ The MARIN3R mutating admission webhook will inject Envoy containers in any Pod a
 | marin3r.3scale.net/shutdown-manager.drain-strategy        | Determine behaviour of Envoy during the shutdown drain sequence https://www.envoyproxy.io/docs/envoy/latest/operations/cli#cmdoption-drain-strategy                                                            | gradual                                                  |
 
 <!-- omit in toc -->
+
 #### `marin3r.3scale.net/ports` syntax
 
 The `port` syntax is a comma-separated list of `name:port[:protocol]` as in `"envoy-http:1080,envoy-https:1443"`.
 
 <!-- omit in toc -->
+
 #### `marin3r.3scale.net/host-port-mappings` syntax
 
 The `host-port-mappings` syntax is a comma-separated list of `container-port-name:host-port-number` as in `"envoy-http:1080,envoy-https:1443"`.
