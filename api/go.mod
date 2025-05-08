@@ -2,6 +2,8 @@ module github.com/3scale-sre/marin3r/api
 
 go 1.24
 
+toolchain go1.24.0
+
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/envoyproxy/go-control-plane v0.13.4

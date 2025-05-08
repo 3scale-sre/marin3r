@@ -2,6 +2,8 @@ module github.com/3scale-sre/marin3r
 
 go 1.24
 
+toolchain go1.24.0
+
 replace github.com/3scale-sre/marin3r/api => ./api
 
 // For local dev uncomment this and point it to the correct path in your system
