@@ -165,7 +165,8 @@ endif
 .PHONY: test
 test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
-		$(GINKGO) $(GINKGO_FLAGS) -procs=$(shell nproc) -coverprofile=$(COVERPROFILE) -coverpkg=$(COVERPKG) $(TEST_PKG)
+		$(GINKGO) $(GINKGO_FLAGS) -procs=$(shell nproc) -coverprofile=$(COVERPROFILE) -coverpkg=$(COVERPKG) $(TEST_PKG) | \
+		grep -v "warning: no packages being tested depend on matches for pattern"
 	$(MAKE) fix-cover && go tool cover -func=$(COVERPROFILE) | awk '/total/{print $$3}'
 
 .PHONY: fix-cover
