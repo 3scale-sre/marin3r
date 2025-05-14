@@ -144,12 +144,29 @@ vendor:
 ##@ Test
 
 TEST_PKG = ./api/... ./internal/...
+COVERPKG = $(shell go list ./... | grep -v test | xargs printf '%s,')
 COVERPROFILE = coverprofile.out
+
+GINKGO_FLAGS =
+
+TEST_DEBUG ?= false
+ifeq ($(TEST_DEBUG), true)
+GINKGO_FLAGS += -v
+else
+GINKGO_FLAGS += -p
+endif
+
+TEST_GH_ACTIONS_OUTPUT ?= false
+ifeq ($(TEST_GH_ACTIONS_OUTPUT), true)
+GINKGO_FLAGS += --github-output
+endif
+
 
 .PHONY: test
 test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
-		$(GINKGO) -p -procs=$(shell nproc) -coverprofile=$(COVERPROFILE) -coverpkg=$(COVERPKGS) $(TEST_PKG)
+		$(GINKGO) $(GINKGO_FLAGS) -procs=$(shell nproc) -coverprofile=$(COVERPROFILE) -coverpkg=$(COVERPKG) $(TEST_PKG) | \
+		grep -v "warning: no packages being tested depend on matches for pattern"
 	$(MAKE) fix-cover && go tool cover -func=$(COVERPROFILE) | awk '/total/{print $$3}'
 
 .PHONY: fix-cover
@@ -164,13 +181,10 @@ e2e-test: kind-create ## Runs e2e test suite
 
 .PHONY: e2e-envtest-suite
 e2e-envtest-suite: export KUBECONFIG = $(PWD)/kubeconfig
-e2e-envtest-suite: container-build kind-load-image manifests ginkgo deploy-test
-	$(GINKGO) -r -p ./test/e2e
+e2e-envtest-suite: container-build kind-load-image ginkgo deploy-test
+	$(GINKGO) $(GINKGO_FLAGS) -procs=$(shell nproc) ./test/e2e/...
 
 ##@ Build
-
-CONTAINER_TOOL ?= podman
-
 
 .PHONY: build
 build: manifests generate fmt vet vendor ## Build manager binary.
@@ -271,15 +285,17 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
-
+.PHONY: deploy-test
 deploy-test: manifests kustomize ## Deploy controller (test configuration) to the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/test | $(KUBECTL) apply -f -
 
+.PHONY: undeploy-test
 undeploy-test: manifests kustomize ## Undeploy controller (test configuration) from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/test | $(KUBECTL) delete -f -
 
+.PHONY: deploy-cert-manager
 deploy-cert-manager: ## Deployes cert-manager in the K8s cluster specified in ~/.kube/config.
-	$(KUBECTL) apply -f https://github.com/jetstack/cert-manager/releases/download/v1.7.3/cert-manager.yaml
+	$(KUBECTL) apply -f https://github.com/jetstack/cert-manager/releases/download/v1.17.2/cert-manager.yaml
 	$(KUBECTL) -n cert-manager wait --timeout=300s --for=condition=Available deployments --all
 
 ##@ Dependencies
@@ -295,7 +311,6 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GINKGO ?= $(LOCALBIN)/ginkgo
-GOCOVMERGE ?= $(LOCALBIN)/gocovmerge
 CRD_REFDOCS ?= $(LOCALBIN)/crd-ref-docs
 KIND ?= $(LOCALBIN)/kind
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
@@ -308,7 +323,7 @@ ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller
 #ENVTEST_K8S_VERSION is the version of Kubernetes to use for setting up ENVTEST binaries (i.e. 1.31)
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
 GOLANGCI_LINT_VERSION ?= v1.63.4
-GINKGO_VERSION ?= v2.23.3
+GINKGO_VERSION ?= $(shell go list -m -f "{{ .Version }}" github.com/onsi/ginkgo/v2)
 CRD_REFDOCS_VERSION ?= v0.1.0
 KIND_VERSION ?= v0.27.0
 
@@ -350,7 +365,6 @@ $(GOLANGCI_LINT): $(LOCALBIN)
 	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
 
 .PHONY: kind
-KIND = $(shell pwd)/bin/kind
 kind: $(KIND) ## Download kind locally if necessary
 $(KIND):
 	$(call go-install-tool,$(KIND),sigs.k8s.io/kind,$(KIND_VERSION))
@@ -411,7 +425,8 @@ bundle-validate: operator-sdk
 	$(OPERATOR_SDK) bundle validate ./bundle --select-optional name=multiarch
 
 .PHONY: opm
-OPM = $(LOCALBIN)/opm
+OPM = $(LOCALBIN)/opm-$(OPM_RELEASE)
+OPM_RELEASE = v1.23.0
 opm: ## Download opm locally if necessary.
 ifeq (,$(wildcard $(OPM)))
 ifeq (,$(shell which opm 2>/dev/null))
@@ -419,11 +434,11 @@ ifeq (,$(shell which opm 2>/dev/null))
 	set -e ;\
 	mkdir -p $(dir $(OPM)) ;\
 	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
-	curl -sSLo $(OPM) https://github.com/operator-framework/operator-registry/releases/download/v1.23.0/$${OS}-$${ARCH}-opm ;\
+	curl -sSLo $(OPM) https://github.com/operator-framework/operator-registry/releases/download/$(OPM_RELEASE)/$${OS}-$${ARCH}-opm ;\
 	chmod +x $(OPM) ;\
 	}
 else
-OPM = $(shell which opm)
+OPM = $(shell which $(OPM))
 endif
 endif
 
@@ -469,22 +484,27 @@ catalog-add-bundle-to-stable: opm ## Adds a bundle to a file based catalog
 
 ##@ Kind Deployment
 
+export KIND_K8S_VERSION=v1.33.0
 export KIND_EXPERIMENTAL_PROVIDER=$(CONTAINER_TOOL)
 
+.PHONY: kind-create
 kind-create: export KUBECONFIG = $(PWD)/kubeconfig
 kind-create: container-build kind ## Runs a k8s kind cluster with a local registry in "localhost:5000" and ports 1080 and 1443 exposed to the host
 	$(KIND) create cluster --wait 5m --config test/kind.yaml --image kindest/node:v1.27.10
 	$(MAKE) deploy-cert-manager
 	$(MAKE) kind-load-image
 
+.PHONY: kind-delete
 kind-deploy: export KUBECONFIG = $(PWD)/kubeconfig
 kind-deploy: manifests kustomize ## Deploy operator to the Kind K8s cluster
 	$(KUSTOMIZE) build config/test | $(KUBECTL) apply -f -
 
+.PHONY: kind-undeploy
 kind-undeploy: export KUBECONFIG = $(PWD)/kubeconfig
 kind-undeploy: ## Undeploy controller from the Kind K8s cluster
 	$(KUSTOMIZE) build config/test | $(KUBECTL) delete -f -
 
+.PHONY: kind-load-image
 kind-load-image: export KUBECONFIG = $(PWD)/kubeconfig
 kind-load-image: kind ## Load the marin3r:test image into the cluster
 	tmpfile=$$(mktemp) && \
@@ -492,6 +512,7 @@ kind-load-image: kind ## Load the marin3r:test image into the cluster
 		$(KIND) load image-archive $${tmpfile} --name kind && \
 		rm $${tmpfile}
 
+.PHONY: kind-refresh-image
 kind-refresh-image: export KUBECONFIG = ${PWD}/kubeconfig
 kind-refresh-image: manifests kind container-build ## Reloads the image into the K8s cluster and deletes the old pods
 	$(MAKE) kind-load-image
@@ -499,24 +520,31 @@ kind-refresh-image: manifests kind container-build ## Reloads the image into the
 	$(KUBECTL) -n marin3r-system delete pod -l control-plane=controller-webhook
 	$(KUBECTL) -n default delete pod -l app.kubernetes.io/component=discovery-service
 
+.PHONY: kind-delete
 kind-delete: ## Deletes the kind cluster and the registry
 kind-delete: kind
 	$(KIND) delete cluster
 
 ##@ Release
 
+.PHONY: prepare-alpha-release
 prepare-alpha-release: generate fmt vet manifests go-generate vendor bundle ## Generates bundle manifests for alpha channel release
 
+.PHONY: prepare-stable-release
 prepare-stable-release: generate fmt vet manifests go-generate vendor bundle refdocs ## Generates bundle manifests for stable channel release
 	$(MAKE) bundle CHANNELS=alpha,stable DEFAULT_CHANNEL=stable
 
+.PHONY: bundle-publish
 bundle-publish: container-buildx container-pushx bundle-build bundle-push bundle-validate ## Builds and pushes operator and bundle images
 
+.PHONY: catalog-publish
 catalog-publish: catalog-build catalog-push catalog-retag-latest ## Builds and pushes the catalog image
 
+.PHONY: get-new-release
 get-new-release: ## Checks if a release with the name $(VERSION) already exists in https://github.com/3scale-sre/marin3r/releases
 	@hack/new-release.sh v$(VERSION)
 
+.PHONY: catalog-retag-latest
 catalog-retag-latest:
 	$(CONTAINER_TOOL) tag $(CATALOG_IMG) $(IMAGE_TAG_BASE)-catalog:latest
 	$(call container-push-multiplatform,$(IMAGE_TAG_BASE)-catalog:latest,$(CONTAINER_TOOL))
@@ -527,6 +555,7 @@ $(TMP)/certs:
 
 ENVOY_VERSION ?= v1.23.2
 
+.PHONY: run-ds
 run-ds: ## locally starts a discovery service
 run-ds: manifests generate fmt vet go-generate $(TMP)/certs
 	WATCH_NAMESPACE="default" go run main.go \
@@ -537,6 +566,7 @@ run-ds: manifests generate fmt vet go-generate $(TMP)/certs
 		--metrics-bind-address :8383
 		--debug
 
+.PHONY: run-envoy
 run-envoy: ## runs an envoy process in a container that will try to connect to a local discovery service
 run-envoy: $(TMP)/certs
 	docker run -ti --rm \
@@ -549,12 +579,12 @@ run-envoy: $(TMP)/certs
 
 ##@ Other
 
+.PHONY: refdocs
 refdocs: ## Generates api reference documentation from code
 refdocs: crd-ref-docs
 	$(CRD_REFDOCS) \
 		--source-path=api \
 		--config=docs/api-reference/config.yaml \
-		--templates-dir=docs/api-reference/templates/asciidoctor \
 		--renderer=asciidoctor \
 		--output-path=docs/api-reference/reference.asciidoc
 
@@ -562,5 +592,6 @@ TMP = tmp
 $(TMP): ## Create project local tmp directory
 	mkdir tmp
 
+.PHONY: clean
 clean: ## Clean project directory
 	rm -rf $(TMP) $(LOCALBIN) $(COVERPROFILE) kubeconfig

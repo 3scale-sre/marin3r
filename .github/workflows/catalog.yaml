@@ -6,7 +6,8 @@ on:
       - main
     paths:
       - catalog/marin3r/stable-channel.yaml
-
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
