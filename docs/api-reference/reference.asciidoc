@@ -23,10 +23,14 @@ Package v1alpha1 contains API Schema definitions for the envoy v1alpha1 API grou
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-blueprint"]
-==== Blueprint (string) 
+==== Blueprint
+
+_Underlying type:_ _string_
 
 Blueprint is an enum of the supported blueprints for
 generated resources
+
+
 
 .Appears In:
 ****
@@ -36,236 +40,284 @@ generated resources
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-configrevisionref"]
-==== ConfigRevisionRef 
+==== ConfigRevisionRef
+
+
 
 ConfigRevisionRef holds a reference to EnvoyConfigRevision object
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigstatus[$$EnvoyConfigStatus$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`version`* __string__ | Version is a hash of the EnvoyResources field
-| *`ref`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectreference-v1-core[$$ObjectReference$$]__ | Ref is a reference to the EnvoyConfigRevision object that
-holds the configuration matching the Version field.
+| Field | Description | Default | Validation
+| *`version`* __string__ | Version is a hash of the EnvoyResources field + |  | 
+| *`ref`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectreference-v1-core[$$ObjectReference$$]__ | Ref is a reference to the EnvoyConfigRevision object that +
+holds the configuration matching the Version field. + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfig"]
-==== EnvoyConfig 
+==== EnvoyConfig
+
+
 
 EnvoyConfig holds the configuration for a given envoy nodeID. The spec of an EnvoyConfig
 object holds the Envoy resources that conform the desired configuration for the given nodeID
 and that the discovery service will send to any envoy client that identifies itself with that
 nodeID.
 
+
+
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfiglist[$$EnvoyConfigList$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `EnvoyConfig`
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `EnvoyConfig` | |
 | *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
-
-| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigspec[$$EnvoyConfigSpec$$]__ | 
-| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigstatus[$$EnvoyConfigStatus$$]__ | 
+ |  | 
+| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigspec[$$EnvoyConfigSpec$$]__ |  |  | 
+| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigstatus[$$EnvoyConfigStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfiglist"]
-==== EnvoyConfigList 
+==== EnvoyConfigList
+
+
 
 EnvoyConfigList contains a list of EnvoyConfig
 
 
 
-[cols="25a,75a", options="header"]
-|===
-| Field | Description
-| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `EnvoyConfigList`
-| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
 
-| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfig[$$EnvoyConfig$$] array__ | 
+
+[cols="20a,50a,15a,15a", options="header"]
+|===
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `EnvoyConfigList` | |
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+ |  | 
+| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfig[$$EnvoyConfig$$] array__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevision"]
-==== EnvoyConfigRevision 
+==== EnvoyConfigRevision
+
+
 
 EnvoyConfigRevision is an internal resource that stores a specific version of an EnvoyConfig
 resource. EnvoyConfigRevisions are automatically created and deleted by the EnvoyConfig
 controller and are not intended to be directly used. Use EnvoyConfig objects instead.
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionlist[$$EnvoyConfigRevisionList$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `EnvoyConfigRevision`
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `EnvoyConfigRevision` | |
 | *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
-
-| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionspec[$$EnvoyConfigRevisionSpec$$]__ | 
-| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionstatus[$$EnvoyConfigRevisionStatus$$]__ | 
+ |  | 
+| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionspec[$$EnvoyConfigRevisionSpec$$]__ |  |  | 
+| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionstatus[$$EnvoyConfigRevisionStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionlist"]
-==== EnvoyConfigRevisionList 
+==== EnvoyConfigRevisionList
+
+
 
 EnvoyConfigRevisionList contains a list of EnvoyConfigRevision
 
 
 
-[cols="25a,75a", options="header"]
-|===
-| Field | Description
-| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `EnvoyConfigRevisionList`
-| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
 
-| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevision[$$EnvoyConfigRevision$$] array__ | 
+
+[cols="20a,50a,15a,15a", options="header"]
+|===
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `EnvoyConfigRevisionList` | |
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+ |  | 
+| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevision[$$EnvoyConfigRevision$$] array__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionspec"]
-==== EnvoyConfigRevisionSpec 
+==== EnvoyConfigRevisionSpec
+
+
 
 EnvoyConfigRevisionSpec defines the desired state of EnvoyConfigRevision
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevision[$$EnvoyConfigRevision$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`nodeID`* __string__ | NodeID holds the envoy identifier for the discovery service to know which set
-of resources to send to each of the envoy clients that connect to it.
-| *`version`* __string__ | Version is a hash of the EnvoyResources field
-| *`envoyAPI`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-apiversion[$$APIVersion$$]__ | EnvoyAPI is the version of envoy's API to use. Defaults to v3.
-| *`serialization`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-serializer-serialization[$$Serialization$$]__ | Serialization specicifies the serialization format used to describe the resources. "json" and "yaml"
-are supported. "json" is used if unset.
-| *`envoyResources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources[$$EnvoyResources$$]__ | EnvoyResources holds the different types of resources suported by the envoy discovery service
-| *`resources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource[$$Resource$$] array__ | Resources holds the different types of resources suported by the envoy discovery service
+| Field | Description | Default | Validation
+| *`nodeID`* __string__ | NodeID holds the envoy identifier for the discovery service to know which set +
+of resources to send to each of the envoy clients that connect to it. + |  | 
+| *`version`* __string__ | Version is a hash of the EnvoyResources field + |  | 
+| *`envoyAPI`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-apiversion[$$APIVersion$$]__ | EnvoyAPI is the version of envoy's API to use. Defaults to v3. + |  | Enum: [v3] +
+
+| *`serialization`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-serializer-serialization[$$Serialization$$]__ | Serialization specicifies the serialization format used to describe the resources. "json" and "yaml" +
+are supported. "json" is used if unset. + |  | Enum: [json b64json yaml] +
+
+| *`envoyResources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources[$$EnvoyResources$$]__ | EnvoyResources holds the different types of resources suported by the envoy discovery service + |  | 
+| *`resources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource[$$Resource$$] array__ | Resources holds the different types of resources suported by the envoy discovery service + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionstatus"]
-==== EnvoyConfigRevisionStatus 
+==== EnvoyConfigRevisionStatus
+
+
 
 EnvoyConfigRevisionStatus defines the observed state of EnvoyConfigRevision
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevision[$$EnvoyConfigRevision$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`published`* __boolean__ | Published signals if the EnvoyConfigRevision is the one currently published
-in the xds server cache
-| *`providesVersions`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-versiontracker[$$VersionTracker$$]__ | ProvidesVersions keeps track of the version that this revision
-publishes in the xDS server for each resource type
-| *`lastPublishedAt`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#time-v1-meta[$$Time$$]__ | LastPublishedAt indicates the last time this config review transitioned to
-published
-| *`tainted`* __boolean__ | Tainted indicates whether the EnvoyConfigRevision is eligible for publishing
-or not
-| *`conditions`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#condition-v1-meta[$$Condition$$] array__ | Conditions represent the latest available observations of an object's state
+| Field | Description | Default | Validation
+| *`published`* __boolean__ | Published signals if the EnvoyConfigRevision is the one currently published +
+in the xds server cache + |  | 
+| *`providesVersions`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-versiontracker[$$VersionTracker$$]__ | ProvidesVersions keeps track of the version that this revision +
+publishes in the xDS server for each resource type + |  | 
+| *`lastPublishedAt`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#time-v1-meta[$$Time$$]__ | LastPublishedAt indicates the last time this config review transitioned to +
+published + |  | 
+| *`tainted`* __boolean__ | Tainted indicates whether the EnvoyConfigRevision is eligible for publishing +
+or not + |  | 
+| *`conditions`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#condition-v1-meta[$$Condition$$] array__ | Conditions represent the latest available observations of an object's state + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigspec"]
-==== EnvoyConfigSpec 
+==== EnvoyConfigSpec
+
+
 
 EnvoyConfigSpec defines the desired state of EnvoyConfig
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfig[$$EnvoyConfig$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`nodeID`* __string__ | NodeID holds the envoy identifier for the discovery service to know which set
-of resources to send to each of the envoy clients that connect to it.
-| *`serialization`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-serializer-serialization[$$Serialization$$]__ | Serialization specicifies the serialization format used to describe the resources. "json" and "yaml"
-are supported. "json" is used if unset.
-| *`envoyAPI`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-apiversion[$$APIVersion$$]__ | EnvoyAPI is the version of envoy's API to use. Defaults to v3.
-| *`envoyResources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources[$$EnvoyResources$$]__ | EnvoyResources holds the different types of resources suported by the envoy discovery service
-DEPRECATED. Use the `resources` field instead.
-| *`resources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource[$$Resource$$] array__ | Resources holds the different types of resources suported by the envoy discovery service
+| Field | Description | Default | Validation
+| *`nodeID`* __string__ | NodeID holds the envoy identifier for the discovery service to know which set +
+of resources to send to each of the envoy clients that connect to it. + |  | 
+| *`serialization`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-serializer-serialization[$$Serialization$$]__ | Serialization specicifies the serialization format used to describe the resources. "json" and "yaml" +
+are supported. "json" is used if unset. + |  | Enum: [json yaml] +
+
+| *`envoyAPI`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-apiversion[$$APIVersion$$]__ | EnvoyAPI is the version of envoy's API to use. Defaults to v3. + |  | Enum: [v3] +
+
+| *`envoyResources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources[$$EnvoyResources$$]__ | EnvoyResources holds the different types of resources suported by the envoy discovery service +
+DEPRECATED. Use the `resources` field instead. + |  | 
+| *`resources`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource[$$Resource$$] array__ | Resources holds the different types of resources suported by the envoy discovery service + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigstatus"]
-==== EnvoyConfigStatus 
+==== EnvoyConfigStatus
+
+
 
 EnvoyConfigStatus defines the observed state of EnvoyConfig
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfig[$$EnvoyConfig$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`cacheState`* __string__ | CacheState summarizes all the observations about the EnvoyConfig
-to give the user a concrete idea on the general status of the discovery servie cache.
-It is intended only for human consumption. Other controllers should relly on conditions
-to determine the status of the discovery server cache.
-| *`publishedVersion`* __string__ | PublishedVersion is the config version currently
-served by the envoy discovery service for the give nodeID
-| *`desiredVersion`* __string__ | DesiredVersion represents the resources version described in
-the spec of the EnvoyConfig object
-| *`conditions`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#condition-v1-meta[$$Condition$$] array__ | Conditions represent the latest available observations of an object's state
-| *`revisions`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-configrevisionref[$$ConfigRevisionRef$$] array__ | ConfigRevisions is an ordered list of references to EnvoyConfigRevision
-objects
+| Field | Description | Default | Validation
+| *`cacheState`* __string__ | CacheState summarizes all the observations about the EnvoyConfig +
+to give the user a concrete idea on the general status of the discovery servie cache. +
+It is intended only for human consumption. Other controllers should relly on conditions +
+to determine the status of the discovery server cache. + |  | 
+| *`publishedVersion`* __string__ | PublishedVersion is the config version currently +
+served by the envoy discovery service for the give nodeID + |  | 
+| *`desiredVersion`* __string__ | DesiredVersion represents the resources version described in +
+the spec of the EnvoyConfig object + |  | 
+| *`conditions`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#condition-v1-meta[$$Condition$$] array__ | Conditions represent the latest available observations of an object's state + |  | 
+| *`revisions`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-configrevisionref[$$ConfigRevisionRef$$] array__ | ConfigRevisions is an ordered list of references to EnvoyConfigRevision +
+objects + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource"]
-==== EnvoyResource 
+==== EnvoyResource
+
+
 
 EnvoyResource holds serialized representation of an envoy
 resource
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources[$$EnvoyResources$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`name`* __string__ | Name of the envoy resource.
-DEPRECATED: this field has no effect and will be removed in an
-upcoming release. The name of the resources for discovery purposes
-is included in the resource itself. Refer to the envoy API reference
-to check how the name is specified for each resource type.
-| *`value`* __string__ | Value is the serialized representation of the envoy resource
+| Field | Description | Default | Validation
+| *`name`* __string__ | Name of the envoy resource. +
+DEPRECATED: this field has no effect and will be removed in an +
+upcoming release. The name of the resources for discovery purposes +
+is included in the resource itself. Refer to the envoy API reference +
+to check how the name is specified for each resource type. + |  | 
+| *`value`* __string__ | Value is the serialized representation of the envoy resource + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources"]
-==== EnvoyResources 
+==== EnvoyResources
+
+
 
 EnvoyResources holds each envoy api resource type
+
+
 
 .Appears In:
 ****
@@ -273,51 +325,59 @@ EnvoyResources holds each envoy api resource type
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigspec[$$EnvoyConfigSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`endpoints`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Endpoints is a list of the envoy ClusterLoadAssignment resource type.
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/endpoint/v3/endpoint.proto
-| *`clusters`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Clusters is a list of the envoy Cluster resource type.
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto
-| *`routes`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Routes is a list of the envoy Route resource type.
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route.proto
-| *`scopedRoutes`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | ScopedRoutes is a list of the envoy ScopeRoute resource type.
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/scoped_route.proto
-| *`listeners`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Listeners is a list of the envoy Listener resource type.
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/listener/v3/listener.proto
-| *`runtimes`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Runtimes is a list of the envoy Runtime resource type.
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/runtime/v3/rtds.proto
-| *`secrets`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoysecretresource[$$EnvoySecretResource$$] array__ | Secrets is a list of references to Kubernetes Secret objects.
-| *`extensionConfigs`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | ExtensionConfigs is a list of the envoy ExtensionConfig resource type
-API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/core/v3/extension.proto
+| Field | Description | Default | Validation
+| *`endpoints`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Endpoints is a list of the envoy ClusterLoadAssignment resource type. +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/endpoint/v3/endpoint.proto + |  | 
+| *`clusters`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Clusters is a list of the envoy Cluster resource type. +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto + |  | 
+| *`routes`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Routes is a list of the envoy Route resource type. +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route.proto + |  | 
+| *`scopedRoutes`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | ScopedRoutes is a list of the envoy ScopeRoute resource type. +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/scoped_route.proto + |  | 
+| *`listeners`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Listeners is a list of the envoy Listener resource type. +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/listener/v3/listener.proto + |  | 
+| *`runtimes`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | Runtimes is a list of the envoy Runtime resource type. +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/runtime/v3/rtds.proto + |  | 
+| *`secrets`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoysecretresource[$$EnvoySecretResource$$] array__ | Secrets is a list of references to Kubernetes Secret objects. + |  | 
+| *`extensionConfigs`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresource[$$EnvoyResource$$] array__ | ExtensionConfigs is a list of the envoy ExtensionConfig resource type +
+API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/core/v3/extension.proto + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoysecretresource"]
-==== EnvoySecretResource 
+==== EnvoySecretResource
+
+
 
 EnvoySecretResource holds a reference to a k8s Secret from where
 to take a secret from. Only Secrets within the same namespace can
 be referred.
 
+
+
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyresources[$$EnvoyResources$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`name`* __string__ | Name of the envoy tslCerticate secret resource. The certificate will be fetched
-from a Kubernetes Secrets of type 'kubernetes.io/tls' with this same name.
-| *`ref`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#secretreference-v1-core[$$SecretReference$$]__ | DEPRECATED: this field is deprecated and it's value will be ignored. The 'name' of the
-Kubernetes Secret must match the 'name' field.
+| Field | Description | Default | Validation
+| *`name`* __string__ | Name of the envoy tslCerticate secret resource. The certificate will be fetched +
+from a Kubernetes Secrets of type 'kubernetes.io/tls' with this same name. + |  | 
+| *`ref`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#secretreference-v1-core[$$SecretReference$$]__ | DEPRECATED: this field is deprecated and it's value will be ignored. The 'name' of the +
+Kubernetes Secret must match the 'name' field. + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-generatefromendpointslices"]
-==== GenerateFromEndpointSlices 
+==== GenerateFromEndpointSlices
+
+
+
+
 
 
 
@@ -326,20 +386,24 @@ Kubernetes Secret must match the 'name' field.
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource[$$Resource$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`selector`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#labelselector-v1-meta[$$LabelSelector$$]__ | 
-| *`clusterName`* __string__ | 
-| *`targetPort`* __string__ | 
+| Field | Description | Default | Validation
+| *`selector`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#labelselector-v1-meta[$$LabelSelector$$]__ |  |  | 
+| *`clusterName`* __string__ |  |  | 
+| *`targetPort`* __string__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource"]
-==== Resource 
+==== Resource
+
+
 
 Resource holds serialized representation of an envoy
 resource
+
+
 
 .Appears In:
 ****
@@ -347,25 +411,31 @@ resource
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigspec[$$EnvoyConfigSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`type`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-type[$$Type$$]__ | Type is the type url for the protobuf message
-| *`value`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#rawextension-runtime-pkg[$$RawExtension$$]__ | Value is the protobufer message that configures the resource. The proto
-must match the envoy configuration API v3 specification for the given resource
-type (https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types)
-| *`generateFromTlsSecret`* __string__ | The name of a Kubernetes Secret of type "kubernetes.io/tls"
-| *`generateFromOpaqueSecret`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-secretkeyselector[$$SecretKeySelector$$]__ | The name of a Kubernetes Secret of type "Opaque". It will generate an
-envoy "generic secret" proto.
-| *`generateFromEndpointSlices`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-generatefromendpointslices[$$GenerateFromEndpointSlices$$]__ | Specifies a label selector to watch for EndpointSlices that will
-be used to generate the endpoint resource
-| *`blueprint`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-blueprint[$$Blueprint$$]__ | Blueprint specifies a template to generate a configuration proto. It is currently
-only supported to generate secret configuration resources from k8s Secrets
+| Field | Description | Default | Validation
+| *`type`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-type[$$Type$$]__ | Type is the type url for the protobuf message + |  | Enum: [listener route scopedRoute cluster endpoint secret runtime extensionConfig] +
+
+| *`value`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#rawextension-runtime-pkg[$$RawExtension$$]__ | Value is the protobufer message that configures the resource. The proto +
+must match the envoy configuration API v3 specification for the given resource +
+type (https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol#resource-types) + |  | 
+| *`generateFromTlsSecret`* __string__ | The name of a Kubernetes Secret of type "kubernetes.io/tls" + |  | 
+| *`generateFromOpaqueSecret`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-secretkeyselector[$$SecretKeySelector$$]__ | The name of a Kubernetes Secret of type "Opaque". It will generate an +
+envoy "generic secret" proto. + |  | 
+| *`generateFromEndpointSlices`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-generatefromendpointslices[$$GenerateFromEndpointSlices$$]__ | Specifies a label selector to watch for EndpointSlices that will +
+be used to generate the endpoint resource + |  | 
+| *`blueprint`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-blueprint[$$Blueprint$$]__ | Blueprint specifies a template to generate a configuration proto. It is currently +
+only supported to generate secret configuration resources from k8s Secrets + |  | Enum: [tlsCertificate validationContext] +
+
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-secretkeyselector"]
-==== SecretKeySelector 
+==== SecretKeySelector
+
+
+
+
 
 
 
@@ -374,37 +444,41 @@ only supported to generate secret configuration resources from k8s Secrets
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-resource[$$Resource$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`name`* __string__ | The name of the secret in the pod's namespace to select from.
-| *`key`* __string__ | The key of the secret to select from.  Must be a valid secret key.
-| *`alias`* __string__ | A unique name to refer to the name:key combination
+| Field | Description | Default | Validation
+| *`name`* __string__ | The name of the secret in the pod's namespace to select from. + |  | 
+| *`key`* __string__ | The key of the secret to select from.  Must be a valid secret key. + |  | 
+| *`alias`* __string__ | A unique name to refer to the name:key combination + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-versiontracker"]
-==== VersionTracker 
+==== VersionTracker
+
+
 
 VersionTracker tracks the versions of the resources
 that this revision publishes in the xDS server cache
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-marin3r-v1alpha1-envoyconfigrevisionstatus[$$EnvoyConfigRevisionStatus$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`endpoints`* __string__ | 
-| *`clusters`* __string__ | 
-| *`routes`* __string__ | 
-| *`scopedRoutes`* __string__ | 
-| *`listeners`* __string__ | 
-| *`secrets`* __string__ | 
-| *`runtimes`* __string__ | 
-| *`extensionConfigs`* __string__ | 
+| Field | Description | Default | Validation
+| *`endpoints`* __string__ |  |  | 
+| *`clusters`* __string__ |  |  | 
+| *`routes`* __string__ |  |  | 
+| *`scopedRoutes`* __string__ |  |  | 
+| *`listeners`* __string__ |  |  | 
+| *`secrets`* __string__ |  |  | 
+| *`runtimes`* __string__ |  |  | 
+| *`extensionConfigs`* __string__ |  |  | 
 |===
 
 
@@ -425,281 +499,339 @@ Package v1alpha1 contains API Schema definitions for the operator v1alpha1 API g
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-casignedconfig"]
-==== CASignedConfig 
+==== CASignedConfig
+
+
 
 CASignedConfig is used ti generate certificates signed by a CA contained in a Secret
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatesigner[$$DiscoveryServiceCertificateSigner$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`caSecretRef`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#secretreference-v1-core[$$SecretReference$$]__ | A reference to a Secret containing the CA
+| Field | Description | Default | Validation
+| *`caSecretRef`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#secretreference-v1-core[$$SecretReference$$]__ | A reference to a Secret containing the CA + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificateoptions"]
-==== CertificateOptions 
+==== CertificateOptions
+
+
 
 CertificateOptions specifies options to generate the server certificate used both
 for the xDS server and the mutating webhook server.
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-pkiconfig[$$PKIConfig$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`secretName`* __string__ | 
-| *`duration`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#duration-v1-meta[$$Duration$$]__ | 
+| Field | Description | Default | Validation
+| *`secretName`* __string__ |  |  | 
+| *`duration`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#duration-v1-meta[$$Duration$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificaterenewalconfig"]
-==== CertificateRenewalConfig 
+==== CertificateRenewalConfig
+
+
 
 CertificateRenewalConfig configures the certificate renewal process.
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatespec[$$DiscoveryServiceCertificateSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`enabled`* __boolean__ | Enabled is a flag to enable or disable renewal of the certificate
+| Field | Description | Default | Validation
+| *`enabled`* __boolean__ | Enabled is a flag to enable or disable renewal of the certificate + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-containerport"]
-==== ContainerPort 
+==== ContainerPort
+
+
 
 ContainerPort defines port for the Marin3r sidecar container
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`name`* __string__ | Port name
-| *`port`* __integer__ | Port value
-| *`protocol`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#protocol-v1-core[$$Protocol$$]__ | Protocol. Defaults to TCP.
+| Field | Description | Default | Validation
+| *`name`* __string__ | Port name + |  | 
+| *`port`* __integer__ | Port value + |  | 
+| *`protocol`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#protocol-v1-core[$$Protocol$$]__ | Protocol. Defaults to TCP. + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservice"]
-==== DiscoveryService 
+==== DiscoveryService
+
+
 
 DiscoveryService represents an envoy discovery service server. Only one
 instance per namespace is currently supported.
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicelist[$$DiscoveryServiceList$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `DiscoveryService`
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `DiscoveryService` | |
 | *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
-
-| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicespec[$$DiscoveryServiceSpec$$]__ | 
-| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicestatus[$$DiscoveryServiceStatus$$]__ | 
+ |  | 
+| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicespec[$$DiscoveryServiceSpec$$]__ |  |  | 
+| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicestatus[$$DiscoveryServiceStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificate"]
-==== DiscoveryServiceCertificate 
+==== DiscoveryServiceCertificate
+
+
 
 DiscoveryServiceCertificate is an internal resource used to create certificates. This resource
 is used by the DiscoveryService controller to create the required certificates for the different
 components. Direct use of DiscoveryServiceCertificate objects is discouraged.
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatelist[$$DiscoveryServiceCertificateList$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `DiscoveryServiceCertificate`
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `DiscoveryServiceCertificate` | |
 | *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
-
-| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatespec[$$DiscoveryServiceCertificateSpec$$]__ | 
-| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatestatus[$$DiscoveryServiceCertificateStatus$$]__ | 
+ |  | 
+| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatespec[$$DiscoveryServiceCertificateSpec$$]__ |  |  | 
+| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatestatus[$$DiscoveryServiceCertificateStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatelist"]
-==== DiscoveryServiceCertificateList 
+==== DiscoveryServiceCertificateList
+
+
 
 DiscoveryServiceCertificateList contains a list of DiscoveryServiceCertificate
 
 
 
-[cols="25a,75a", options="header"]
-|===
-| Field | Description
-| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `DiscoveryServiceCertificateList`
-| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
 
-| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificate[$$DiscoveryServiceCertificate$$] array__ | 
+
+[cols="20a,50a,15a,15a", options="header"]
+|===
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `DiscoveryServiceCertificateList` | |
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+ |  | 
+| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificate[$$DiscoveryServiceCertificate$$] array__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatesigner"]
-==== DiscoveryServiceCertificateSigner 
+==== DiscoveryServiceCertificateSigner
+
+
 
 DiscoveryServiceCertificateSigner specifies the signer to use to provision the certificate
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatespec[$$DiscoveryServiceCertificateSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`selfSigned`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-selfsignedconfig[$$SelfSignedConfig$$]__ | SelfSigned holds specific configuration for the SelfSigned signer
-| *`caSigned`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-casignedconfig[$$CASignedConfig$$]__ | CASigned holds specific configuration for the CASigned signer
+| Field | Description | Default | Validation
+| *`selfSigned`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-selfsignedconfig[$$SelfSignedConfig$$]__ | SelfSigned holds specific configuration for the SelfSigned signer + |  | Optional: {} +
+
+| *`caSigned`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-casignedconfig[$$CASignedConfig$$]__ | CASigned holds specific configuration for the CASigned signer + |  | Optional: {} +
+
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatespec"]
-==== DiscoveryServiceCertificateSpec 
+==== DiscoveryServiceCertificateSpec
+
+
 
 DiscoveryServiceCertificateSpec defines the desired state of DiscoveryServiceCertificate
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificate[$$DiscoveryServiceCertificate$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`commonName`* __string__ | CommonName is the CommonName of the certificate
-| *`server`* __boolean__ | IsServerCertificate is a boolean specifying if the certificate should be
-issued with server auth usage enabled
-| *`isCA`* __boolean__ | IsCA is a boolean specifying that the certificate is a CA
-| *`validFor`* __integer__ | ValidFor specifies the validity of the certificate in seconds
-| *`hosts`* __string array__ | Hosts is the list of hosts the certificate is valid for. Only
-use when 'IsServerCertificate' is true. If unset, the CommonName
-field will be used to populate the valid hosts of the certificate.
-| *`signer`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatesigner[$$DiscoveryServiceCertificateSigner$$]__ | Signer specifies  the signer to use to create this certificate. Supported
-signers are CertManager and SelfSigned.
-| *`secretRef`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#secretreference-v1-core[$$SecretReference$$]__ | SecretRef is a reference to the secret that will hold the certificate
-and the private key.
-| *`certificateRenewal`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificaterenewalconfig[$$CertificateRenewalConfig$$]__ | CertificateRenewalConfig configures the certificate renewal process. If unset default
-behavior is to renew the certificate but not notify of renewals.
+| Field | Description | Default | Validation
+| *`commonName`* __string__ | CommonName is the CommonName of the certificate + |  | 
+| *`server`* __boolean__ | IsServerCertificate is a boolean specifying if the certificate should be +
+issued with server auth usage enabled + |  | 
+| *`isCA`* __boolean__ | IsCA is a boolean specifying that the certificate is a CA + |  | 
+| *`validFor`* __integer__ | ValidFor specifies the validity of the certificate in seconds + |  | 
+| *`hosts`* __string array__ | Hosts is the list of hosts the certificate is valid for. Only +
+use when 'IsServerCertificate' is true. If unset, the CommonName +
+field will be used to populate the valid hosts of the certificate. + |  | 
+| *`signer`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatesigner[$$DiscoveryServiceCertificateSigner$$]__ | Signer specifies  the signer to use to create this certificate. Supported +
+signers are CertManager and SelfSigned. + |  | 
+| *`secretRef`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#secretreference-v1-core[$$SecretReference$$]__ | SecretRef is a reference to the secret that will hold the certificate +
+and the private key. + |  | 
+| *`certificateRenewal`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificaterenewalconfig[$$CertificateRenewalConfig$$]__ | CertificateRenewalConfig configures the certificate renewal process. If unset default +
+behavior is to renew the certificate but not notify of renewals. + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificatestatus"]
-==== DiscoveryServiceCertificateStatus 
+==== DiscoveryServiceCertificateStatus
+
+
 
 DiscoveryServiceCertificateStatus defines the observed state of DiscoveryServiceCertificate
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicecertificate[$$DiscoveryServiceCertificate$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`ready`* __boolean__ | Ready is a boolean that specifies if the certificate is ready to be used
-| *`notBefore`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#time-v1-meta[$$Time$$]__ | NotBefore is the time at which the certificate starts
-being valid
-| *`notAfter`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#time-v1-meta[$$Time$$]__ | NotAfter is the time at which the certificate expires
-| *`certificateHash`* __string__ | CertificateHash stores the current hash of the certificate. It is used
-for other controllers to validate if a certificate has been re-issued.
-| *`conditions`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#condition-v1-meta[$$Condition$$] array__ | Conditions represent the latest available observations of an object's state
+| Field | Description | Default | Validation
+| *`ready`* __boolean__ | Ready is a boolean that specifies if the certificate is ready to be used + |  | 
+| *`notBefore`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#time-v1-meta[$$Time$$]__ | NotBefore is the time at which the certificate starts +
+being valid + |  | 
+| *`notAfter`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#time-v1-meta[$$Time$$]__ | NotAfter is the time at which the certificate expires + |  | 
+| *`certificateHash`* __string__ | CertificateHash stores the current hash of the certificate. It is used +
+for other controllers to validate if a certificate has been re-issued. + |  | 
+| *`conditions`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#condition-v1-meta[$$Condition$$] array__ | Conditions represent the latest available observations of an object's state + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicelist"]
-==== DiscoveryServiceList 
+==== DiscoveryServiceList
+
+
 
 DiscoveryServiceList contains a list of DiscoveryService
 
 
 
-[cols="25a,75a", options="header"]
-|===
-| Field | Description
-| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `DiscoveryServiceList`
-| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
 
-| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservice[$$DiscoveryService$$] array__ | 
+
+[cols="20a,50a,15a,15a", options="header"]
+|===
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `DiscoveryServiceList` | |
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+ |  | 
+| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservice[$$DiscoveryService$$] array__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicespec"]
-==== DiscoveryServiceSpec 
+==== DiscoveryServiceSpec
+
+
 
 DiscoveryServiceSpec defines the desired state of DiscoveryService
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservice[$$DiscoveryService$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`image`* __string__ | Image holds the image to use for the discovery service Deployment
-| *`debug`* __boolean__ | Debug enables debugging log level for the discovery service controllers. It is safe to
-use since secret data is never shown in the logs.
-| *`resources`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#resourcerequirements-v1-core[$$ResourceRequirements$$]__ | Resources holds the Resource Requirements to use for the discovery service
-Deployment. When not set it defaults to no resource requests nor limits.
-CPU and Memory resources are supported.
-| *`pkiConfg`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-pkiconfig[$$PKIConfig$$]__ | PKIConfig has configuration for the PKI that marin3r manages for the
-different certificates it requires
-| *`xdsServerPort`* __integer__ | XdsServerPort is the port where the xDS server listens. Defaults to 18000.
-| *`metricsPort`* __integer__ | MetricsPort is the port where metrics are served. Defaults to 8383.
-| *`probePort`* __integer__ | ProbePort is the port where healthz endpoint is served. Defaults to 8384.
-| *`serviceConfig`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-serviceconfig[$$ServiceConfig$$]__ | ServiceConfig configures the way the DiscoveryService endpoints are exposed
-| *`podPriorityClass`* __string__ | PriorityClass to assign the discovery service Pod to
-| *`affinity`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#affinity-v1-core[$$Affinity$$]__ | Affinity configuration for the discovery service pods
+| Field | Description | Default | Validation
+| *`image`* __string__ | Image holds the image to use for the discovery service Deployment + |  | 
+| *`debug`* __boolean__ | Debug enables debugging log level for the discovery service controllers. It is safe to +
+use since secret data is never shown in the logs. + |  | 
+| *`resources`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#resourcerequirements-v1-core[$$ResourceRequirements$$]__ | Resources holds the Resource Requirements to use for the discovery service +
+Deployment. When not set it defaults to no resource requests nor limits. +
+CPU and Memory resources are supported. + |  | 
+| *`pkiConfg`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-pkiconfig[$$PKIConfig$$]__ | PKIConfig has configuration for the PKI that marin3r manages for the +
+different certificates it requires + |  | 
+| *`xdsServerPort`* __integer__ | XdsServerPort is the port where the xDS server listens. Defaults to 18000. + |  | 
+| *`metricsPort`* __integer__ | MetricsPort is the port where metrics are served. Defaults to 8383. + |  | 
+| *`probePort`* __integer__ | ProbePort is the port where healthz endpoint is served. Defaults to 8384. + |  | 
+| *`serviceConfig`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-serviceconfig[$$ServiceConfig$$]__ | ServiceConfig configures the way the DiscoveryService endpoints are exposed + |  | 
+| *`podPriorityClass`* __string__ | PriorityClass to assign the discovery service Pod to + |  | 
+| *`affinity`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#affinity-v1-core[$$Affinity$$]__ | Affinity configuration for the discovery service pods + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicestatus"]
-==== DiscoveryServiceStatus 
+==== DiscoveryServiceStatus
+
+
 
 DiscoveryServiceStatus defines the observed state of DiscoveryService
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservice[$$DiscoveryService$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`deploymentName`* __string__ | 
-| *`deploymentStatus`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#deploymentstatus-v1-apps[$$DeploymentStatus$$]__ | 
+| Field | Description | Default | Validation
+| *`deploymentName`* __string__ |  |  | 
+| *`deploymentStatus`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#deploymentstatus-v1-apps[$$DeploymentStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-dynamicreplicasspec"]
-==== DynamicReplicasSpec 
+==== DynamicReplicasSpec
+
+
+
+
 
 
 
@@ -708,234 +840,274 @@ DiscoveryServiceStatus defines the observed state of DiscoveryService
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-replicasspec[$$ReplicasSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`minReplicas`* __integer__ | minReplicas is the lower limit for the number of replicas to which the autoscaler
-can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the
-alpha feature gate HPAScaleToZero is enabled and at least one Object or External
-metric is configured.  Scaling is active as long as at least one metric value is
-available.
-| *`maxReplicas`* __integer__ | maxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up.
-It cannot be less that minReplicas.
-| *`metrics`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#metricspec-v2-autoscaling[$$MetricSpec$$] array__ | metrics contains the specifications for which to use to calculate the
-desired replica count (the maximum replica count across all metrics will
-be used).  The desired replica count is calculated multiplying the
-ratio between the target value and the current value by the current
-number of pods.  Ergo, metrics used must decrease as the pod count is
-increased, and vice-versa.  See the individual metric source types for
-more information about how each type of metric must respond.
-If not set, the default metric will be set to 80% average CPU utilization.
-| *`behavior`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#horizontalpodautoscalerbehavior-v2-autoscaling[$$HorizontalPodAutoscalerBehavior$$]__ | behavior configures the scaling behavior of the target
-in both Up and Down directions (scaleUp and scaleDown fields respectively).
-If not set, the default HPAScalingRules for scale up and scale down are used.
+| Field | Description | Default | Validation
+| *`minReplicas`* __integer__ | minReplicas is the lower limit for the number of replicas to which the autoscaler +
+can scale down.  It defaults to 1 pod.  minReplicas is allowed to be 0 if the +
+alpha feature gate HPAScaleToZero is enabled and at least one Object or External +
+metric is configured.  Scaling is active as long as at least one metric value is +
+available. + |  | 
+| *`maxReplicas`* __integer__ | maxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up. +
+It cannot be less that minReplicas. + |  | 
+| *`metrics`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#metricspec-v2-autoscaling[$$MetricSpec$$] array__ | metrics contains the specifications for which to use to calculate the +
+desired replica count (the maximum replica count across all metrics will +
+be used).  The desired replica count is calculated multiplying the +
+ratio between the target value and the current value by the current +
+number of pods.  Ergo, metrics used must decrease as the pod count is +
+increased, and vice-versa.  See the individual metric source types for +
+more information about how each type of metric must respond. +
+If not set, the default metric will be set to 80% average CPU utilization. + |  | 
+| *`behavior`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#horizontalpodautoscalerbehavior-v2-autoscaling[$$HorizontalPodAutoscalerBehavior$$]__ | behavior configures the scaling behavior of the target +
+in both Up and Down directions (scaleUp and scaleDown fields respectively). +
+If not set, the default HPAScalingRules for scale up and scale down are used. + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeployment"]
-==== EnvoyDeployment 
+==== EnvoyDeployment
+
+
 
 EnvoyDeployment is a resource to deploy and manage a Kubernetes Deployment
 of Envoy Pods.
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentlist[$$EnvoyDeploymentList$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `EnvoyDeployment`
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `EnvoyDeployment` | |
 | *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#objectmeta-v1-meta[$$ObjectMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
-
-| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]__ | 
-| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentstatus[$$EnvoyDeploymentStatus$$]__ | 
+ |  | 
+| *`spec`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]__ |  |  | 
+| *`status`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentstatus[$$EnvoyDeploymentStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentlist"]
-==== EnvoyDeploymentList 
+==== EnvoyDeploymentList
+
+
 
 EnvoyDeploymentList contains a list of EnvoyDeployment
 
 
 
-[cols="25a,75a", options="header"]
-|===
-| Field | Description
-| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1`
-| *`kind`* __string__ | `EnvoyDeploymentList`
-| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
 
-| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeployment[$$EnvoyDeployment$$] array__ | 
+
+[cols="20a,50a,15a,15a", options="header"]
+|===
+| Field | Description | Default | Validation
+| *`apiVersion`* __string__ | `operator.marin3r.3scale.net/v1alpha1` | |
+| *`kind`* __string__ | `EnvoyDeploymentList` | |
+| *`metadata`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#listmeta-v1-meta[$$ListMeta$$]__ | Refer to Kubernetes API documentation for fields of `metadata`.
+ |  | 
+| *`items`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeployment[$$EnvoyDeployment$$] array__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec"]
-==== EnvoyDeploymentSpec 
+==== EnvoyDeploymentSpec
+
+
 
 EnvoyDeploymentSpec defines the desired state of EnvoyDeployment
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeployment[$$EnvoyDeployment$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`envoyConfigRef`* __string__ | EnvoyConfigRef points to an EnvoyConfig in the same namespace
-that holds the envoy resources for this Deployment
-| *`discoveryServiceRef`* __string__ | DiscoveryServiceRef points to a DiscoveryService in the same
-namespace
-| *`clusterID`* __string__ | Defines the local service cluster name where Envoy is running. Defaults
-to the NodeID in the EnvoyConfig if unset
-| *`ports`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-containerport[$$ContainerPort$$] array__ | Ports exposed by the Envoy container
-| *`image`* __string__ | Image is the envoy image and tag to use
-| *`resources`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#resourcerequirements-v1-core[$$ResourceRequirements$$]__ | Resources holds the resource requirements to use for the Envoy
-Deployment. Defaults to no resource requests nor limits.
-| *`duration`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#duration-v1-meta[$$Duration$$]__ | Defines the duration of the client certificate that is used to authenticate
-with the DiscoveryService
-| *`extraArgs`* __string array__ | Allows the user to define extra command line arguments for the Envoy process
-| *`adminPort`* __integer__ | Configures envoy's admin port. Defaults to 9901.
-| *`adminAccessLogPath`* __string__ | Configures envoy's admin access log path. Defaults to /dev/null.
-| *`replicas`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-replicasspec[$$ReplicasSpec$$]__ | Replicas configures the number of replicas in the Deployment. One of
-'static', 'dynamic' can be set. If both are set, static has precedence.
-| *`livenessProbe`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-probespec[$$ProbeSpec$$]__ | Liveness probe for the envoy pods
-| *`readinessProbe`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-probespec[$$ProbeSpec$$]__ | Readiness probe for the envoy pods
-| *`affinity`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#affinity-v1-core[$$Affinity$$]__ | Affinity configuration for the envoy pods
-| *`podDisruptionBudget`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-poddisruptionbudgetspec[$$PodDisruptionBudgetSpec$$]__ | Configures PodDisruptionBudget for the envoy Pods
-| *`shutdownManager`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-shutdownmanager[$$ShutdownManager$$]__ | ShutdownManager defines configuration for Envoy's shutdown
-manager, which handles graceful termination of Envoy pods
-| *`initManager`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-initmanager[$$InitManager$$]__ | InitManager defines configuration for Envoy's init
-manager, which handles initialization for Envoy pods
+| Field | Description | Default | Validation
+| *`envoyConfigRef`* __string__ | EnvoyConfigRef points to an EnvoyConfig in the same namespace +
+that holds the envoy resources for this Deployment + |  | 
+| *`discoveryServiceRef`* __string__ | DiscoveryServiceRef points to a DiscoveryService in the same +
+namespace + |  | 
+| *`clusterID`* __string__ | Defines the local service cluster name where Envoy is running. Defaults +
+to the NodeID in the EnvoyConfig if unset + |  | 
+| *`ports`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-containerport[$$ContainerPort$$] array__ | Ports exposed by the Envoy container + |  | 
+| *`image`* __string__ | Image is the envoy image and tag to use + |  | 
+| *`resources`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#resourcerequirements-v1-core[$$ResourceRequirements$$]__ | Resources holds the resource requirements to use for the Envoy +
+Deployment. Defaults to no resource requests nor limits. + |  | 
+| *`duration`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#duration-v1-meta[$$Duration$$]__ | Defines the duration of the client certificate that is used to authenticate +
+with the DiscoveryService + |  | 
+| *`extraArgs`* __string array__ | Allows the user to define extra command line arguments for the Envoy process + |  | 
+| *`adminPort`* __integer__ | Configures envoy's admin port. Defaults to 9901. + |  | 
+| *`adminAccessLogPath`* __string__ | Configures envoy's admin access log path. Defaults to /dev/null. + |  | 
+| *`replicas`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-replicasspec[$$ReplicasSpec$$]__ | Replicas configures the number of replicas in the Deployment. One of +
+'static', 'dynamic' can be set. If both are set, static has precedence. + |  | 
+| *`livenessProbe`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-probespec[$$ProbeSpec$$]__ | Liveness probe for the envoy pods + |  | 
+| *`readinessProbe`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-probespec[$$ProbeSpec$$]__ | Readiness probe for the envoy pods + |  | 
+| *`affinity`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#affinity-v1-core[$$Affinity$$]__ | Affinity configuration for the envoy pods + |  | 
+| *`podDisruptionBudget`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-poddisruptionbudgetspec[$$PodDisruptionBudgetSpec$$]__ | Configures PodDisruptionBudget for the envoy Pods + |  | 
+| *`shutdownManager`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-shutdownmanager[$$ShutdownManager$$]__ | ShutdownManager defines configuration for Envoy's shutdown +
+manager, which handles graceful termination of Envoy pods + |  | 
+| *`initManager`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-initmanager[$$InitManager$$]__ | InitManager defines configuration for Envoy's init +
+manager, which handles initialization for Envoy pods + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentstatus"]
-==== EnvoyDeploymentStatus 
+==== EnvoyDeploymentStatus
+
+
 
 EnvoyDeploymentStatus defines the observed state of EnvoyDeployment
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeployment[$$EnvoyDeployment$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`deploymentName`* __string__ | 
-| *`deploymentStatus`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#deploymentstatus-v1-apps[$$DeploymentStatus$$]__ | 
+| Field | Description | Default | Validation
+| *`deploymentName`* __string__ |  |  | 
+| *`deploymentStatus`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#deploymentstatus-v1-apps[$$DeploymentStatus$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-initmanager"]
-==== InitManager 
+==== InitManager
+
+
 
 InitManager defines configuration for Envoy's shutdown
 manager, which handles initialization for Envoy pods
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`image`* __string__ | Image is the init manager image and tag to use
+| Field | Description | Default | Validation
+| *`image`* __string__ | Image is the init manager image and tag to use + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-pkiconfig"]
-==== PKIConfig 
+==== PKIConfig
+
+
 
 PKIConfig has configuration for the PKI that marin3r manages for the
 different certificates it requires
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicespec[$$DiscoveryServiceSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`rootCertificateAuthority`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificateoptions[$$CertificateOptions$$]__ | 
-| *`serverCertificate`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificateoptions[$$CertificateOptions$$]__ | 
+| Field | Description | Default | Validation
+| *`rootCertificateAuthority`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificateoptions[$$CertificateOptions$$]__ |  |  | 
+| *`serverCertificate`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-certificateoptions[$$CertificateOptions$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-poddisruptionbudgetspec"]
-==== PodDisruptionBudgetSpec 
+==== PodDisruptionBudgetSpec
+
+
 
 PodDisruptionBudgetSpec defines the PDB for the component
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`minAvailable`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#intorstring-intstr-util[$$IntOrString$$]__ | An eviction is allowed if at least "minAvailable" pods selected by
-"selector" will still be available after the eviction, i.e. even in the
-absence of the evicted pod.  So for example you can prevent all voluntary
-evictions by specifying "100%".
-| *`maxUnavailable`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#intorstring-intstr-util[$$IntOrString$$]__ | An eviction is allowed if at most "maxUnavailable" pods selected by
-"selector" are unavailable after the eviction, i.e. even in absence of
-the evicted pod. For example, one can prevent all voluntary evictions
-by specifying 0. This is a mutually exclusive setting with "minAvailable".
+| Field | Description | Default | Validation
+| *`minAvailable`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#intorstring-intstr-util[$$IntOrString$$]__ | An eviction is allowed if at least "minAvailable" pods selected by +
+"selector" will still be available after the eviction, i.e. even in the +
+absence of the evicted pod.  So for example you can prevent all voluntary +
+evictions by specifying "100%". + |  | 
+| *`maxUnavailable`* __link:https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.33/#intorstring-intstr-util[$$IntOrString$$]__ | An eviction is allowed if at most "maxUnavailable" pods selected by +
+"selector" are unavailable after the eviction, i.e. even in absence of +
+the evicted pod. For example, one can prevent all voluntary evictions +
+by specifying 0. This is a mutually exclusive setting with "minAvailable". + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-probespec"]
-==== ProbeSpec 
+==== ProbeSpec
+
+
 
 ProbeSpec specifies configuration for a probe
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`initialDelaySeconds`* __integer__ | Number of seconds after the container has started before liveness probes are initiated
-| *`timeoutSeconds`* __integer__ | Number of seconds after which the probe times out
-| *`periodSeconds`* __integer__ | How often (in seconds) to perform the probe
-| *`successThreshold`* __integer__ | Minimum consecutive successes for the probe to be considered successful after having failed
-| *`failureThreshold`* __integer__ | Minimum consecutive failures for the probe to be considered failed after having succeeded
+| Field | Description | Default | Validation
+| *`initialDelaySeconds`* __integer__ | Number of seconds after the container has started before liveness probes are initiated + |  | 
+| *`timeoutSeconds`* __integer__ | Number of seconds after which the probe times out + |  | 
+| *`periodSeconds`* __integer__ | How often (in seconds) to perform the probe + |  | 
+| *`successThreshold`* __integer__ | Minimum consecutive successes for the probe to be considered successful after having failed + |  | 
+| *`failureThreshold`* __integer__ | Minimum consecutive failures for the probe to be considered failed after having succeeded + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-replicasspec"]
-==== ReplicasSpec 
+==== ReplicasSpec
+
+
 
 ReplicasSpec configures the number of replicas of the Deployment
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`static`* __integer__ | Configure a static number of replicas. Defaults to 1.
-| *`dynamic`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-dynamicreplicasspec[$$DynamicReplicasSpec$$]__ | Configure a min and max value for the number of pods to autoscale dynamically.
+| Field | Description | Default | Validation
+| *`static`* __integer__ | Configure a static number of replicas. Defaults to 1. + |  | 
+| *`dynamic`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-dynamicreplicasspec[$$DynamicReplicasSpec$$]__ | Configure a min and max value for the number of pods to autoscale dynamically. + |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-selfsignedconfig"]
-==== SelfSignedConfig 
+==== SelfSignedConfig
+
+
 
 SelfSignedConfig is an empty struct to refer to the selfsiged certificates provisioner
+
+
 
 .Appears In:
 ****
@@ -945,28 +1117,36 @@ SelfSignedConfig is an empty struct to refer to the selfsiged certificates provi
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-serviceconfig"]
-==== ServiceConfig 
+==== ServiceConfig
+
+
 
 ServiceConfig has options to configure the way the Service
 is deployed
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-discoveryservicespec[$$DiscoveryServiceSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`name`* __string__ | 
-| *`type`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-servicetype[$$ServiceType$$]__ | 
+| Field | Description | Default | Validation
+| *`name`* __string__ |  |  | 
+| *`type`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-servicetype[$$ServiceType$$]__ |  |  | 
 |===
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-servicetype"]
-==== ServiceType (string) 
+==== ServiceType
+
+_Underlying type:_ _string_
 
 ServiceType is an enum with the available discovery service Service types
+
+
 
 .Appears In:
 ****
@@ -976,25 +1156,30 @@ ServiceType is an enum with the available discovery service Service types
 
 
 [id="{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-shutdownmanager"]
-==== ShutdownManager 
+==== ShutdownManager
+
+
 
 ShutdownManager defines configuration for Envoy's shutdown
 manager, which handles graceful termination of Envoy Pods
+
+
 
 .Appears In:
 ****
 - xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-operator-marin3r-v1alpha1-envoydeploymentspec[$$EnvoyDeploymentSpec$$]
 ****
 
-[cols="25a,75a", options="header"]
+[cols="20a,50a,15a,15a", options="header"]
 |===
-| Field | Description
-| *`image`* __string__ | Image is the shutdown manager image and tag to use
-| *`serverPort`* __integer__ | Configures the sutdown manager's server port. Defaults to 8090.
-| *`drainTime`* __integer__ | The time in seconds that Envoy will drain connections during shutdown.
-It also affects drain behaviour when listeners are modified or removed via LDS.
-| *`drainStrategy`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-defaults-drainstrategy[$$DrainStrategy$$]__ | The drain strategy for the graceful shutdown. It also affects
-drain when listeners are modified or removed via LDS.
+| Field | Description | Default | Validation
+| *`image`* __string__ | Image is the shutdown manager image and tag to use + |  | 
+| *`serverPort`* __integer__ | Configures the sutdown manager's server port. Defaults to 8090. + |  | 
+| *`drainTime`* __integer__ | The time in seconds that Envoy will drain connections during shutdown. +
+It also affects drain behaviour when listeners are modified or removed via LDS. + |  | 
+| *`drainStrategy`* __xref:{anchor_prefix}-github-com-3scale-sre-marin3r-api-envoy-defaults-drainstrategy[$$DrainStrategy$$]__ | The drain strategy for the graceful shutdown. It also affects +
+drain when listeners are modified or removed via LDS. + |  | Enum: [gradual immediate] +
+
 |===
 
 
