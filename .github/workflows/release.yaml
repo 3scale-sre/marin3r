@@ -43,3 +43,8 @@ jobs:
           automatic_release_tag: "${{ env.NEW_RELEASE }}"
           title: "${{ env.NEW_RELEASE }}"
           draft: true
+
+      - name: Add the tag for the api module
+        if: ${{ env.NEW_RELEASE != '' }}
+        run: |
+          git tag api/${{ env.NEW_RELEASE }} && git push origin api/${{ env.NEW_RELEASE }}
