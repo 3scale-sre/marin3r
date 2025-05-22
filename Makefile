@@ -244,7 +244,7 @@ endef
 
 .PHONY: container-build
 container-build: manifests generate fmt vet vendor ## local platfrom build
-	$(call container-build-multiplatform,$(IMG),$(CONTAINER_TOOL),Dockerfile,.,$(shell go env GOARCH))
+	$(CONTAINER_TOOL) build -t $(IMG) .
 	$(CONTAINER_TOOL) tag $(IMG) $(IMAGE_TAG_BASE):test
 
 .PHONY: container-push
