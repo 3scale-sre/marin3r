@@ -54,7 +54,7 @@ var _ = Describe("Envoy pods", func() {
 				Namespace: testNamespace,
 			},
 			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: ptr.To(image),
+				Debug: ptr.To(true),
 			},
 		}
 		err = k8sClient.Create(context.Background(), ds)

@@ -511,7 +511,7 @@ kind-undeploy: ## Undeploy controller from the Kind K8s cluster
 kind-load-image: export KUBECONFIG = $(PWD)/kubeconfig
 kind-load-image: kind ## Load the marin3r:test image into the cluster
 	tmpfile=$$(mktemp) && \
-		$(CONTAINER_TOOL) save -o $${tmpfile}  $(IMAGE_TAG_BASE):test && \
+		$(CONTAINER_TOOL) save -o $${tmpfile} $(IMAGE_TAG_BASE):test && \
 		$(KIND) load image-archive $${tmpfile} --name kind && \
 		rm $${tmpfile}
 
