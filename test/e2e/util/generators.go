@@ -158,7 +158,6 @@ func GenerateDeploymentWithInjection(key types.NamespacedName, nodeID, envoyAPI,
 	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/ports"] = fmt.Sprintf("envoy-http:%v", envoyPort)
 	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-api-version"] = envoyAPI
 	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-image"] = fmt.Sprintf("%s:%s", defaults.ImageRepo, envoyVersion)
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/init-manager.image"] = "quay.io/3scale-sre/marin3r:test"
 
 	return dep
 }

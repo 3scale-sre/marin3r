@@ -68,6 +68,9 @@ CONTAINER_TOOL ?= podman
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+# Temp files directory
+TMP := tmp
+
 all: build
 
 ##@ General
@@ -241,7 +244,7 @@ endef
 
 .PHONY: container-build
 container-build: manifests generate fmt vet vendor ## local platfrom build
-	$(call container-build-multiplatform,$(IMG),$(CONTAINER_TOOL),Dockerfile,.,$(shell go env GOARCH))
+	$(CONTAINER_TOOL) build -t $(IMG) .
 	$(CONTAINER_TOOL) tag $(IMG) $(IMAGE_TAG_BASE):test
 
 .PHONY: container-push
@@ -508,7 +511,7 @@ kind-undeploy: ## Undeploy controller from the Kind K8s cluster
 kind-load-image: export KUBECONFIG = $(PWD)/kubeconfig
 kind-load-image: kind ## Load the marin3r:test image into the cluster
 	tmpfile=$$(mktemp) && \
-		$(CONTAINER_TOOL) save -o $${tmpfile}  $(IMAGE_TAG_BASE):test && \
+		$(CONTAINER_TOOL) save -o $${tmpfile} $(IMAGE_TAG_BASE):test && \
 		$(KIND) load image-archive $${tmpfile} --name kind && \
 		rm $${tmpfile}
 
@@ -550,6 +553,7 @@ catalog-retag-latest:
 	$(call container-push-multiplatform,$(IMAGE_TAG_BASE)-catalog:latest,$(CONTAINER_TOOL))
 
 ##@ Run components locally
+
 $(TMP)/certs:
 	hack/gen-certs.sh
 
@@ -558,23 +562,22 @@ ENVOY_VERSION ?= v1.23.2
 .PHONY: run-ds
 run-ds: ## locally starts a discovery service
 run-ds: manifests generate fmt vet go-generate $(TMP)/certs
-	WATCH_NAMESPACE="default" go run main.go \
+	WATCH_NAMESPACE="default" go run cmd/main.go \
 		discovery-service \
 		--server-certificate-path $(TMP)/certs/server \
 		--ca-certificate-path $(TMP)/certs/ca \
 		--client-certificate-path $(TMP)/certs/client \
-		--metrics-bind-address :8383
+		--metrics-bind-address :8383 \
 		--debug
 
-.PHONY: run-envoy
 run-envoy: ## runs an envoy process in a container that will try to connect to a local discovery service
 run-envoy: $(TMP)/certs
 	docker run -ti --rm \
 		--network=host \
 		--add-host marin3r.default.svc:127.0.0.1 \
-		-v $$(pwd)/$(TMP)/certs/client:/etc/envoy/tls \
-		-v $$(pwd)/examples/local:/config \
-		envoyproxy/envoy:$(ENVOY_VERSION) \
+		-v $(shell pwd)/$(TMP)/certs/client:/etc/envoy/tls \
+		-v $(shell pwd)/examples/local:/config \
+		docker.io/envoyproxy/envoy:$(ENVOY_VERSION) \
 		envoy -c /config/envoy-client-bootstrap.yaml $(ARGS)
 
 ##@ Other
@@ -588,7 +591,6 @@ refdocs: crd-ref-docs
 		--renderer=asciidoctor \
 		--output-path=docs/api-reference/reference.asciidoc
 
-TMP = tmp
 $(TMP): ## Create project local tmp directory
 	mkdir tmp
 

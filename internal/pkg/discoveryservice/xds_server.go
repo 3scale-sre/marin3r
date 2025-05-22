@@ -46,7 +46,7 @@ const (
 	grpcMaxConcurrentStreams                          = 1000000
 	grpcMaxConnectionAge                              = 43200 // 12 hours
 	grpcMaxConnectionAgeGrace                         = 300   // 5 min
-	grpcKeepaliveEnforcementPolicyMinTime             = 50
+	grpcKeepaliveEnforcementPolicyMinTime             = 30
 	grpcKeepaliveEnforcementPolicyPermitWithoutStream = false
 )
 

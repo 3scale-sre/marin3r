@@ -46,9 +46,7 @@ var _ = Describe("DiscoveryService intall and lifecycle", func() {
 				Name:      "instance",
 				Namespace: testNamespace,
 			},
-			Spec: operatorv1alpha1.DiscoveryServiceSpec{
-				Image: ptr.To(image),
-			},
+			Spec: operatorv1alpha1.DiscoveryServiceSpec{},
 		}
 		err = k8sClient.Create(context.Background(), ds)
 		Expect(err).ToNot(HaveOccurred())

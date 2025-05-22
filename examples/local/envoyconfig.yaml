@@ -1,10 +1,10 @@
 apiVersion: marin3r.3scale.net/v1alpha1
 kind: EnvoyConfig
 metadata:
-  name: ec-v1alpha2
+  name: envoy1
   namespace: default
 spec:
-  nodeID: ec-v1alpha2
+  nodeID: envoy1
   resources:
     - type: cluster
       value:
