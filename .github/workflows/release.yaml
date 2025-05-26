@@ -4,47 +4,95 @@ on:
   push:
     branches:
       - main
+    paths:
+      - bundle/manifests/**
+  workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
-  release:
+  check:
+    name: Check if it's a stable release
     runs-on: ubuntu-latest
+    outputs:
+      stable-release: ${{ env.NEW_RELEASE }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Build image
-        run: make container-buildx
+      - uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-bin
+          path: ./bin
 
-      - name: Export release name
+      - id: new-release
+        name: Check if it's a stable release
         run: |
           echo "NEW_RELEASE=$(make get-new-release)" >> $GITHUB_ENV
 
-      - name: Login to quay.io/3scale
-        if: ${{ env.NEW_RELEASE != '' }}
+  release:
+    if: needs.check.outputs.stable-release != ''
+    name: Build and push the stable release images for the operator and the bundle
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      RELEASE: ${{ needs.check.outputs.stable-release }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-bin
+          path: ./bin
+
+      - name: Login to quay.io/3scale-sre
         uses: redhat-actions/podman-login@v1
         with:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Push new operator image
-        if: ${{ env.NEW_RELEASE != '' }}
-        run: make container-pushx
-
-      - name: Publish new bundle image in marin3r index
-        if: ${{ env.NEW_RELEASE != '' }}
+      - name: Build & push operator and bundle images
         run: make bundle-publish
 
+      - name: Retrieves the bundle image name
+        run: echo "BUNDLE_IMAGE=$(make -s print-BUNDLE_IMG)" >> $GITHUB_OUTPUT
+
+      - name: Update catalog with the new bundle
+        run: make catalog
+
       - name: Create a new draft-release in github
-        if: ${{ env.NEW_RELEASE != '' }}
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ env.NEW_RELEASE }}"
-          title: "${{ env.NEW_RELEASE }}"
-          draft: true
+        run: gh release create "${{ env.RELEASE }}" --draft --title "${{ env.RELEASE }}" --generate-notes
 
       - name: Add the tag for the api module
-        if: ${{ env.NEW_RELEASE != '' }}
         run: |
           git tag api/${{ env.NEW_RELEASE }} && git push origin api/${{ env.NEW_RELEASE }}
+
+      - name: GIT commit and push catalog
+        env:
+          CI_COMMIT_AUTHOR_EMAIL: 3scale-robot@users.noreply.github.com
+          CI_COMMIT_AUTHOR_NAME: 3scale-robot
+          CATALOG_RELEASE_BRANCH: catalog/${{ needs.check.outputs.stable-release }}
+          CATALOG_RELEASE_PR_TITLE: "release: catalog for bundle ${{ needs.check.outputs.stable-release }}"
+          CATALOG_RELEASE_PR_BODY: |
+            This PR updates the catalog inventory files with the new bundle [${{ needs.check.outputs.stable-release }}](https://github.com/${GITHUB_REPOSITORY}/releases/tag/${{ needs.check.outputs.stable-release }}).
+
+            [${{ steps.bundle-image.outputs.BUNDLE_IMAGE }}](https://${{ steps.bundle-image.outputs.BUNDLE_IMAGE }})
+
+            Please review and merge this PR to build and release the new catalog.
+
+            /kind release
+            /priority important-soon
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR_NAME }}"
+          git config --global user.email "${{ env.CI_COMMIT_AUTHOR_EMAIL }}"
+          git ls-remote --exit-code --heads origin refs/heads/${{ env.CATALOG_RELEASE_BRANCH }} && git push origin -d ${{ env.CATALOG_RELEASE_BRANCH }}
+          git checkout -b ${{ env.CATALOG_RELEASE_BRANCH }}
+          git add catalog
+          git commit -m "${{ env.CATALOG_RELEASE_PR_TITLE }}"
+          git push --set-upstream origin ${{ env.CATALOG_RELEASE_BRANCH }}
+          gh pr create -B main -H ${{ env.CATALOG_RELEASE_BRANCH }} --title "${{ env.CATALOG_RELEASE_PR_TITLE }}" --body "${{ env.CATALOG_RELEASE_PR_BODY }}"
