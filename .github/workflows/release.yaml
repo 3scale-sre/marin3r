@@ -70,7 +70,7 @@ jobs:
 
       - name: Add the tag for the api module
         run: |
-          git tag api/${{ env.NEW_RELEASE }} && git push origin api/${{ env.NEW_RELEASE }}
+          git tag api/${{ env.RELEASE }} && git push origin api/${{ env.RELEASE }}
 
       - name: GIT commit and push catalog
         env:
