@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Enable QEMU
-        run: sudo apt install qemu-user-static
+        run: sudo apt update && sudo apt install qemu-user-static
 
       - name: Login to quay.io/3scale
         uses: redhat-actions/podman-login@v1
