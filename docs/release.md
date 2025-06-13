@@ -34,12 +34,4 @@ make catalog-publish
 make prepare-stable-release
 ```
 
-* Then open a [Pull Request](https://github.com/3scale-sre/marin3r/pulls), and a GitHub Action will automatically detect if it is new release or not, in order to create it by building/pushing new operator and bundle images, as well as creating a GitHub release draft.
-
-* After the release of a stable version, you need to update the catalog. To do so execute the following targets:
-
-```bash
-make catalog-add-bundle-to-alpha && make catalog-add-bundle-to-stable
-```
-
-Then commit the changes and open a [Pull Request](https://github.com/3scale-sre/marin3r/pulls). A GitHub action will pick up the change in the stable channel and build & push a new catalog image.
+* Then open a [Pull Request](https://github.com/3scale-sre/marin3r/pulls), and a GitHub Action will automatically detect if it is new release or not, in order to create it by building/pushing new operator and bundle images, as well as creating a GitHub release draft. Furthermore, an additional PR will automatically be opened (via the same "release" GH action) to publish the new updated catalog image. Review and approve the PR. Once merged, the changes will trigger the "catalog" GH action to build and push the new catalog image.
