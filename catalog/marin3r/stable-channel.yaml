@@ -36,6 +36,8 @@ entries:
   - name: marin3r.v0.13.4
     replaces: marin3r.v0.13.3
     skipRange: ">=0.13.3 <0.13.4"
+  - name: marin3r.v0.13.5
+    replaces: marin3r.v0.13.4
 name: stable
 package: marin3r
 schema: olm.channel
