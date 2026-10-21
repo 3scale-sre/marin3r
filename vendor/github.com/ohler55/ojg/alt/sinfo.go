@@ -96,12 +96,12 @@ func buildTagFields(rt reflect.Type, nested, omitEmpty bool) (fa []*finfo) {
 	for i := rt.NumField() - 1; 0 <= i; i-- {
 		f := rt.Field(i)
 		name := []byte(f.Name)
-		if len(name) == 0 || 'a' <= name[0] {
+		if len(name) == 0 || 'a' <= name[0] || name[0] == '_' {
 			continue
 		}
 		var fx byte
-		if f.Anonymous && nested {
-			if f.Type.Kind() == reflect.Ptr {
+		if f.Anonymous && nested && f.Type.Kind() != reflect.Interface {
+			if f.Type.Kind() == reflect.Pointer {
 				for _, fi := range buildTagFields(f.Type.Elem(), nested, omitEmpty) {
 					fi.index = append([]int{i}, fi.index...)
 					fi.value = fi.ivalue
@@ -149,12 +149,12 @@ func buildExactFields(rt reflect.Type, nested, omitEmpty bool) (fa []*finfo) {
 	for i := rt.NumField() - 1; 0 <= i; i-- {
 		f := rt.Field(i)
 		name := []byte(f.Name)
-		if len(name) == 0 || 'a' <= name[0] {
+		if len(name) == 0 || 'a' <= name[0] || name[0] == '_' {
 			continue
 		}
 		switch {
-		case f.Anonymous && nested:
-			if f.Type.Kind() == reflect.Ptr {
+		case f.Anonymous && nested && f.Type.Kind() != reflect.Interface:
+			if f.Type.Kind() == reflect.Pointer {
 				for _, fi := range buildExactFields(f.Type.Elem(), nested, omitEmpty) {
 					fi.index = append([]int{i}, fi.index...)
 					fi.value = fi.ivalue
@@ -180,11 +180,11 @@ func buildLowFields(rt reflect.Type, nested, omitEmpty bool) (fa []*finfo) {
 	for i := rt.NumField() - 1; 0 <= i; i-- {
 		f := rt.Field(i)
 		name := []byte(f.Name)
-		if len(name) == 0 || 'a' <= name[0] {
+		if len(name) == 0 || 'a' <= name[0] || name[0] == '_' {
 			continue
 		}
-		if f.Anonymous && nested {
-			if f.Type.Kind() == reflect.Ptr {
+		if f.Anonymous && nested && f.Type.Kind() != reflect.Interface {
+			if f.Type.Kind() == reflect.Pointer {
 				for _, fi := range buildLowFields(f.Type.Elem(), nested, omitEmpty) {
 					fi.index = append([]int{i}, fi.index...)
 					fi.value = fi.ivalue

@@ -4,6 +4,94 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 The structure and content of this file follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.28.7] - 2026-09-28
+### Fixed
+- Fixed handling of NaN and Inf writing.
+- Moved strict option to Options to match documentation.
+- oj.Unmarshal and sen.Unmarshal correctly use a provided alternative recomposer.
+- Filter/script evaluation of nil data now returns nil and does not panic.
+- jp.Locate and jp.Walk no longer panic on nil pointers in structs.
+- ojg.KeyString is now used consistently with alt.Recompose.
+
+## [1.28.6] - 2026-09-10
+### Fixed
+- Fixed hang and panic on an empty slice range in Locate (#228)
+
+## [1.28.5] - 2026-08-21
+### Fixed
+- Panic on malformed `+` string concatenation fixed thanks to @ChrisJr404.
+
+## [1.28.4] - 2026-07-07
+### Fixed
+- JSONPath slice for `[::2]` against an empty slice works correctly now.
+
+## [1.28.3] - 2026-08-01
+### Fixed
+- JSONPath slices support negative ranges correctly now and the slice
+  end values are exclusive to match the JSONPath specification.
+
+## [1.28.2] - 2026-07-05
+### Fixed
+- JSONPath parsing performance improved thanks to @trevorprater.
+
+## [1.28.1] - 2026-03-16
+### Changed
+- Removed the dependency on go1.22 caused by the `alt.Checksum()` implementation which now avoids `time.AppendBinary()`.
+
+## [1.28.0] - 2026-01-15
+### Added
+- Added `alt.Checksum()` function.
+
+## [1.27.0] - 2025-11-11
+### Added
+- Added discover package.
+- Added discover option to the **oj** application.
+
+## [1.26.11] - 2025-11-03
+### Fixed
+- Fixed recomposing nested anonymous structs.
+
+## [1.26.10] - 2025-08-30
+### Fixed
+- Fixed float parsing issues.
+
+## [1.26.9] - 2025-08-18
+### Fixed
+- Filtering now supports typed core type such as `type Color string` thans to @rdumont
+
+## [1.26.8] - 2025-06-29
+### Fixed
+- Fixed support for pointers to slice and pointer to value thanks to @edward-frankieone.
+
+## [1.26.7] - 2025-06-23
+### Fixed
+- Fixed the bleed over of omitempty in struct tags. Issue #205.
+- Fixed encoding anonymous interface in structs. Issue #115
+- Bare @.x style existence checks in filters not work correctly.
+
+## [1.26.6] - 2025-05-27
+### Fixed
+- Types derived from core type such as `type Quux int` now alt.Decompose correctly.
+
+## [1.26.5] - 2025-05-12
+### Fixed
+- User defined unary operations for jp scripts are now handled correctly.
+
+## [1.26.4] - 2025-04-27
+### Fixed
+- Identify field names that start with '_' as private.
+
+## [1.26.3] - 2025-04-06
+### Changed
+- Updated linter configuration file for golangci-lint v2
+- Backed off the go.mod go version to the minimum required of v1.18.
+
+## [1.26.2] - 2025-03-09
+### Fixed
+- Index on node get fixed.
+### Changed
+- Updated to go v1.24
+
 ## [1.26.1] - 2025-01-09
 ### Fixed
 - Fixed issue #197 where nested array elements were not filled when using `oj.Match()`.

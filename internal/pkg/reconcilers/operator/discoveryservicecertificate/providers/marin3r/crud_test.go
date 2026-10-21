@@ -11,7 +11,6 @@ import (
 	"github.com/3scale-sre/marin3r/internal/pkg/util/test"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -704,7 +703,7 @@ func TestCertificateProvider_genSecret(t *testing.T) {
 						Signer: operatorv1alpha1.DiscoveryServiceCertificateSigner{
 							SelfSigned: &operatorv1alpha1.SelfSignedConfig{},
 						},
-						SecretRef: v1.SecretReference{Name: "secret"},
+						SecretRef: corev1.SecretReference{Name: "secret"},
 					},
 				},
 			},

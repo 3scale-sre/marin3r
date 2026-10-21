@@ -58,6 +58,35 @@ func (m *TraceWrapper) validate(all bool) error {
 
 	var errors []error
 
+	if all {
+		switch v := interface{}(m.GetConfiguredSampleRate()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TraceWrapperValidationError{
+					field:  "ConfiguredSampleRate",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TraceWrapperValidationError{
+					field:  "ConfiguredSampleRate",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConfiguredSampleRate()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TraceWrapperValidationError{
+				field:  "ConfiguredSampleRate",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	oneofTracePresent := false
 	switch v := m.Trace.(type) {
 	case *TraceWrapper_HttpBufferedTrace:
@@ -255,7 +284,7 @@ type TraceWrapperMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TraceWrapperMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

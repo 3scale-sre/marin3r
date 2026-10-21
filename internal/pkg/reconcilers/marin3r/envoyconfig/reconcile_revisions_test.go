@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	envoy "github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
@@ -391,7 +392,7 @@ func TestRevisionReconciler_Reconcile(t *testing.T) {
 					},
 				},
 			},
-			want:    ctrl.Result{Requeue: true},
+			want:    ctrl.Result{RequeueAfter: time.Millisecond},
 			wantErr: false,
 		},
 		{

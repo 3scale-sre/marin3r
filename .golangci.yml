@@ -1,76 +1,88 @@
+version: "2"
 run:
-  timeout: 5m
   allow-parallel-runners: true
-
-issues:
-  # don't skip warning about doc comments
-  # don't exclude the default set of lint
-  exclude-use-default: false
-  # restore some of the defaults
-  # (fill in the rest as needed)
-  exclude-rules:
-    - path: ".*_test.go"
-      linters:
-        - dupl
-        - errcheck
-        - containedctx
-        - gosec
 linters:
-  disable-all: true
+  default: none
   enable:
-    - dupl
-    - errcheck
+    - asasalint
+    - bodyclose
+    - containedctx
+    - contextcheck
     - copyloopvar
+    - decorder
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - fatcontext
     - ginkgolinter
     - goconst
     - gocyclo
-    - gofmt
-    - goimports
-    - gosimple
+    - godox
     - govet
+    - importas
     - ineffassign
+    - intrange
+    - loggercheck
     - misspell
     - nakedret
+    - nilerr
+    - nlreturn
+    - noctx
+    - nosprintfhostport
+    - perfsprint
     - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
     - revive
     - staticcheck
-    - typecheck
+    - tagalign
+    - tagliatelle
     - unconvert
     - unparam
     - unused
-    - bodyclose
-    - asasalint
-    - containedctx
-    - contextcheck
-    - decorder
-    - dogsled
-    - dupword
-    - durationcheck
-    - errchkjson
-    - fatcontext
-    - godox
-    - importas
-    - intrange
-    - loggercheck
-    - nilerr
-    - nlreturn
-    - nosprintfhostport
-    - prealloc
-    - promlinter
-    - reassign
-    - tagliatelle
-    - tagalign
+    - usestdlibvars
     - wastedassign
     - whitespace
     - wsl
-    - usestdlibvars
-    - recvcheck
-    - protogetter
-    - predeclared
-    - perfsprint
-    - noctx
-
-linters-settings:
-  revive:
+  settings:
+    goconst:
+      min-occurrences: 8
+    revive:
+      rules:
+        - name: comment-spacings
+  exclusions:
+    generated: lax
     rules:
-      - name: comment-spacings
+      - linters:
+          - containedctx
+          - dupl
+          - errcheck
+          - goconst
+          - gosec
+          - noctx
+        path: .*_test.go
+      - linters:
+          - goconst
+          - noctx
+          - prealloc
+        path: test/
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

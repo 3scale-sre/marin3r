@@ -165,6 +165,8 @@ func (m *RateLimitDescriptor) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for IsNegativeHits
+
 	if len(errors) > 0 {
 		return RateLimitDescriptorMultiError(errors)
 	}
@@ -179,7 +181,7 @@ type RateLimitDescriptorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitDescriptorMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -352,6 +354,8 @@ func (m *LocalRateLimitDescriptor) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ShadowMode
+
 	if len(errors) > 0 {
 		return LocalRateLimitDescriptorMultiError(errors)
 	}
@@ -366,7 +370,7 @@ type LocalRateLimitDescriptorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LocalRateLimitDescriptorMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -468,7 +472,7 @@ type LocalClusterRateLimitMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LocalClusterRateLimitMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -567,10 +571,10 @@ func (m *RateLimitDescriptor_Entry) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetValue()) < 1 {
+	if utf8.RuneCountInString(m.GetValue()) < 0 {
 		err := RateLimitDescriptor_EntryValidationError{
 			field:  "Value",
-			reason: "value length must be at least 1 runes",
+			reason: "value length must be at least 0 runes",
 		}
 		if !all {
 			return err
@@ -592,7 +596,7 @@ type RateLimitDescriptor_EntryMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitDescriptor_EntryMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -694,6 +698,21 @@ func (m *RateLimitDescriptor_RateLimitOverride) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if wrapper := m.GetUnitMultiplier(); wrapper != nil {
+
+		if wrapper.GetValue() <= 0 {
+			err := RateLimitDescriptor_RateLimitOverrideValidationError{
+				field:  "UnitMultiplier",
+				reason: "value must be greater than 0",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return RateLimitDescriptor_RateLimitOverrideMultiError(errors)
 	}
@@ -709,7 +728,7 @@ type RateLimitDescriptor_RateLimitOverrideMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitDescriptor_RateLimitOverrideMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

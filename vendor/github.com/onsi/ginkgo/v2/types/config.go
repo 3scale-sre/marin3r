@@ -24,6 +24,7 @@ type SuiteConfig struct {
 	FocusFiles            []string
 	SkipFiles             []string
 	LabelFilter           string
+	SemVerFilter          string
 	FailOnPending         bool
 	FailOnEmpty           bool
 	FailFast              bool
@@ -37,6 +38,7 @@ type SuiteConfig struct {
 	OutputInterceptorMode string
 	SourceRoots           []string
 	GracePeriod           time.Duration
+	SleepOnFailure        time.Duration
 
 	ParallelProcess int
 	ParallelTotal   int
@@ -93,8 +95,10 @@ type ReporterConfig struct {
 	GithubOutput   bool
 	SilenceSkips   bool
 	ForceNewlines  bool
+	FdOutput       bool
 
 	JSONReport     string
+	GoJSONReport   string
 	JUnitReport    string
 	TeamcityReport string
 }
@@ -111,7 +115,7 @@ func (rc ReporterConfig) Verbosity() VerbosityLevel {
 }
 
 func (rc ReporterConfig) WillGenerateReport() bool {
-	return rc.JSONReport != "" || rc.JUnitReport != "" || rc.TeamcityReport != ""
+	return rc.JSONReport != "" || rc.GoJSONReport != "" || rc.JUnitReport != "" || rc.TeamcityReport != ""
 }
 
 func NewDefaultReporterConfig() ReporterConfig {
@@ -159,7 +163,7 @@ func (g CLIConfig) ComputedProcs() int {
 
 	n := 1
 	if g.Parallel {
-		n = runtime.NumCPU()
+		n = runtime.GOMAXPROCS(-1)
 		if n > 4 {
 			n = n - 1
 		}
@@ -172,7 +176,7 @@ func (g CLIConfig) ComputedNumCompilers() int {
 		return g.NumCompilers
 	}
 
-	return runtime.NumCPU()
+	return runtime.GOMAXPROCS(-1)
 }
 
 // Configuration for the Ginkgo CLI capturing available go flags
@@ -213,6 +217,7 @@ type GoFlagsConfig struct {
 	N             bool
 	ModFile       string
 	ModCacheRW    bool
+	ASan          bool
 	MSan          bool
 	PkgDir        string
 	Tags          string
@@ -290,6 +295,8 @@ var SuiteConfigFlags = GinkgoFlags{
 		Usage: "Make up to this many attempts to run each spec. If any of the attempts succeed, the suite will not be failed."},
 	{KeyPath: "S.FailOnEmpty", Name: "fail-on-empty", SectionKey: "failure",
 		Usage: "If set, ginkgo will mark the test suite as failed if no specs are run."},
+	{KeyPath: "S.SleepOnFailure", Name: "sleep-on-failure", SectionKey: "failure", UsageDefaultValue: "0 - disabled",
+		Usage: "If set, ginkgo will pause for this duration after a spec fails - before its teardown (AfterEach/JustAfterEach/DeferCleanup) runs - so you can inspect the live system. Press ^C to end the pause early and proceed to cleanup. Serial only: cannot be combined with -p/--procs."},
 
 	{KeyPath: "S.DryRun", Name: "dry-run", SectionKey: "debug", DeprecatedName: "dryRun", DeprecatedDocLink: "changed-command-line-flags",
 		Usage: "If set, ginkgo will walk the test hierarchy without actually running anything.  Best paired with -v."},
@@ -308,6 +315,8 @@ var SuiteConfigFlags = GinkgoFlags{
 
 	{KeyPath: "S.LabelFilter", Name: "label-filter", SectionKey: "filter", UsageArgument: "expression",
 		Usage: "If set, ginkgo will only run specs with labels that match the label-filter.  The passed-in expression can include boolean operations (!, &&, ||, ','), groupings via '()', and regular expressions '/regexp/'.  e.g. '(cat || dog) && !fruit'"},
+	{KeyPath: "S.SemVerFilter", Name: "sem-ver-filter", SectionKey: "filter", UsageArgument: "version",
+		Usage: "If set, ginkgo will only run specs with semantic version constraints that are satisfied by the provided version. e.g. '2.1.0'"},
 	{KeyPath: "S.FocusStrings", Name: "focus", SectionKey: "filter",
 		Usage: "If set, ginkgo will only run specs that match this regular expression. Can be specified multiple times, values are ORed."},
 	{KeyPath: "S.SkipStrings", Name: "skip", SectionKey: "filter",
@@ -353,9 +362,12 @@ var ReporterConfigFlags = GinkgoFlags{
 		Usage: "If set, default reporter will not print out skipped tests."},
 	{KeyPath: "R.ForceNewlines", Name: "force-newlines", SectionKey: "output",
 		Usage: "If set, default reporter will ensure a newline appears after each test."},
-
+	{KeyPath: "R.FdOutput", Name: "fd", SectionKey: "output",
+		Usage: "If set, emits RSpec-style 'format documentation' output instead of Ginkgo's default output.  --fd is exclusive: it overrides -p/-procs and -randomize-all, forcing specs to run serially in declaration order, since fd's hierarchical output can't be rendered sensibly when specs are parallelized or randomized."},
 	{KeyPath: "R.JSONReport", Name: "json-report", UsageArgument: "filename.json", SectionKey: "output",
 		Usage: "If set, Ginkgo will generate a JSON-formatted test report at the specified location."},
+	{KeyPath: "R.GoJSONReport", Name: "gojson-report", UsageArgument: "filename.json", SectionKey: "output",
+		Usage: "If set, Ginkgo will generate a Go JSON-formatted test report at the specified location."},
 	{KeyPath: "R.JUnitReport", Name: "junit-report", UsageArgument: "filename.xml", SectionKey: "output", DeprecatedName: "reportFile", DeprecatedDocLink: "improved-reporting-infrastructure",
 		Usage: "If set, Ginkgo will generate a conformant junit test report in the specified file."},
 	{KeyPath: "R.TeamcityReport", Name: "teamcity-report", UsageArgument: "filename", SectionKey: "output",
@@ -422,6 +434,14 @@ func VetConfig(flagSet GinkgoFlagSet, suiteConfig SuiteConfig, reporterConfig Re
 		errors = append(errors, GinkgoErrors.GracePeriodCannotBeZero())
 	}
 
+	if suiteConfig.SleepOnFailure < 0 {
+		errors = append(errors, GinkgoErrors.InvalidSleepOnFailureConfiguration())
+	}
+
+	if suiteConfig.SleepOnFailure > 0 && suiteConfig.ParallelTotal > 1 {
+		errors = append(errors, GinkgoErrors.SleepOnFailureInParallelConfiguration())
+	}
+
 	if len(suiteConfig.FocusFiles) > 0 {
 		_, err := ParseFileFilters(suiteConfig.FocusFiles)
 		if err != nil {
@@ -438,6 +458,13 @@ func VetConfig(flagSet GinkgoFlagSet, suiteConfig SuiteConfig, reporterConfig Re
 
 	if suiteConfig.LabelFilter != "" {
 		_, err := ParseLabelFilter(suiteConfig.LabelFilter)
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	if suiteConfig.SemVerFilter != "" {
+		_, err := ParseSemVerFilter(suiteConfig.SemVerFilter)
 		if err != nil {
 			errors = append(errors, err)
 		}
@@ -460,6 +487,30 @@ func VetConfig(flagSet GinkgoFlagSet, suiteConfig SuiteConfig, reporterConfig Re
 	}
 
 	return errors
+}
+
+// ReconcileFdOutputConfiguration forces serial, in-order execution when --fd is combined with
+// -p, -procs (>1), or -randomize-all.  fd's RSpec-style hierarchical output assumes specs run
+// one at a time, in declaration order -- parallelism and randomization both break that assumption
+// and produce fragmented, hard-to-read output.  Rather than refusing to run, Ginkgo ignores those
+// flags and runs in series instead.  suiteConfig and cliConfig are mutated in place; the return
+// value is true if anything was overridden, so callers can let the user know what was ignored.
+func ReconcileFdOutputConfiguration(reporterConfig ReporterConfig, suiteConfig *SuiteConfig, cliConfig *CLIConfig) bool {
+	if !reporterConfig.FdOutput {
+		return false
+	}
+
+	changed := false
+	if cliConfig.ComputedProcs() > 1 {
+		cliConfig.Procs = 1
+		cliConfig.Parallel = false
+		changed = true
+	}
+	if suiteConfig.RandomizeAllSpecs {
+		suiteConfig.RandomizeAllSpecs = false
+		changed = true
+	}
+	return changed
 }
 
 // GinkgoCLISharedFlags provides flags shared by the Ginkgo CLI's build, watch, and run commands
@@ -523,7 +574,7 @@ var GoBuildFlags = GinkgoFlags{
 	{KeyPath: "Go.Race", Name: "race", SectionKey: "code-and-coverage-analysis",
 		Usage: "enable data race detection. Supported on linux/amd64, linux/ppc64le, linux/arm64, linux/s390x, freebsd/amd64, netbsd/amd64, darwin/amd64, darwin/arm64, and windows/amd64."},
 	{KeyPath: "Go.Vet", Name: "vet", UsageArgument: "list", SectionKey: "code-and-coverage-analysis",
-		Usage: `Configure the invocation of "go vet" during "go test" to use the comma-separated list of vet checks.  If list is empty, "go test" runs "go vet" with a curated list of checks believed to be always worth addressing.  If list is "off", "go test" does not run "go vet" at all.  Available checks can be found by running 'go doc cmd/vet'`},
+		Usage: `Configure the invocation of "go vet" during "go test" to use the comma-separated list of vet checks.  If list is empty (by explicitly passing --vet=""), "go test" runs "go vet" with a curated list of checks believed to be always worth addressing.  If list is "off", "go test" does not run "go vet" at all.  Available checks can be found by running 'go doc cmd/vet'`},
 	{KeyPath: "Go.Cover", Name: "cover", SectionKey: "code-and-coverage-analysis",
 		Usage: "Enable coverage analysis.	Note that because coverage works by annotating the source code before compilation, compilation and test failures with coverage enabled may report line numbers that don't correspond to the original sources."},
 	{KeyPath: "Go.CoverMode", Name: "covermode", UsageArgument: "set,count,atomic", SectionKey: "code-and-coverage-analysis",
@@ -557,8 +608,10 @@ var GoBuildFlags = GinkgoFlags{
 		Usage: "leave newly-created directories in the module cache read-write instead of making them read-only."},
 	{KeyPath: "Go.ModFile", Name: "modfile", UsageArgument: "file", SectionKey: "go-build",
 		Usage: `in module aware mode, read (and possibly write) an alternate go.mod file instead of the one in the module root directory. A file named go.mod must still be present in order to determine the module root directory, but it is not accessed. When -modfile is specified, an alternate go.sum file is also used: its path is derived from the -modfile flag by trimming the ".mod" extension and appending ".sum".`},
+	{KeyPath: "Go.ASan", Name: "asan", SectionKey: "go-build",
+		Usage: "enable interoperation with address sanitizer. See 'go help build' for supported platforms and requirements."},
 	{KeyPath: "Go.MSan", Name: "msan", SectionKey: "go-build",
-		Usage: "enable interoperation with memory sanitizer. Supported only on linux/amd64, linux/arm64 and only with Clang/LLVM as the host C compiler. On linux/arm64, pie build mode will be used."},
+		Usage: "enable interoperation with memory sanitizer. See 'go help build' for supported platforms and requirements."},
 	{KeyPath: "Go.N", Name: "n", SectionKey: "go-build",
 		Usage: "print the commands but do not run them."},
 	{KeyPath: "Go.PkgDir", Name: "pkgdir", UsageArgument: "dir", SectionKey: "go-build",
@@ -573,6 +626,9 @@ var GoBuildFlags = GinkgoFlags{
 		Usage: "print the name of the temporary work directory and do not delete it when exiting."},
 	{KeyPath: "Go.X", Name: "x", SectionKey: "go-build",
 		Usage: "print the commands."},
+}
+
+var GoBuildOFlags = GinkgoFlags{
 	{KeyPath: "Go.O", Name: "o", SectionKey: "go-build",
 		Usage: "output binary path (including name)."},
 }
@@ -673,7 +729,7 @@ func GenerateGoTestCompileArgs(goFlagsConfig GoFlagsConfig, packageToBuild strin
 
 	args := []string{"test", "-c", packageToBuild}
 	goArgs, err := GenerateFlagArgs(
-		GoBuildFlags,
+		GoBuildFlags.CopyAppend(GoBuildOFlags...),
 		map[string]any{
 			"Go": &goFlagsConfig,
 		},
@@ -763,6 +819,7 @@ func BuildWatchCommandFlagSet(suiteConfig *SuiteConfig, reporterConfig *Reporter
 func BuildBuildCommandFlagSet(cliConfig *CLIConfig, goFlagsConfig *GoFlagsConfig) (GinkgoFlagSet, error) {
 	flags := GinkgoCLISharedFlags
 	flags = flags.CopyAppend(GoBuildFlags...)
+	flags = flags.CopyAppend(GoBuildOFlags...)
 
 	bindings := map[string]any{
 		"C":  cliConfig,

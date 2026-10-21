@@ -114,7 +114,7 @@ vet: ## Run go vet against code.
 
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter
-	$(GOLANGCI_LINT) run
+	$(GOLANGCI_LINT) run --timeout=5m
 
 .PHONY: lint-fix
 lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
@@ -144,8 +144,12 @@ gen-pkg-image: ## builds the gen-pkg-image binary
 
 .PHONY: vendor
 vendor:
-	cd api && go mod tidy && go mod vendor
-	go mod tidy && go mod vendor
+	go work sync
+	cd api && GOWORK=off go mod tidy && GOWORK=off go mod vendor
+	cd generators/pkg-envoy-proto && GOWORK=off go mod tidy
+	cd generators/pkg-image && GOWORK=off go mod tidy
+	cd generators/pkg-version && GOWORK=off go mod tidy
+	GOWORK=off go mod tidy && GOWORK=off go mod vendor
 
 ##@ Test
 
@@ -323,12 +327,12 @@ GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.6.0
-CONTROLLER_TOOLS_VERSION ?= v0.17.1
+CONTROLLER_TOOLS_VERSION ?= v0.18.0
 #ENVTEST_VERSION is the version of controller-runtime release branch to fetch the envtest setup script (i.e. release-0.20)
 ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller-runtime | awk -F'[v.]' '{printf "release-%d.%d", $$2, $$3}')
 #ENVTEST_K8S_VERSION is the version of Kubernetes to use for setting up ENVTEST binaries (i.e. 1.31)
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
-GOLANGCI_LINT_VERSION ?= v1.63.4
+GOLANGCI_LINT_VERSION ?= v2.15.0
 GINKGO_VERSION ?= $(shell go list -m -f "{{ .Version }}" github.com/onsi/ginkgo/v2)
 CRD_REFDOCS_VERSION ?= v0.1.0
 KIND_VERSION ?= v0.27.0
@@ -368,7 +372,7 @@ crd-ref-docs: ## Download crd-ref-docs locally if necessary
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
-	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/v2/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
 
 .PHONY: kind
 kind: $(KIND) ## Download kind locally if necessary
@@ -395,7 +399,7 @@ endef
 
 .PHONY: operator-sdk
 OPERATOR_SDK = bin/operator-sdk-$(OPERATOR_SDK_RELEASE)
-OPERATOR_SDK_RELEASE = v1.39.0
+OPERATOR_SDK_RELEASE = v1.42.3
 operator-sdk: ## Download operator-sdk locally if necessary.
 ifeq (,$(wildcard $(OPERATOR_SDK)))
 ifeq (,$(shell which $(OPERATOR_SDK) 2>/dev/null))

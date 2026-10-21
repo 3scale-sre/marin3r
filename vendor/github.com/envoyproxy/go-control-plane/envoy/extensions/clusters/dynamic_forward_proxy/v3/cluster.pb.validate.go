@@ -167,7 +167,7 @@ type ClusterConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ClusterConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -343,6 +343,35 @@ func (m *SubClustersConfig) validate(all bool) error {
 
 	}
 
+	if all {
+		switch v := interface{}(m.GetDnsClusterConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SubClustersConfigValidationError{
+					field:  "DnsClusterConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SubClustersConfigValidationError{
+					field:  "DnsClusterConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDnsClusterConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SubClustersConfigValidationError{
+				field:  "DnsClusterConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return SubClustersConfigMultiError(errors)
 	}
@@ -357,7 +386,7 @@ type SubClustersConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SubClustersConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

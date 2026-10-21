@@ -158,7 +158,7 @@ type GrpcFieldExtractionConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GrpcFieldExtractionConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -306,7 +306,7 @@ type FieldExtractionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FieldExtractionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -392,6 +392,8 @@ func (m *RequestFieldValueDisposition) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for MetadataKey
+
 	switch v := m.Disposition.(type) {
 	case *RequestFieldValueDisposition_DynamicMetadata:
 		if v == nil {
@@ -423,7 +425,7 @@ type RequestFieldValueDispositionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RequestFieldValueDispositionMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

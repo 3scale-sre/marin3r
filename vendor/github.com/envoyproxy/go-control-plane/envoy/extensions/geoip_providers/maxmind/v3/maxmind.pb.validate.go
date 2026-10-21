@@ -69,9 +69,9 @@ func (m *MaxMindConfig) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if !_MaxMindConfig_IspDbPath_Pattern.MatchString(m.GetIspDbPath()) {
+	if !_MaxMindConfig_AsnDbPath_Pattern.MatchString(m.GetAsnDbPath()) {
 		err := MaxMindConfigValidationError{
-			field:  "IspDbPath",
+			field:  "AsnDbPath",
 			reason: "value does not match regex pattern \"^$|^.*\\\\.mmdb$\"",
 		}
 		if !all {
@@ -83,6 +83,28 @@ func (m *MaxMindConfig) validate(all bool) error {
 	if !_MaxMindConfig_AnonDbPath_Pattern.MatchString(m.GetAnonDbPath()) {
 		err := MaxMindConfigValidationError{
 			field:  "AnonDbPath",
+			reason: "value does not match regex pattern \"^$|^.*\\\\.mmdb$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_MaxMindConfig_IspDbPath_Pattern.MatchString(m.GetIspDbPath()) {
+		err := MaxMindConfigValidationError{
+			field:  "IspDbPath",
+			reason: "value does not match regex pattern \"^$|^.*\\\\.mmdb$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_MaxMindConfig_CountryDbPath_Pattern.MatchString(m.GetCountryDbPath()) {
+		err := MaxMindConfigValidationError{
+			field:  "CountryDbPath",
 			reason: "value does not match regex pattern \"^$|^.*\\\\.mmdb$\"",
 		}
 		if !all {
@@ -145,7 +167,7 @@ type MaxMindConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MaxMindConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -211,6 +233,10 @@ var _ interface {
 
 var _MaxMindConfig_CityDbPath_Pattern = regexp.MustCompile("^$|^.*\\.mmdb$")
 
-var _MaxMindConfig_IspDbPath_Pattern = regexp.MustCompile("^$|^.*\\.mmdb$")
+var _MaxMindConfig_AsnDbPath_Pattern = regexp.MustCompile("^$|^.*\\.mmdb$")
 
 var _MaxMindConfig_AnonDbPath_Pattern = regexp.MustCompile("^$|^.*\\.mmdb$")
+
+var _MaxMindConfig_IspDbPath_Pattern = regexp.MustCompile("^$|^.*\\.mmdb$")
+
+var _MaxMindConfig_CountryDbPath_Pattern = regexp.MustCompile("^$|^.*\\.mmdb$")

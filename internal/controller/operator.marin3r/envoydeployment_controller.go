@@ -71,12 +71,12 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	ds := &operatorv1alpha1.DiscoveryService{}
 	dsKey := types.NamespacedName{Name: ed.Spec.DiscoveryServiceRef, Namespace: ed.GetNamespace()}
 
-	if err := r.Client.Get(ctx, dsKey, ds); err != nil {
+	if err := r.Get(ctx, dsKey, ds); err != nil {
 		if errors.IsNotFound(err) {
 			logger.Error(err, "DiscoveryService does not exist", "DiscoveryService", ed.Spec.DiscoveryServiceRef)
 		}
 
-		return ctrl.Result{Requeue: true, RequeueAfter: 10 * time.Second}, err
+		return ctrl.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
 	// Get the EnvoyConfig for additional data (like the envoy API version in use)
@@ -137,14 +137,14 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// reconcile the status
 	result = r.ReconcileStatus(ctx, ed, []types.NamespacedName{gen.OwnedResourceKey()}, nil,
-		func() bool {
+		func() (bool, error) {
 			if ed.Status.DeploymentName == nil || *ed.Status.DeploymentName != gen.OwnedResourceKey().Name {
 				ed.Status.DeploymentName = ptr.To(gen.OwnedResourceKey().Name)
 
-				return true
+				return true, nil
 			}
 
-			return false
+			return false, nil
 		})
 	if result.ShouldReturn() {
 		return result.Values()
@@ -155,9 +155,7 @@ func (r *EnvoyDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 func (r *EnvoyDeploymentReconciler) getEnvoyConfig(ctx context.Context, key types.NamespacedName) (*marin3rv1alpha1.EnvoyConfig, error) {
 	ec := &marin3rv1alpha1.EnvoyConfig{}
-	err := r.Client.Get(ctx, key, ec)
-
-	if err != nil {
+	if err := r.Get(ctx, key, ec); err != nil {
 		return nil, err
 	}
 

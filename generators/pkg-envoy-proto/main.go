@@ -20,7 +20,9 @@ import (
 )
 
 const (
-	sourceModuleName string = "github.com/envoyproxy/go-control-plane"
+	sourceModuleName  string = "github.com/envoyproxy/go-control-plane"
+	envoyModuleName   string = "github.com/envoyproxy/go-control-plane/envoy"
+	contribModuleName string = "github.com/envoyproxy/go-control-plane/contrib"
 )
 
 var (
@@ -54,68 +56,133 @@ func main() {
 	}
 }
 
-func generate() {
-	version, isPseudoVersion := inspectVersion()
-
-	log.Printf("generating for %s@%s", sourceModuleName, version)
-
-	list := listProtoPackages(version, isPseudoVersion)
-
-	writePackageFile(packagFile, list)
-
+type moduleRevision struct {
+	path       string
+	ref        string
+	tagPrefix  string
+	dirPrefix  string
+	pseudo     bool
+	present    bool
 }
 
-func inspectVersion() (string, bool) {
+func generate() {
+	revs := inspectRevisions()
+
+	repo, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
+		URL:  "https://" + sourceModuleName,
+		Tags: git.AllTags,
+	})
+	checkIfError(err)
+
+	index := map[string]struct{}{}
+	for _, rev := range revs {
+		if !rev.present {
+			continue
+		}
+
+		log.Printf("generating %s packages from %s@%s", rev.dirPrefix, rev.path, rev.ref)
+		for _, pkg := range listProtoPackages(repo, rev) {
+			index[pkg] = struct{}{}
+		}
+	}
+
+	list := make([]string, 0, len(index))
+	for pkg := range index {
+		list = append(list, pkg)
+	}
+	sort.Strings(list)
+
+	writePackageFile(packagFile, list)
+}
+
+func inspectRevisions() []moduleRevision {
 	body, err := os.ReadFile(gomodFile)
 	checkIfError(err)
 
 	gomod, err := modfile.Parse(gomodFile, body, nil)
 	checkIfError(err)
 
-	var present bool
-	var isPseudoVersion bool
-	var ref string
-
+	versions := map[string]string{}
 	for _, m := range gomod.Require {
-		if m.Mod.Path == sourceModuleName {
-			ref = m.Mod.Version
-			present = true
-		}
+		versions[m.Mod.Path] = m.Mod.Version
 	}
 
-	if !present {
-		log.Fatalf(fmt.Sprintf("%s module not found in modules file", sourceModuleName))
-		return "", false
+	envoy := moduleRevision{
+		path:      envoyModuleName,
+		tagPrefix: "envoy/",
+		dirPrefix: "envoy/",
+	}
+	contrib := moduleRevision{
+		path:      contribModuleName,
+		tagPrefix: "contrib/",
+		dirPrefix: "contrib/",
+	}
+	root := moduleRevision{
+		path:      sourceModuleName,
+		dirPrefix: "",
 	}
 
-	exp := regexp.MustCompile(`.*-([0-9a-f]{12})$`)
-	if match := exp.FindStringSubmatch(ref); len(match) != 0 {
-		// it's a pseudoversion
-		ref = match[1]
-		isPseudoVersion = true
+	if v, ok := versions[envoyModuleName]; ok {
+		envoy.present = true
+		envoy.ref, envoy.pseudo = parseModuleRef(v, envoy.tagPrefix)
+	}
+	if v, ok := versions[contribModuleName]; ok {
+		contrib.present = true
+		contrib.ref, contrib.pseudo = parseModuleRef(v, contrib.tagPrefix)
+	}
+	if v, ok := versions[sourceModuleName]; ok {
+		root.present = true
+		root.ref, root.pseudo = parseModuleRef(v, "")
 	}
 
-	return ref, isPseudoVersion
+	if !envoy.present && !root.present {
+		log.Fatalf("%s module not found in modules file", sourceModuleName)
+	}
 
+	revs := []moduleRevision{}
+	if envoy.present {
+		revs = append(revs, envoy)
+	} else {
+		revs = append(revs, moduleRevision{
+			path:      sourceModuleName,
+			ref:       root.ref,
+			pseudo:    root.pseudo,
+			present:   true,
+			dirPrefix: "envoy/",
+		})
+	}
+	if contrib.present {
+		revs = append(revs, contrib)
+	} else if root.present {
+		revs = append(revs, moduleRevision{
+			path:      sourceModuleName,
+			ref:       root.ref,
+			pseudo:    root.pseudo,
+			present:   true,
+			dirPrefix: "contrib/",
+		})
+	}
+
+	return revs
 }
 
-func listProtoPackages(ref string, isPseudoVersion bool) []string {
-	var list []string
-
-	repo, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
-		URL:           "https://" + sourceModuleName,
-		ReferenceName: plumbing.NewBranchReferenceName("main"),
-		SingleBranch:  true,
-	})
-	checkIfError(err)
-
-	// Get tree for the given tag
-	var revision plumbing.Revision
-	if isPseudoVersion {
-		revision = plumbing.Revision(ref)
-	} else {
-		revision = plumbing.Revision(plumbing.NewTagReferenceName(ref))
+func parseModuleRef(version, tagPrefix string) (string, bool) {
+	exp := regexp.MustCompile(`.*-([0-9a-f]{12})$`)
+	if match := exp.FindStringSubmatch(version); len(match) != 0 {
+		return match[1], true
 	}
+
+	return tagPrefix + version, false
+}
+
+func listProtoPackages(repo *git.Repository, rev moduleRevision) []string {
+	var revision plumbing.Revision
+	if rev.pseudo {
+		revision = plumbing.Revision(rev.ref)
+	} else {
+		revision = plumbing.Revision(plumbing.NewTagReferenceName(rev.ref))
+	}
+
 	log.Printf("revision: %s", revision.String())
 	h, err := repo.ResolveRevision(revision)
 	checkIfError(err)
@@ -124,24 +191,23 @@ func listProtoPackages(ref string, isPseudoVersion bool) []string {
 	tree, err := commit.Tree()
 	checkIfError(err)
 
-	// Find packages that containg protobuffer message definitions
-	index := map[string]int{}
-	tree.Files().ForEach(func(f *object.File) error {
+	index := map[string]struct{}{}
+	err = tree.Files().ForEach(func(f *object.File) error {
 		dir, filename := filepath.Split(f.Name)
 		dir = filepath.Clean(dir)
-		// Look only under path "envoy/"
-		if !strings.HasPrefix(dir, "envoy/") && !strings.HasPrefix(dir, "contrib/envoy/") {
+		if !strings.HasPrefix(dir, rev.dirPrefix) {
 			return nil
 		}
-		// Find all proto files for the specified API version
 		if strings.HasSuffix(filename, ".pb.go") && strings.HasSuffix(dir, "/"+apiVersion) {
-			index[dir] = 1
+			index[sourceModuleName+"/"+dir] = struct{}{}
 		}
 		return nil
 	})
+	checkIfError(err)
 
-	for proto := range index {
-		list = append(list, sourceModuleName+"/"+proto)
+	list := make([]string, 0, len(index))
+	for pkg := range index {
+		list = append(list, pkg)
 	}
 	sort.Strings(list)
 
@@ -149,7 +215,6 @@ func listProtoPackages(ref string, isPseudoVersion bool) []string {
 }
 
 func writePackageFile(packagePath string, importList []string) {
-
 	f, err := os.OpenFile(packagePath, os.O_CREATE|os.O_RDWR, 0644)
 	checkIfError(err)
 	defer f.Close()
@@ -164,6 +229,7 @@ func writePackageFile(packagePath string, importList []string) {
 	w := bufio.NewWriter(f)
 	err = pkg.Render(w)
 	checkIfError(err)
+	checkIfError(w.Flush())
 }
 
 func checkIfError(err error) {

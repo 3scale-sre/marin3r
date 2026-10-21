@@ -100,7 +100,7 @@ type ReloadConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ReloadConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -246,7 +246,7 @@ type CapabilityRestrictionConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CapabilityRestrictionConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -349,7 +349,7 @@ type SanitizationConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SanitizationConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -532,6 +532,35 @@ func (m *VmConfig) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetCapabilityRestrictionConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, VmConfigValidationError{
+					field:  "CapabilityRestrictionConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, VmConfigValidationError{
+					field:  "CapabilityRestrictionConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCapabilityRestrictionConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return VmConfigValidationError{
+				field:  "CapabilityRestrictionConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return VmConfigMultiError(errors)
 	}
@@ -545,7 +574,7 @@ type VmConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m VmConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -647,7 +676,7 @@ type EnvironmentVariablesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m EnvironmentVariablesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -830,6 +859,35 @@ func (m *PluginConfig) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetAllowOnHeadersStopIteration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PluginConfigValidationError{
+					field:  "AllowOnHeadersStopIteration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PluginConfigValidationError{
+					field:  "AllowOnHeadersStopIteration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAllowOnHeadersStopIteration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PluginConfigValidationError{
+				field:  "AllowOnHeadersStopIteration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	switch v := m.Vm.(type) {
 	case *PluginConfig_VmConfig:
 		if v == nil {
@@ -889,7 +947,7 @@ type PluginConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PluginConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1019,7 +1077,7 @@ type WasmServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m WasmServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

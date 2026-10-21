@@ -335,29 +335,26 @@ func (e *Equation) buildScript(stack []any) []any {
 		stack = append(stack, e.result)
 		return stack
 	}
-	switch e.o.code {
-	case get.code:
+	if e.o.code == get.code {
 		if e.left != nil {
+			if x, ok := e.left.result.(Expr); ok {
+				e.left.result = normalExpr(x)
+			}
 			stack = append(stack, e.left.result) // should always be an Expr
 		}
-	case not.code, length.code, count.code, group.code:
+	} else {
 		stack = append(stack, e.o)
 		if e.left == nil {
 			stack = append(stack, nil)
 		} else {
 			stack = e.left.buildScript(stack)
 		}
-	default:
-		stack = append(stack, e.o)
-		if e.left == nil {
-			stack = append(stack, nil)
-		} else {
-			stack = e.left.buildScript(stack)
-		}
-		if e.right == nil {
-			stack = append(stack, nil)
-		} else {
-			stack = e.right.buildScript(stack)
+		if 1 < e.o.cnt {
+			if e.right == nil {
+				stack = append(stack, nil)
+			} else {
+				stack = e.right.buildScript(stack)
+			}
 		}
 	}
 	return stack

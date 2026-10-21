@@ -108,19 +108,19 @@ func (r *DiscoveryServiceReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 	// requeue if the server certificate is not ready
 	if serverCertHash == "" {
-		return ctrl.Result{Requeue: true}, nil
+		return ctrl.Result{RequeueAfter: time.Second}, nil
 	}
 
 	// reconcile the status
 	result = r.ReconcileStatus(ctx, ds, []types.NamespacedName{{Name: gen.ResourceName(), Namespace: ds.GetNamespace()}}, nil,
-		func() bool {
+		func() (bool, error) {
 			if ds.Status.DeploymentName == nil || *ds.Status.DeploymentName != gen.ResourceName() {
 				ds.Status.DeploymentName = ptr.To(gen.ResourceName())
 
-				return true
+				return true, nil
 			}
 
-			return false
+			return false, nil
 		})
 	if result.ShouldReturn() {
 		return result.Values()
@@ -135,7 +135,7 @@ func (r *DiscoveryServiceReconciler) calculateServerCertificateHash(ctx context.
 	// This will trigger rollouts on server certificate changes.
 	serverDSC := &operatorv1alpha1.DiscoveryServiceCertificate{}
 
-	err := r.Client.Get(ctx, key, serverDSC)
+	err := r.Get(ctx, key, serverDSC)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// The server certificate hasn't been created yet

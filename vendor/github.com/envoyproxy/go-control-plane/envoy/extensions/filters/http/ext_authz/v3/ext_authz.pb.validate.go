@@ -108,6 +108,33 @@ func (m *ExtAuthz) validate(all bool) error {
 
 	// no validation rules for ClearRouteCache
 
+	for idx, item := range m.GetClearRouteCacheHeaders() {
+		_, _ = idx, item
+
+		if utf8.RuneCountInString(item) < 1 {
+			err := ExtAuthzValidationError{
+				field:  fmt.Sprintf("ClearRouteCacheHeaders[%v]", idx),
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if !_ExtAuthz_ClearRouteCacheHeaders_Pattern.MatchString(item) {
+			err := ExtAuthzValidationError{
+				field:  fmt.Sprintf("ClearRouteCacheHeaders[%v]", idx),
+				reason: "value does not match regex pattern \"^[^\\x00\\n\\r]*$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if all {
 		switch v := interface{}(m.GetStatusOnError()).(type) {
 		case interface{ ValidateAll() error }:
@@ -412,6 +439,41 @@ func (m *ExtAuthz) validate(all bool) error {
 
 	// no validation rules for EmitFilterStateStats
 
+	// no validation rules for MaxDeniedResponseBodyBytes
+
+	// no validation rules for EnforceResponseHeaderLimits
+
+	// no validation rules for ShadowMode
+
+	if all {
+		switch v := interface{}(m.GetEmitClientSpan()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExtAuthzValidationError{
+					field:  "EmitClientSpan",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExtAuthzValidationError{
+					field:  "EmitClientSpan",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEmitClientSpan()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExtAuthzValidationError{
+				field:  "EmitClientSpan",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	switch v := m.Services.(type) {
 	case *ExtAuthz_GrpcService:
 		if v == nil {
@@ -512,7 +574,7 @@ type ExtAuthzMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExtAuthzMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -576,6 +638,159 @@ var _ interface {
 	ErrorName() string
 } = ExtAuthzValidationError{}
 
+var _ExtAuthz_ClearRouteCacheHeaders_Pattern = regexp.MustCompile("^[^\x00\n\r]*$")
+
+// Validate checks the field values on ShadowDecision with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ShadowDecision) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ShadowDecision with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ShadowDecisionMultiError,
+// or nil if none found.
+func (m *ShadowDecision) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ShadowDecision) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CheckResult
+
+	if m.GetStatusCode() != 0 {
+
+		if val := m.GetStatusCode(); val < 100 || val > 599 {
+			err := ShadowDecisionValidationError{
+				field:  "StatusCode",
+				reason: "value must be inside range [100, 599]",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	for idx, item := range m.GetResponseHeaders() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ShadowDecisionValidationError{
+						field:  fmt.Sprintf("ResponseHeaders[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ShadowDecisionValidationError{
+						field:  fmt.Sprintf("ResponseHeaders[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ShadowDecisionValidationError{
+					field:  fmt.Sprintf("ResponseHeaders[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ShadowDecisionMultiError(errors)
+	}
+
+	return nil
+}
+
+// ShadowDecisionMultiError is an error wrapping multiple validation errors
+// returned by ShadowDecision.ValidateAll() if the designated constraints
+// aren't met.
+type ShadowDecisionMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ShadowDecisionMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ShadowDecisionMultiError) AllErrors() []error { return m }
+
+// ShadowDecisionValidationError is the validation error returned by
+// ShadowDecision.Validate if the designated constraints aren't met.
+type ShadowDecisionValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ShadowDecisionValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ShadowDecisionValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ShadowDecisionValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ShadowDecisionValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ShadowDecisionValidationError) ErrorName() string { return "ShadowDecisionValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ShadowDecisionValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sShadowDecision.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ShadowDecisionValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ShadowDecisionValidationError{}
+
 // Validate checks the field values on BufferSettings with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -627,7 +842,7 @@ type BufferSettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m BufferSettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -744,6 +959,8 @@ func (m *HttpService) validate(all bool) error {
 
 	// no validation rules for PathPrefix
 
+	// no validation rules for PathOverride
+
 	if all {
 		switch v := interface{}(m.GetAuthorizationRequest()).(type) {
 		case interface{ ValidateAll() error }:
@@ -802,6 +1019,35 @@ func (m *HttpService) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetRetryPolicy()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, HttpServiceValidationError{
+					field:  "RetryPolicy",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, HttpServiceValidationError{
+					field:  "RetryPolicy",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRetryPolicy()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return HttpServiceValidationError{
+				field:  "RetryPolicy",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return HttpServiceMultiError(errors)
 	}
@@ -815,7 +1061,7 @@ type HttpServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HttpServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -978,7 +1224,7 @@ type AuthorizationRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AuthorizationRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1225,7 +1471,7 @@ type AuthorizationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AuthorizationResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1327,18 +1573,7 @@ func (m *ExtAuthzPerRoute) validate(all bool) error {
 			errors = append(errors, err)
 		}
 		oneofOverridePresent = true
-
-		if m.GetDisabled() != true {
-			err := ExtAuthzPerRouteValidationError{
-				field:  "Disabled",
-				reason: "value must equal true",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
+		// no validation rules for Disabled
 	case *ExtAuthzPerRoute_CheckSettings:
 		if v == nil {
 			err := ExtAuthzPerRouteValidationError{
@@ -1420,7 +1655,7 @@ type ExtAuthzPerRouteMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExtAuthzPerRouteMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1539,6 +1774,122 @@ func (m *CheckSettings) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetEmitClientSpan()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CheckSettingsValidationError{
+					field:  "EmitClientSpan",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CheckSettingsValidationError{
+					field:  "EmitClientSpan",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEmitClientSpan()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CheckSettingsValidationError{
+				field:  "EmitClientSpan",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	switch v := m.ServiceOverride.(type) {
+	case *CheckSettings_GrpcService:
+		if v == nil {
+			err := CheckSettingsValidationError{
+				field:  "ServiceOverride",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetGrpcService()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CheckSettingsValidationError{
+						field:  "GrpcService",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CheckSettingsValidationError{
+						field:  "GrpcService",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetGrpcService()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CheckSettingsValidationError{
+					field:  "GrpcService",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *CheckSettings_HttpService:
+		if v == nil {
+			err := CheckSettingsValidationError{
+				field:  "ServiceOverride",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetHttpService()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CheckSettingsValidationError{
+						field:  "HttpService",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CheckSettingsValidationError{
+						field:  "HttpService",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHttpService()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CheckSettingsValidationError{
+					field:  "HttpService",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
 	if len(errors) > 0 {
 		return CheckSettingsMultiError(errors)
 	}
@@ -1553,7 +1904,7 @@ type CheckSettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckSettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

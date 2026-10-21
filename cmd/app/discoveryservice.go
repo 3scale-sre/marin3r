@@ -122,9 +122,8 @@ func runDiscoveryService(cmd *cobra.Command, args []string) {
 		ctx,
 		uint(xdssPort),
 		&tls.Config{
-			MinVersion:               tls.VersionTLS12,
-			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-			PreferServerCipherSuites: true,
+			MinVersion:       tls.VersionTLS12,
+			CurvePreferences: []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
 			CipherSuites: []uint16{
 				// Sadly, these 2 non 256 are required to use http2 in go
 				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,

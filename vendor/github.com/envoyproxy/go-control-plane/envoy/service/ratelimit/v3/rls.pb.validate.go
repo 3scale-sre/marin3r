@@ -110,7 +110,7 @@ type RateLimitRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -374,7 +374,7 @@ type RateLimitResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -468,6 +468,21 @@ func (m *RateLimitResponse_RateLimit) validate(all bool) error {
 
 	// no validation rules for Unit
 
+	if wrapper := m.GetUnitMultiplier(); wrapper != nil {
+
+		if wrapper.GetValue() <= 0 {
+			err := RateLimitResponse_RateLimitValidationError{
+				field:  "UnitMultiplier",
+				reason: "value must be greater than 0",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return RateLimitResponse_RateLimitMultiError(errors)
 	}
@@ -482,7 +497,7 @@ type RateLimitResponse_RateLimitMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitResponse_RateLimitMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -644,7 +659,7 @@ type RateLimitResponse_QuotaMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitResponse_QuotaMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -839,7 +854,7 @@ type RateLimitResponse_DescriptorStatusMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitResponse_DescriptorStatusMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -432,7 +432,7 @@ type UdpProxyConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -596,7 +596,7 @@ type UdpProxyConfig_HashPolicyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfig_HashPolicyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -796,7 +796,7 @@ type UdpProxyConfig_SessionFilterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfig_SessionFilterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1059,6 +1059,40 @@ func (m *UdpProxyConfig_UdpTunnelingConfig) validate(all bool) error {
 
 	// no validation rules for PropagateResponseTrailers
 
+	for idx, item := range m.GetFormatters() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UdpProxyConfig_UdpTunnelingConfigValidationError{
+						field:  fmt.Sprintf("Formatters[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UdpProxyConfig_UdpTunnelingConfigValidationError{
+						field:  fmt.Sprintf("Formatters[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UdpProxyConfig_UdpTunnelingConfigValidationError{
+					field:  fmt.Sprintf("Formatters[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return UdpProxyConfig_UdpTunnelingConfigMultiError(errors)
 	}
@@ -1074,7 +1108,7 @@ type UdpProxyConfig_UdpTunnelingConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfig_UdpTunnelingConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1211,7 +1245,7 @@ type UdpProxyConfig_UdpAccessLogOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfig_UdpAccessLogOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1375,7 +1409,7 @@ type UdpProxyConfig_UdpTunnelingConfig_BufferOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfig_UdpTunnelingConfig_BufferOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1544,7 +1578,7 @@ type UdpProxyConfig_UdpTunnelingConfig_RetryOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UdpProxyConfig_UdpTunnelingConfig_RetryOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -60,6 +60,8 @@ func (m *FilterConfig) validate(all bool) error {
 
 	// no validation rules for SaveUpstreamAddress
 
+	// no validation rules for AllowDynamicHostFromFilterState
+
 	switch v := m.ImplementationSpecifier.(type) {
 	case *FilterConfig_DnsCacheConfig:
 		if v == nil {
@@ -160,7 +162,7 @@ type FilterConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FilterConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -289,7 +291,7 @@ type PerRouteConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PerRouteConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -419,7 +421,7 @@ type SubClusterConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SubClusterConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

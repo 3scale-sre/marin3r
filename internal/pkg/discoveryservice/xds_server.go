@@ -117,7 +117,7 @@ func (xdss *XdsServer) Start(ctx context.Context, client kubernetes.Interface, n
 		}),
 	)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", xdss.xDSPort))
+	lis, err := (&net.ListenConfig{}).Listen(ctx, "tcp", fmt.Sprintf(":%d", xdss.xDSPort))
 	if err != nil {
 		setupLog.Error(err, "Error starting ADS server")
 

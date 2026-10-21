@@ -91,7 +91,7 @@ func (r *CertificateReconciler) Reconcile(ctx context.Context) (ctrl.Result, err
 				return ctrl.Result{}, err
 			}
 
-			return ctrl.Result{Requeue: true}, nil
+			return ctrl.Result{RequeueAfter: time.Millisecond}, nil
 		}
 
 		return ctrl.Result{}, err
@@ -135,7 +135,7 @@ func (r *CertificateReconciler) Reconcile(ctx context.Context) (ctrl.Result, err
 
 			r.logger.Info("reissued certificate")
 
-			return ctrl.Result{Requeue: true}, nil
+			return ctrl.Result{RequeueAfter: time.Millisecond}, nil
 		}
 
 		// schedule next reconcile

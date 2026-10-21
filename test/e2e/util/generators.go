@@ -152,12 +152,12 @@ func GenerateHeadlessService(key types.NamespacedName) *corev1.Service {
 
 func GenerateDeploymentWithInjection(key types.NamespacedName, nodeID, envoyAPI, envoyVersion string, envoyPort uint32) *appsv1.Deployment {
 	dep := GenerateDeployment(key)
-	dep.Spec.Template.ObjectMeta.Labels["marin3r.3scale.net/status"] = "enabled"
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/node-id"] = nodeID
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-extra-args"] = "--component-log-level config:debug"
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/ports"] = fmt.Sprintf("envoy-http:%v", envoyPort)
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-api-version"] = envoyAPI
-	dep.Spec.Template.ObjectMeta.Annotations["marin3r.3scale.net/envoy-image"] = fmt.Sprintf("%s:%s", defaults.ImageRepo, envoyVersion)
+	dep.Spec.Template.Labels["marin3r.3scale.net/status"] = "enabled"
+	dep.Spec.Template.Annotations["marin3r.3scale.net/node-id"] = nodeID
+	dep.Spec.Template.Annotations["marin3r.3scale.net/envoy-extra-args"] = "--component-log-level config:debug"
+	dep.Spec.Template.Annotations["marin3r.3scale.net/ports"] = fmt.Sprintf("envoy-http:%v", envoyPort)
+	dep.Spec.Template.Annotations["marin3r.3scale.net/envoy-api-version"] = envoyAPI
+	dep.Spec.Template.Annotations["marin3r.3scale.net/envoy-image"] = fmt.Sprintf("%s:%s", defaults.ImageRepo, envoyVersion)
 
 	return dep
 }

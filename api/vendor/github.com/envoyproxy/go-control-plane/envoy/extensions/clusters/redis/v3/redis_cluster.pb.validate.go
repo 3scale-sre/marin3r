@@ -180,6 +180,35 @@ func (m *RedisClusterConfig) validate(all bool) error {
 
 	// no validation rules for HostDegradedRefreshThreshold
 
+	if all {
+		switch v := interface{}(m.GetEnableZoneDiscovery()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RedisClusterConfigValidationError{
+					field:  "EnableZoneDiscovery",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RedisClusterConfigValidationError{
+					field:  "EnableZoneDiscovery",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEnableZoneDiscovery()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RedisClusterConfigValidationError{
+				field:  "EnableZoneDiscovery",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return RedisClusterConfigMultiError(errors)
 	}
@@ -194,7 +223,7 @@ type RedisClusterConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisClusterConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

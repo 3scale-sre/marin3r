@@ -3,6 +3,7 @@ package reconcilers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/3scale-sre/marin3r/api/envoy"
 	marin3rv1alpha1 "github.com/3scale-sre/marin3r/api/marin3r/v1alpha1"
@@ -121,7 +122,7 @@ func (r *RevisionReconciler) Reconcile(ctx context.Context) (ctrl.Result, error)
 			// New EnvoyConfigRevision created, trigger a new reconcile loop
 			log.Info("created EnvoyConfigRevision for current resources", "version", r.DesiredVersion())
 
-			return ctrl.Result{Requeue: true}, nil
+			return ctrl.Result{RequeueAfter: time.Millisecond}, nil
 		}
 
 		if revisions.ErrorIsMultipleMatchesForFilter(err) {
@@ -217,7 +218,7 @@ func (r *RevisionReconciler) isRevisionPublishedConditionReconciled(versionToPub
 	[]marin3rv1alpha1.EnvoyConfigRevision) {
 	var shouldBeTrue *marin3rv1alpha1.EnvoyConfigRevision = nil
 
-	var shouldBeFalse []marin3rv1alpha1.EnvoyConfigRevision = []marin3rv1alpha1.EnvoyConfigRevision{}
+	shouldBeFalse := []marin3rv1alpha1.EnvoyConfigRevision{}
 
 	for _, ecr := range r.revisionList.Items {
 		if ecr.Spec.Version != versionToPublish && meta.IsStatusConditionTrue(ecr.Status.Conditions, marin3rv1alpha1.RevisionPublishedCondition) {
@@ -245,9 +246,8 @@ func (r *RevisionReconciler) isRevisionPublishedConditionReconciled(versionToPub
 // isRevisionRetentionReconciled removes items from the revisionList until the list holds the number of items
 // determined by the 'retention' parameter
 func (r *RevisionReconciler) isRevisionRetentionReconciled(retention int) []marin3rv1alpha1.EnvoyConfigRevision {
-	var toBeDeleted []marin3rv1alpha1.EnvoyConfigRevision = []marin3rv1alpha1.EnvoyConfigRevision{}
-
-	var revisionList *[]marin3rv1alpha1.EnvoyConfigRevision = &(r.GetRevisionList().Items)
+	toBeDeleted := []marin3rv1alpha1.EnvoyConfigRevision{}
+	revisionList := &(r.GetRevisionList().Items)
 
 	for len(*revisionList) > retention {
 		toBeDeleted = append(toBeDeleted, popRevision(revisionList))
