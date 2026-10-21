@@ -38,6 +38,7 @@ Lighweight, CRD based Envoy control plane for Kubernetes:
   - [**API reference**](docs/api-reference/reference.asciidoc)
   - [**EnvoyConfig custom resource**](#envoyconfig-custom-resource)
   - [**Secrets**](#secrets)
+  - [**Endpoint discovery from EndpointSlices**](#endpoint-discovery-from-endpointslices)
   - [**Sidecar injection configuration**](#sidecar-injection-configuration)
 - **Design docs**
   - [**Discovery service**](docs/design/discovery-service.md)
@@ -196,26 +197,28 @@ spec:
                   address: 127.0.0.1
                   portValue: 8080
 
-    # type "endpoint" also supports dynamic discovery of endpoints by watching EndpointSlice kubernetes resources.
+    # type "endpoint" supports dynamic discovery of upstream endpoints from Kubernetes EndpointSlices.
+    # MARIN3R discovers endpoints matching the selector and publishes them as an Envoy ClusterLoadAssignment.
     - type: endpoint
       generateFromEndpointSlices:
         selector:
           matchLabels:
             kubernetes.io/service-name: my-service
-        clusterName: cluster
+        clusterName: my-service
         targetPort: http
 
     # type "cluster" is an Envoy Cluster resource type.
+    # When using dynamic endpoint discovery, configure an EDS cluster matching the clusterName above.
     # API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto
     - type: cluster
       value:
-        name: cluster
-        type: STRICT_DNS
+        name: my-service
+        type: EDS
         connectTimeout: 2s
-        loadAssignment:
-          clusterName: cluster1
-          endpoints: []
-
+        edsClusterConfig:
+          edsConfig:
+            ads: {}
+            resourceApiVersion: "V3"
     # type "route" is an Envoy Route resource type.
     # API V3 reference: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route.proto
     - type: route
@@ -297,6 +300,62 @@ transport_socket:
         - name: certificate
           sds_config: { ads: {}, resource_api_version: "V3" }
 ```
+
+### **Endpoint discovery from EndpointSlices**
+
+MARIN3R supports dynamic upstream endpoint discovery by watching Kubernetes [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/) resources. When configured on an `endpoint` resource with `generateFromEndpointSlices`, MARIN3R queries EndpointSlices matching a label selector within the same namespace as the `EnvoyConfig`, extracts the upstream pod/host addresses and health conditions, and publishes them to Envoy as a [`ClusterLoadAssignment`](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/endpoint/v3/endpoint.proto) (EDS) resource.
+
+#### **Behavior and guarantees**
+
+- **Namespace scope**: Discovery is strictly namespace-scoped. MARIN3R lists and watches EndpointSlices exclusively in the namespace of the `EnvoyConfig` / `EnvoyConfigRevision`. Cross-namespace discovery is not supported.
+- **Label selector**: The `selector` specifies a standard Kubernetes `metav1.LabelSelector` (such as `matchLabels: {kubernetes.io/service-name: <service-name>}`). At least one EndpointSlice must match the selector in the namespace; otherwise reconciliation returns an error.
+- **Target port resolution**: The `targetPort` field must match the **name** (`EndpointPort.Name`) of a port defined on the discovered EndpointSlice (e.g. `http`). The port number is resolved from the first matching named port in the slice (`EndpointSlice.Ports`). An unresolvable or missing port name results in a reconciliation error.
+- **Address types**: IPv4 addresses are parsed and mapped to Envoy upstream hosts. FQDN address types are currently unsupported.
+- **Health condition mapping**:
+  - If an endpoint has `conditions.terminating: true`, MARIN3R marks its Envoy health status as `DRAINING`.
+  - If `conditions.serving` is set, it maps to `HEALTHY` (when true) or `UNHEALTHY` (when false).
+  - If `serving` is unset, MARIN3R falls back to `conditions.ready` (`HEALTHY` when true, `UNHEALTHY` when false).
+  - If neither is available, the health status is set to `UNKNOWN`.
+- **Dynamic updates**: MARIN3R sets up an event handler watching `EndpointSlice` resources. Any creation, modification, or deletion of an EndpointSlice matching the selector for an active revision triggers a reconciliation and automatically pushes updated endpoints to connected Envoy proxies via ADS without restarting Envoy.
+
+#### **Example**
+
+An `EnvoyConfig` resource combining dynamic endpoint discovery with an EDS cluster:
+
+```yaml
+cat <<'EOF' | kubectl apply -f -
+apiVersion: marin3r.3scale.net/v1alpha1
+kind: EnvoyConfig
+metadata:
+  name: kuard-example
+  namespace: default
+spec:
+  nodeID: kuard
+  resources:
+    # Generate Envoy ClusterLoadAssignment from Kubernetes EndpointSlices
+    - type: endpoint
+      generateFromEndpointSlices:
+        selector:
+          matchLabels:
+            kubernetes.io/service-name: kuard
+        clusterName: kuard
+        targetPort: http
+
+    # Envoy cluster configured with EDS pointing to the clusterLoadAssignment
+    - type: cluster
+      value:
+        name: kuard
+        type: EDS
+        connect_timeout: 0.25s
+        lb_policy: ROUND_ROBIN
+        eds_cluster_config:
+          eds_config:
+            ads: {}
+            resource_api_version: "V3"
+EOF
+```
+
+See the [API reference](docs/api-reference/reference.asciidoc#generatefromendpointslices) for field definitions of `GenerateFromEndpointSlices`.
 
 ### **Sidecar injection configuration**
 
