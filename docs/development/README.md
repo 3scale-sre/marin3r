@@ -3,6 +3,7 @@
 
 The development process for MARIN3R is based on running locally the operator against a local [Kind (Kubernetes In Docker)](https://kind.sigs.k8s.io/docs/) cluster. The following sections describe the steps to take to accomplish different local testing scenarios.
 
+- [Go workspace and dependency management](#go-workspace-and-dependency-management)
 - [Image generation](#image-generation)
 - [Starting a Kind kubernetes cluster](#starting-a-kind-kubernetes-cluster)
 - [Deleting a Kind kubernetes cluster](#deleting-a-kind-kubernetes-cluster)
@@ -14,6 +15,18 @@ The development process for MARIN3R is based on running locally the operator aga
   - [Unit testing](#unit-testing)
   - [Integration testing](#integration-testing)
   - [e2e testing](#e2e-testing)
+
+## Go workspace and dependency management
+
+MARIN3R uses a multi-module Go workspace defined in `go.work` spanning the root module (`.`), the API module (`./api`), and code generators in `./generators/*`.
+
+To keep workspace modules and vendored dependencies consistent across sub-modules:
+
+```bash
+make vendor
+```
+
+The `make vendor` target runs `go work sync`, tidies each module (`api`, `generators/*`, and root) with `GOWORK=off`, and vendors the dependencies for both root and `api`. Always run `make vendor` after adding, removing, or upgrading dependencies before committing.
 
 ## Image generation
 
@@ -49,7 +62,7 @@ With the [local Kind cluster](#starting-a-kind-kubernetes-cluster) running, inst
 make install
 ```
 
-Start tart the operator out-of-cluster. The operator will run with the admin priviledges given by the kubeconfig file.
+Start the operator out-of-cluster. The operator will run with the admin privileges given by the kubeconfig file.
 
 ```bash
 make run
@@ -73,7 +86,7 @@ The operator will be deployed in the `marin3r-system` namespace and will run wit
 
 ## Running a standalone discovery service locally
 
-In the case that you are developing functionality specific to the discovery service you can locally run the discovery service server and and envoy container running inside your local docker that connects to it.
+In the case that you are developing functionality specific to the discovery service you can locally run the discovery service server and an envoy container running inside your local docker that connects to it.
 
 Start by running the discovery service server. The discovery service server run the EnvoyConfig and EnvoyConfigRevision controllers itself, so you need to have the [local Kind cluster](#starting-a-kind-kubernetes-cluster) up and running beforehand. This discovery service will read resources from the `default` namespace.
 
@@ -100,8 +113,8 @@ urce": "kind source: /, Kind="}
 
 
 2020-10-29T17:48:37.532+0100    DEBUG   envoy_control_plane     Stream opened   {"StreamId": 1}
-2020-10-29T17:48:37.533+0100    DEBUG   envoy_control_plane     Received request        {"ResourceNames": [], "Version": "", "TypeURL": "type.googleapis.com/envoy.api.v2.Cluster", "NodeID": "envoy1", "StreamID": 1}
-2020-10-29T17:48:52.282+0100    DEBUG   envoy_control_plane     Received request        {"ResourceNames": [], "Version": "", "TypeURL": "type.googleapis.com/envoy.api.v2.Listener", "NodeID": "envoy1", "StreamID": 1}
+2020-10-29T17:48:37.533+0100    DEBUG   envoy_control_plane     Received request        {"ResourceNames": [], "Version": "", "TypeURL": "type.googleapis.com/envoy.service.cluster.v3.Cluster", "NodeID": "envoy1", "StreamID": 1}
+2020-10-29T17:48:52.282+0100    DEBUG   envoy_control_plane     Received request        {"ResourceNames": [], "Version": "", "TypeURL": "type.googleapis.com/envoy.service.listener.v3.Listener", "NodeID": "envoy1", "StreamID": 1}
 [...]
 ```
 
@@ -111,37 +124,26 @@ You can now deploy EnvoyConfig resources in the `default` namespace using the `n
 
 The process of developing envoy configurations can be cumbersome. It is faster to first test the configurations locally to check for syntax errors or deprecation warnings.
 
-First, create a static envoy config file. You can take `examples/local/static-config.yaml` as an example and add your resources under `static_resources`. Then use the following target to run the container with the given config:
+> **Note on Envoy API versions**: MARIN3R v0.12+ exclusively targets the Envoy v3 API. Historical examples referencing Envoy v2 (`type.googleapis.com/envoy.api.v2.*`) or legacy Envoy releases (such as `envoyproxy/envoy:v1.14.1`) are obsolete; always use Envoy v3 resources and current Envoy images (e.g. `docker.io/envoyproxy/envoy:v1.23.2` or higher).
+
+First, create a static envoy config file. You can take `examples/local/static-config.yaml` as an example and add your resources under `static_resources`. Then run an Envoy container with your configuration using docker:
 
 ```bash
-make test-envoy-config CONFIG=<path to your config>
-```
-
-For example:
-
-```bash
-▶ make test-envoy-config CONFIG=examples/local/static-config.yaml
 docker run -ti --rm \
-        --network=host \
-        -v $(pwd)/examples/local/static-config.yaml:/config.yaml \
-        envoyproxy/envoy:v1.14.1 \
-        envoy -c /config.yaml
-[2020-10-29 17:04:12.663][1][info][main] [source/server/server.cc:255] initializing epoch 0 (hot restart version=11.104)
-[2020-10-29 17:04:12.663][1][info][main] [source/server/server.cc:257] statically linked extensions:
-[2020-10-29 17:04:12.663][1][info][main] [source/server/server.cc:259]   envoy.tracers: envoy.dynamic.ot, envoy.lightstep, envoy.tracers.datadog, envoy.tracers.dynamic_ot, envoy.tracers.lightstep, envoy.tracers.opencensus, envoy.tracers.xray, envoy.tracers.zipkin, envoy.zipkin
-[...]
+    --network=host \
+    -v $(pwd)/examples/local/static-config.yaml:/config.yaml \
+    docker.io/envoyproxy/envoy:v1.23.2 \
+    envoy -c /config.yaml
 ```
 
-You can use a specific version of envoy using the following command:
+You can change the Envoy version or supply additional arguments to increase log levels:
 
 ```bash
-make test-envoy-config CONFIG=<path to your config> ENVOY_VERSION=<version>
-```
-
-You can add additional arguments to the envoy command line, for example to increase logs levels:
-
-```bash
-make test-envoy-config CONFIG=examples/local/static-config.yaml ARGS="--component-log-level http:debug"
+docker run -ti --rm \
+    --network=host \
+    -v $(pwd)/examples/local/static-config.yaml:/config.yaml \
+    docker.io/envoyproxy/envoy:v1.23.2 \
+    envoy -c /config.yaml --component-log-level http:debug
 ```
 
 ## Testing
@@ -171,3 +173,12 @@ The e2e tests can be run with:
 ```bash
 make e2e-test
 ```
+
+#### Prerequisites and workflow
+
+The `make e2e-test` target executes end-to-end testing against a temporary local Kind cluster:
+
+1. **Prerequisites**: A container runtime (Docker or Podman) must be installed and running on the host machine. Tools like `kind`, `kustomize`, `ginkgo`, and `envtest` are downloaded automatically to `./bin` by the Makefile as needed.
+2. **Cluster lifecycle (`kind-create`)**: Creates a local Kind cluster using the configuration in `test/kind.yaml` (mapping ports `1080` and `1443`), deploys `cert-manager`, builds the operator container image, and loads `quay.io/3scale-sre/marin3r:test` into the cluster nodes.
+3. **Test deployment and suite execution (`e2e-envtest-suite`)**: Deploys the test manifests from `config/test` into the cluster using Kustomize and runs the Ginkgo test suite under `./test/e2e/...` (`-procs=$(nproc)`).
+4. **Cluster teardown (`kind-delete`)**: Automatically deletes the local Kind cluster upon completion.

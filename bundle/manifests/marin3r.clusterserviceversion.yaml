@@ -173,9 +173,9 @@ metadata:
     categories: Networking
     certified: "false"
     containerImage: quay.io/3scale-sre/marin3r
-    createdAt: "2025-11-03T17:36:38Z"
+    createdAt: "2026-10-21T09:17:53Z"
     description: Lighweight, CRD based Envoy control plane for Kubernetes
-    operators.operatorframework.io/builder: operator-sdk-v1.39.0
+    operators.operatorframework.io/builder: operator-sdk-v1.42.3
     operators.operatorframework.io/internal-objects: '["envoyconfigrevisions.marin3r.3scale.net","discoveryservicecertificates.operator.marin3r.3scale.net"]'
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/3scale-sre/marin3r
@@ -184,7 +184,7 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.arm64: supported
     operatorframework.io/os.linux: supported
-  name: marin3r.v0.13.4
+  name: marin3r.v0.13.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1042,7 +1042,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: quay.io/3scale-sre/marin3r:v0.13.4
+                image: quay.io/3scale-sre/marin3r:v0.13.5
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -1120,7 +1120,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: quay.io/3scale-sre/marin3r:v0.13.4
+                image: quay.io/3scale-sre/marin3r:v0.13.5
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -1370,7 +1370,7 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat
-  version: 0.13.4
+  version: 0.13.5
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
