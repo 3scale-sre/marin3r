@@ -160,6 +160,108 @@ func (m *Mutations) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetResponseTrailersMutations() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MutationsValidationError{
+						field:  fmt.Sprintf("ResponseTrailersMutations[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MutationsValidationError{
+						field:  fmt.Sprintf("ResponseTrailersMutations[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MutationsValidationError{
+					field:  fmt.Sprintf("ResponseTrailersMutations[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetRequestTrailersMutations() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MutationsValidationError{
+						field:  fmt.Sprintf("RequestTrailersMutations[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MutationsValidationError{
+						field:  fmt.Sprintf("RequestTrailersMutations[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MutationsValidationError{
+					field:  fmt.Sprintf("RequestTrailersMutations[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetFormatters() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MutationsValidationError{
+						field:  fmt.Sprintf("Formatters[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MutationsValidationError{
+						field:  fmt.Sprintf("Formatters[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MutationsValidationError{
+					field:  fmt.Sprintf("Formatters[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return MutationsMultiError(errors)
 	}
@@ -173,7 +275,7 @@ type MutationsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MutationsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -302,7 +404,7 @@ type HeaderMutationPerRouteMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HeaderMutationPerRouteMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -435,7 +537,7 @@ type HeaderMutationMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HeaderMutationMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

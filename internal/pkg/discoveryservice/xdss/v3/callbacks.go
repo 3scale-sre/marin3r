@@ -108,7 +108,7 @@ func (cb *Callbacks) OnStreamResponse(ctx context.Context, id int64, req *envoy_
 	}
 
 	// Log resources when in debug mode
-	resources := []string{}
+	resources := make([]string, 0, len(rsp.GetResources()))
 
 	for _, r := range rsp.GetResources() {
 		j, _ := envoy_serializer.NewResourceMarshaller(envoy_serializer.JSON, envoy.APIv3).Marshal(r)

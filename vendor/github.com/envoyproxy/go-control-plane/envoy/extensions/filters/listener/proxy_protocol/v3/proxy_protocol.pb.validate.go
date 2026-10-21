@@ -129,6 +129,8 @@ func (m *ProxyProtocol) validate(all bool) error {
 
 	// no validation rules for StatPrefix
 
+	// no validation rules for TlvLocation
+
 	if len(errors) > 0 {
 		return ProxyProtocolMultiError(errors)
 	}
@@ -143,7 +145,7 @@ type ProxyProtocolMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxyProtocolMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -242,6 +244,8 @@ func (m *ProxyProtocol_KeyValuePair) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for ValueStringEncoding
+
 	if len(errors) > 0 {
 		return ProxyProtocol_KeyValuePairMultiError(errors)
 	}
@@ -256,7 +260,7 @@ type ProxyProtocol_KeyValuePairMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxyProtocol_KeyValuePairMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -398,7 +402,7 @@ type ProxyProtocol_RuleMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxyProtocol_RuleMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

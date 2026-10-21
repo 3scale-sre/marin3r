@@ -89,6 +89,10 @@ func (m *StatefulSession) validate(all bool) error {
 
 	// no validation rules for Strict
 
+	// no validation rules for StatPrefix
+
+	// no validation rules for StatusOnStrictDestinationNotFound
+
 	if len(errors) > 0 {
 		return StatefulSessionMultiError(errors)
 	}
@@ -103,7 +107,7 @@ type StatefulSessionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StatefulSessionMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -285,7 +289,7 @@ type StatefulSessionPerRouteMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StatefulSessionPerRouteMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

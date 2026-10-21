@@ -181,7 +181,7 @@ type GradientControllerConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GradientControllerConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -410,7 +410,7 @@ type AdaptiveConcurrencyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AdaptiveConcurrencyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -557,6 +557,21 @@ func (m *GradientControllerConfig_ConcurrencyLimitCalculationParams) validate(al
 		}
 	}
 
+	if wrapper := m.GetMinConcurrencyLimit(); wrapper != nil {
+
+		if wrapper.GetValue() <= 0 {
+			err := GradientControllerConfig_ConcurrencyLimitCalculationParamsValidationError{
+				field:  "MinConcurrencyLimit",
+				reason: "value must be greater than 0",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return GradientControllerConfig_ConcurrencyLimitCalculationParamsMultiError(errors)
 	}
@@ -572,7 +587,7 @@ type GradientControllerConfig_ConcurrencyLimitCalculationParamsMultiError []erro
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GradientControllerConfig_ConcurrencyLimitCalculationParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -675,17 +690,6 @@ func (m *GradientControllerConfig_MinimumRTTCalculationParams) validate(all bool
 
 	var errors []error
 
-	if m.GetInterval() == nil {
-		err := GradientControllerConfig_MinimumRTTCalculationParamsValidationError{
-			field:  "Interval",
-			reason: "value is required",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	if d := m.GetInterval(); d != nil {
 		dur, err := d.AsDuration(), d.CheckValid()
 		if err != nil {
@@ -706,6 +710,36 @@ func (m *GradientControllerConfig_MinimumRTTCalculationParams) validate(all bool
 				err := GradientControllerConfig_MinimumRTTCalculationParamsValidationError{
 					field:  "Interval",
 					reason: "value must be greater than or equal to 1ms",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if d := m.GetFixedValue(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = GradientControllerConfig_MinimumRTTCalculationParamsValidationError{
+				field:  "FixedValue",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gt := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur <= gt {
+				err := GradientControllerConfig_MinimumRTTCalculationParamsValidationError{
+					field:  "FixedValue",
+					reason: "value must be greater than 0s",
 				}
 				if !all {
 					return err
@@ -819,7 +853,7 @@ type GradientControllerConfig_MinimumRTTCalculationParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GradientControllerConfig_MinimumRTTCalculationParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

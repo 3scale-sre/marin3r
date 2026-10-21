@@ -16,7 +16,7 @@ const (
 	//   0123456789abcdef0123456789abcdef
 	tokenMap = "" +
 		"................................" + // 0x00
-		"...o.o..........oooooooooooo...o" + // 0x20
+		"...o.o..........oooooooooo.o...o" + // 0x20
 		".oooooooooooooooooooooooooo...oo" + // 0x40
 		".oooooooooooooooooooooooooooooo." + // 0x60
 		"oooooooooooooooooooooooooooooooo" + // 0x80
@@ -72,7 +72,7 @@ func Parse(buf []byte) (x Expr, err error) {
 
 // MustParse parses a []byte into an Expr and panics on error.
 func MustParse(buf []byte) (x Expr) {
-	p := &parser{buf: buf}
+	p := parser{buf: buf}
 	x = p.readExpr()
 	if p.pos < len(buf) {
 		p.raise("parse error")
@@ -81,7 +81,7 @@ func MustParse(buf []byte) (x Expr) {
 }
 
 func (p *parser) readExpr() (x Expr) {
-	x = Expr{}
+	x = make(Expr, 0, 4)
 	var f Frag
 	first := true
 	lastDescent := false
@@ -141,7 +141,7 @@ func (p *parser) afterDot() Frag {
 	if len(p.buf) <= p.pos {
 		p.raise("not terminated")
 	}
-	var token []byte
+	start := p.pos
 	b := p.buf[p.pos]
 	p.pos++
 	switch b {
@@ -153,35 +153,26 @@ func (p *parser) afterDot() Frag {
 		if tokenMap[b] == '.' {
 			p.raise("an expression fragment can not start with a '%c'", b)
 		}
-		token = append(token, b)
 	}
 	for p.pos < len(p.buf) {
-		b := p.buf[p.pos]
-		p.pos++
-		if tokenMap[b] == '.' {
-			p.pos--
+		if tokenMap[p.buf[p.pos]] == '.' {
 			break
 		}
-		token = append(token, b)
+		p.pos++
 	}
-	return Child(token)
+	return Child(p.buf[start:p.pos])
 }
 
 func (p *parser) afterDotDot() Frag {
-	var token []byte
-	b := p.buf[p.pos]
+	start := p.pos
 	p.pos++
-	token = append(token, b)
 	for p.pos < len(p.buf) {
-		b := p.buf[p.pos]
-		p.pos++
-		if tokenMap[b] == '.' {
-			p.pos--
+		if tokenMap[p.buf[p.pos]] == '.' {
 			break
 		}
-		token = append(token, b)
+		p.pos++
 	}
-	return Child(token)
+	return Child(p.buf[start:p.pos])
 }
 
 func (p *parser) afterBracket() Frag {
@@ -209,7 +200,7 @@ func (p *parser) afterBracket() Frag {
 			p.raise("invalid bracket fragment")
 		}
 	case ':':
-		return p.readSlice(0)
+		return p.readSlice(SliceNotSet)
 	case '?':
 		return p.readFilter()
 	case '(':
@@ -260,10 +251,7 @@ func (p *parser) readInt(b byte) (int, byte) {
 	}
 	start := p.pos
 	var i int
-	for {
-		if b < '0' || '9' < b {
-			break
-		}
+	for '0' <= b && b <= '9' {
 		i = i*10 + int(b-'0')
 		if len(p.buf) <= p.pos {
 			break
@@ -326,7 +314,7 @@ func (p *parser) readNum(b byte) any {
 	default:
 		i, err := strconv.ParseInt(string(num), 10, 64)
 		if err != nil {
-			p.raise(err.Error())
+			p.raise("%s", err)
 		}
 		return i
 	}
@@ -353,29 +341,25 @@ func (p *parser) readSlice(i int) Frag {
 	if len(p.buf) <= p.pos {
 		p.raise("not terminated")
 	}
-	f := Slice{i}
+	f := Slice{i, SliceNotSet, SliceNotSet}
 	b := p.buf[p.pos]
 	if b == ']' {
-		f = append(f, maxEnd)
 		p.pos++
 		return f
 	}
 	b = p.skipSpace()
 	// read the end
 	if b == ':' {
-		f = append(f, maxEnd)
 		if len(p.buf) <= p.pos {
 			p.raise("not terminated")
 		}
 		b = p.buf[p.pos]
 		p.pos++
 		if b != ']' {
-			i, b = p.readInt(b)
-			f = append(f, i)
+			f[2], b = p.readInt(b)
 		}
 	} else {
-		i, b = p.readInt(b)
-		f = append(f, i)
+		f[1], b = p.readInt(b)
 		if b == ':' {
 			if len(p.buf) <= p.pos {
 				p.raise("not terminated")
@@ -383,8 +367,7 @@ func (p *parser) readSlice(i int) Frag {
 			b = p.buf[p.pos]
 			p.pos++
 			if b != ']' {
-				i, b = p.readInt(b)
-				f = append(f, i)
+				f[2], b = p.readInt(b)
 			}
 		}
 	}
@@ -541,7 +524,7 @@ out:
 	}
 	rx, err := regexp.Compile(string(p.buf[start : p.pos-1]))
 	if err != nil {
-		p.raise(err.Error())
+		p.raise("%s", err)
 	}
 	return rx
 }

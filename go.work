@@ -1,0 +1,9 @@
+go 1.26.0
+
+use (
+	.
+	./api
+	./generators/pkg-envoy-proto
+	./generators/pkg-image
+	./generators/pkg-version
+)

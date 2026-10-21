@@ -72,7 +72,7 @@ func (r *EnvoyConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	)
 
 	reconcilerResult, err := revisionReconciler.Reconcile(ctx)
-	if reconcilerResult.Requeue || err != nil {
+	if !reconcilerResult.IsZero() || err != nil {
 		return reconcilerResult, err
 	}
 

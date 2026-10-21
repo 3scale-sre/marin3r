@@ -57,7 +57,7 @@ func (r *DiscoveryServiceCertificateReconciler) Reconcile(ctx context.Context, r
 	certificateReconciler := discoveryservicecertificate.NewCertificateReconciler(r.Client, r.Scheme, dsc, provider, log)
 
 	reconcilerResult, err := certificateReconciler.Reconcile(ctx)
-	if reconcilerResult.Requeue || err != nil {
+	if !reconcilerResult.IsZero() || err != nil {
 		return reconcilerResult, err
 	}
 

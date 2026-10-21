@@ -252,7 +252,7 @@ type ApiConfigSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ApiConfigSourceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -352,7 +352,7 @@ type AggregatedConfigSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AggregatedConfigSourceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -465,7 +465,7 @@ type SelfConfigSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SelfConfigSourceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -609,7 +609,7 @@ type RateLimitSettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RateLimitSettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -737,6 +737,36 @@ func (m *PathConfigSource) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetPollInterval(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = PathConfigSourceValidationError{
+				field:  "PollInterval",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 1000000*time.Nanosecond)
+
+			if dur < gte {
+				err := PathConfigSourceValidationError{
+					field:  "PollInterval",
+					reason: "value must be greater than or equal to 1ms",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return PathConfigSourceMultiError(errors)
 	}
@@ -751,7 +781,7 @@ type PathConfigSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PathConfigSourceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1121,7 +1151,7 @@ type ConfigSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ConfigSourceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1278,7 +1308,7 @@ type ExtensionConfigSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExtensionConfigSourceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

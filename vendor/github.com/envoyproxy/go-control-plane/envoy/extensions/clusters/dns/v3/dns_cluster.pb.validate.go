@@ -186,6 +186,36 @@ func (m *DnsCluster) validate(all bool) error {
 
 	// no validation rules for AllAddressesInSingleEndpoint
 
+	if d := m.GetDnsMinRefreshRate(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = DnsClusterValidationError{
+				field:  "DnsMinRefreshRate",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(1*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := DnsClusterValidationError{
+					field:  "DnsMinRefreshRate",
+					reason: "value must be greater than or equal to 1s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return DnsClusterMultiError(errors)
 	}
@@ -199,7 +229,7 @@ type DnsClusterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DnsClusterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -370,7 +400,7 @@ type DnsCluster_RefreshRateMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DnsCluster_RefreshRateMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

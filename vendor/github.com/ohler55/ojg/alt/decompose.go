@@ -4,7 +4,6 @@ package alt
 
 import (
 	"encoding/base64"
-	"fmt"
 	"math"
 	"reflect"
 	"time"
@@ -177,7 +176,7 @@ func reflectValue(rv reflect.Value, val any, opt *Options) (v any) {
 		v = reflectComplex(rv, opt)
 	case reflect.Map:
 		v = reflectMap(rv, opt)
-	case reflect.Ptr:
+	case reflect.Pointer:
 		elem := rv.Elem()
 		if elem.IsValid() && elem.CanInterface() {
 			v = reflectValue(elem, elem.Interface(), opt)
@@ -276,20 +275,12 @@ func reflectMap(rv reflect.Value, opt *Options) any {
 	obj := map[string]any{}
 	it := rv.MapRange()
 	for it.Next() {
-		k := it.Key().Interface()
 		var g any
 		vv := it.Value()
 		if !isNil(vv) {
 			g = decompose(vv.Interface(), opt)
 		}
-		var (
-			ks string
-			ok bool
-		)
-		if ks, ok = k.(string); !ok {
-			ks = fmt.Sprint(k)
-		}
-		condMapSet(obj, ks, g, opt)
+		condMapSet(obj, ojg.KeyString(it.Key()), g, opt)
 	}
 	return obj
 }
@@ -305,7 +296,7 @@ func reflectArray(rv reflect.Value, opt *Options) any {
 
 func isNil(rv reflect.Value) bool {
 	switch rv.Kind() {
-	case reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		return rv.IsNil()
 	}
 	return false

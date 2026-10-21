@@ -1,3 +1,112 @@
+## Unreleased
+
+### Features
+
+### Fixes
+
+### Maintenance
+
+## 1.44.0
+
+### Fixes
+- `BeNumerically` compares signed and unsigned integers by value: `-1` no longer equals `uint64(math.MaxUint64)` and `uint(5)` is now greater than `-3` (#925) [26e3c6b]
+- `BeNumerically("~")` no longer overflows when computing the distance between extreme integers (#928) [1955764]
+- `BeNumerically("==", x, threshold)` now honors the threshold for floats, as it already did for integers (#927) [10e2aca]
+- `HaveKeyWithValue` succeeds if any key accepted by the key matcher has a matching value, rather than depending on map iteration order (#929) [ffc577a]
+- `HaveKey` and `HaveKeyWithValue` treat key and value matcher errors like `ContainElement` does: a match wins, and an error is only reported when nothing matches (#926) [dc91598]
+- `MatchJSON` no longer treats numbers too large for a float64 as equal to one another (#930) [9d619a5]
+- `MatchJSON` compares integers beyond ±2^53 exactly, so neighboring large integers (e.g. IDs) no longer match; all other numbers are still compared as float64s (#931) [8ef1aa7, 630fe12]
+- `HaveExactElements` reports missing or extra elements that start at index 0, and reports the first extra element's index rather than the last (#934) [af1b777]
+- `MatchYAML` compares every document in a multi-document stream rather than only the first; empty documents (e.g. a leading or trailing `---`) are ignored (#933) [2773796]
+- `MatchXML` ignores namespace prefixes: elements and attributes are compared by namespace URI, and the URIs declared on each element must match whatever prefix they are bound to (#932) [c0dbd89, 2565350]
+
+## 1.43.1
+
+### Maintenance
+- Update go.yaml.in/yaml/v3 to v3.0.5 [d547015]
+- Releases are now cut by a GitHub Actions workflow (Actions -> Release -> Run workflow) rather than by hand, with changelog entries collected under `## Unreleased` as the work happens.  Releases still ship the stripped-down tree on `master-lite` - tests removed and Ginkgo dropped from `go.mod` - and the workflow now builds it and checks it on every push.  See RELEASING.md. [e9dc84d]
+
+## 1.43.0
+
+### Features
+
+Add gomock adaptor extension for using Gomega matchers with gomock
+
+## 1.42.1
+
+Bump Dependencies
+
+## 1.42.0
+
+Add a set of Claude skill as a marketplace plugin
+
+## 1.41.0
+
+### Features
+
+Add `BeASlice` and `BeAnArray` matchers
+
+### Fixes
+
+Object formatting now detects pointer cycles to avoid runaway formatting output.
+
+## 1.40.0
+
+We're adopting a new release strategy to minimize dependency bloat in projects that consume Gomega.  It is a limitation of the go mod toolchain that _test_ subdependencies of your project's direct dependencies get pulled in as *indirect* dependencies.  In the case of Gomega, this ends up pulling in all of Ginkgo into your `go.mod` even if you are only using Gomega (Gomega uses Ginkgo for its own tests).
+
+Going forward, releases will strip out all tests, tidy up the `go.mod` and then push this stripped down version to a new `master-lite` branch.  These stripped-down versions will receive the `vx.y.z` git tag and will be picked up by the go toolchain.
+
+Please open an issue if this new release process causes unexpected changes for your projects.
+
+## 1.39.1
+
+Update all dependencies.  This auto-updated the required version of Go to 1.24, consistent with the fact that Go 1.23 has been out of support for almost six months.
+
+## 1.39.0
+
+### Features
+
+Add `MatchErrorStrictly` which only passes if `errors.Is(actual, expected)` returns true.  `MatchError`, by contrast, will fallback to string comparison.
+
+## 1.38.3
+
+### Fixes
+make string formatitng more consistent for users who use format.Object directly
+
+## 1.38.2
+
+- roll back to go 1.23.0 [c404969]
+
+## 1.38.1
+
+### Fixes
+
+Numerous minor fixes and dependency bumps
+
+## 1.38.0
+
+### Features
+- gstruct handles extra unexported fields [4ee7ed0]
+
+### Fixes
+- support [] in IgnoringTopFunction function signatures (#851) [36bbf72]
+
+### Maintenance
+- Bump golang.org/x/net from 0.40.0 to 0.41.0 (#846) [529d408]
+- Fix typo [acd1f55]
+- Bump google.golang.org/protobuf from 1.36.5 to 1.36.6 (#835) [bae65a0]
+- Bump nokogiri from 1.18.4 to 1.18.8 in /docs (#842) [8dda91f]
+- Bump golang.org/x/net from 0.39.0 to 0.40.0 (#843) [212d812]
+- Bump github.com/onsi/ginkgo/v2 from 2.23.3 to 2.23.4 (#839) [59bd7f9]
+- Bump nokogiri from 1.18.1 to 1.18.4 in /docs (#834) [328c729]
+- Bump uri from 1.0.2 to 1.0.3 in /docs (#826) [9a798a1]
+- Bump golang.org/x/net from 0.37.0 to 0.39.0 (#841) [04a72c6]
+
+## 1.37.0
+
+### Features
+- add To/ToNot/NotTo aliases for AsyncAssertion [5666f98]
+
 ## 1.36.3
 
 ### Maintenance

@@ -69,6 +69,19 @@ func (m *CookieConfig) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if !_CookieConfig_Path_Pattern.MatchString(m.GetPath()) {
+		err := CookieConfigValidationError{
+			field:  "Path",
+			reason: "value does not match regex pattern \"^$|^/[^\\\\x00-\\\\x1f\\\\x7f \\\",;<>\\\\\\\\]*$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Partitioned
+
 	if len(errors) > 0 {
 		return CookieConfigMultiError(errors)
 	}
@@ -82,7 +95,7 @@ type CookieConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CookieConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -145,6 +158,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CookieConfigValidationError{}
+
+var _CookieConfig_Path_Pattern = regexp.MustCompile("^$|^/[^\\x00-\\x1f\\x7f \",;<>\\\\]*$")
 
 // Validate checks the field values on CookieConfigs with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -342,6 +357,35 @@ func (m *CookieConfigs) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetCodeVerifierCookieConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CookieConfigsValidationError{
+					field:  "CodeVerifierCookieConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CookieConfigsValidationError{
+					field:  "CodeVerifierCookieConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCodeVerifierCookieConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CookieConfigsValidationError{
+				field:  "CodeVerifierCookieConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return CookieConfigsMultiError(errors)
 	}
@@ -356,7 +400,7 @@ type CookieConfigsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CookieConfigsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -453,17 +497,6 @@ func (m *OAuth2Credentials) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetTokenSecret() == nil {
-		err := OAuth2CredentialsValidationError{
-			field:  "TokenSecret",
-			reason: "value is required",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	if all {
 		switch v := interface{}(m.GetTokenSecret()).(type) {
 		case interface{ ValidateAll() error }:
@@ -522,7 +555,16 @@ func (m *OAuth2Credentials) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for CookieDomain
+	if !_OAuth2Credentials_CookieDomain_Pattern.MatchString(m.GetCookieDomain()) {
+		err := OAuth2CredentialsValidationError{
+			field:  "CookieDomain",
+			reason: "value does not match regex pattern \"^$|^[^\\\\x00-\\\\x1f\\\\x7f \\\",;<>\\\\\\\\]+$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	oneofTokenFormationPresent := false
 	switch v := m.TokenFormation.(type) {
@@ -607,7 +649,7 @@ type OAuth2CredentialsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OAuth2CredentialsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -672,6 +714,577 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = OAuth2CredentialsValidationError{}
+
+var _OAuth2Credentials_CookieDomain_Pattern = regexp.MustCompile("^$|^[^\\x00-\\x1f\\x7f \",;<>\\\\]+$")
+
+// Validate checks the field values on PrivateKeyJwtConfig with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *PrivateKeyJwtConfig) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PrivateKeyJwtConfig with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// PrivateKeyJwtConfigMultiError, or nil if none found.
+func (m *PrivateKeyJwtConfig) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PrivateKeyJwtConfig) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if _, ok := PrivateKeyJwtConfig_SigningAlgorithm_name[int32(m.GetSigningAlgorithm())]; !ok {
+		err := PrivateKeyJwtConfigValidationError{
+			field:  "SigningAlgorithm",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if d := m.GetAssertionLifetime(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = PrivateKeyJwtConfigValidationError{
+				field:  "AssertionLifetime",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(1*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := PrivateKeyJwtConfigValidationError{
+					field:  "AssertionLifetime",
+					reason: "value must be greater than or equal to 1s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	// no validation rules for AssertionAudience
+
+	if len(errors) > 0 {
+		return PrivateKeyJwtConfigMultiError(errors)
+	}
+
+	return nil
+}
+
+// PrivateKeyJwtConfigMultiError is an error wrapping multiple validation
+// errors returned by PrivateKeyJwtConfig.ValidateAll() if the designated
+// constraints aren't met.
+type PrivateKeyJwtConfigMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PrivateKeyJwtConfigMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PrivateKeyJwtConfigMultiError) AllErrors() []error { return m }
+
+// PrivateKeyJwtConfigValidationError is the validation error returned by
+// PrivateKeyJwtConfig.Validate if the designated constraints aren't met.
+type PrivateKeyJwtConfigValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PrivateKeyJwtConfigValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PrivateKeyJwtConfigValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PrivateKeyJwtConfigValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PrivateKeyJwtConfigValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PrivateKeyJwtConfigValidationError) ErrorName() string {
+	return "PrivateKeyJwtConfigValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PrivateKeyJwtConfigValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPrivateKeyJwtConfig.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PrivateKeyJwtConfigValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PrivateKeyJwtConfigValidationError{}
+
+// Validate checks the field values on OAuth2TokenForwarding with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *OAuth2TokenForwarding) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OAuth2TokenForwarding with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// OAuth2TokenForwardingMultiError, or nil if none found.
+func (m *OAuth2TokenForwarding) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OAuth2TokenForwarding) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetHeader()) < 1 {
+		err := OAuth2TokenForwardingValidationError{
+			field:  "Header",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_OAuth2TokenForwarding_Header_Pattern.MatchString(m.GetHeader()) {
+		err := OAuth2TokenForwardingValidationError{
+			field:  "Header",
+			reason: "value does not match regex pattern \"^[^\\x00\\n\\r]*$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return OAuth2TokenForwardingMultiError(errors)
+	}
+
+	return nil
+}
+
+// OAuth2TokenForwardingMultiError is an error wrapping multiple validation
+// errors returned by OAuth2TokenForwarding.ValidateAll() if the designated
+// constraints aren't met.
+type OAuth2TokenForwardingMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OAuth2TokenForwardingMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OAuth2TokenForwardingMultiError) AllErrors() []error { return m }
+
+// OAuth2TokenForwardingValidationError is the validation error returned by
+// OAuth2TokenForwarding.Validate if the designated constraints aren't met.
+type OAuth2TokenForwardingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OAuth2TokenForwardingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OAuth2TokenForwardingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OAuth2TokenForwardingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OAuth2TokenForwardingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OAuth2TokenForwardingValidationError) ErrorName() string {
+	return "OAuth2TokenForwardingValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e OAuth2TokenForwardingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOAuth2TokenForwarding.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OAuth2TokenForwardingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OAuth2TokenForwardingValidationError{}
+
+var _OAuth2TokenForwarding_Header_Pattern = regexp.MustCompile("^[^\x00\n\r]*$")
+
+// Validate checks the field values on PostLogoutRedirectUri with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *PostLogoutRedirectUri) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PostLogoutRedirectUri with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// PostLogoutRedirectUriMultiError, or nil if none found.
+func (m *PostLogoutRedirectUri) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PostLogoutRedirectUri) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	oneofConfigPresent := false
+	switch v := m.Config.(type) {
+	case *PostLogoutRedirectUri_Disabled:
+		if v == nil {
+			err := PostLogoutRedirectUriValidationError{
+				field:  "Config",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		oneofConfigPresent = true
+
+		if m.GetDisabled() != true {
+			err := PostLogoutRedirectUriValidationError{
+				field:  "Disabled",
+				reason: "value must equal true",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	case *PostLogoutRedirectUri_Uri:
+		if v == nil {
+			err := PostLogoutRedirectUriValidationError{
+				field:  "Config",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		oneofConfigPresent = true
+
+		if utf8.RuneCountInString(m.GetUri()) < 1 {
+			err := PostLogoutRedirectUriValidationError{
+				field:  "Uri",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+	if !oneofConfigPresent {
+		err := PostLogoutRedirectUriValidationError{
+			field:  "Config",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return PostLogoutRedirectUriMultiError(errors)
+	}
+
+	return nil
+}
+
+// PostLogoutRedirectUriMultiError is an error wrapping multiple validation
+// errors returned by PostLogoutRedirectUri.ValidateAll() if the designated
+// constraints aren't met.
+type PostLogoutRedirectUriMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PostLogoutRedirectUriMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PostLogoutRedirectUriMultiError) AllErrors() []error { return m }
+
+// PostLogoutRedirectUriValidationError is the validation error returned by
+// PostLogoutRedirectUri.Validate if the designated constraints aren't met.
+type PostLogoutRedirectUriValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PostLogoutRedirectUriValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PostLogoutRedirectUriValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PostLogoutRedirectUriValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PostLogoutRedirectUriValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PostLogoutRedirectUriValidationError) ErrorName() string {
+	return "PostLogoutRedirectUriValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PostLogoutRedirectUriValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPostLogoutRedirectUri.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PostLogoutRedirectUriValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PostLogoutRedirectUriValidationError{}
+
+// Validate checks the field values on TokenCookieChunking with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TokenCookieChunking) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TokenCookieChunking with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TokenCookieChunkingMultiError, or nil if none found.
+func (m *TokenCookieChunking) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TokenCookieChunking) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if wrapper := m.GetMaxCookieSize(); wrapper != nil {
+
+		if val := wrapper.GetValue(); val < 512 || val > 4096 {
+			err := TokenCookieChunkingValidationError{
+				field:  "MaxCookieSize",
+				reason: "value must be inside range [512, 4096]",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if wrapper := m.GetMaxChunks(); wrapper != nil {
+
+		if val := wrapper.GetValue(); val < 2 || val > 16 {
+			err := TokenCookieChunkingValidationError{
+				field:  "MaxChunks",
+				reason: "value must be inside range [2, 16]",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return TokenCookieChunkingMultiError(errors)
+	}
+
+	return nil
+}
+
+// TokenCookieChunkingMultiError is an error wrapping multiple validation
+// errors returned by TokenCookieChunking.ValidateAll() if the designated
+// constraints aren't met.
+type TokenCookieChunkingMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TokenCookieChunkingMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TokenCookieChunkingMultiError) AllErrors() []error { return m }
+
+// TokenCookieChunkingValidationError is the validation error returned by
+// TokenCookieChunking.Validate if the designated constraints aren't met.
+type TokenCookieChunkingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TokenCookieChunkingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TokenCookieChunkingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TokenCookieChunkingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TokenCookieChunkingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TokenCookieChunkingValidationError) ErrorName() string {
+	return "TokenCookieChunkingValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TokenCookieChunkingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTokenCookieChunking.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TokenCookieChunkingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TokenCookieChunkingValidationError{}
 
 // Validate checks the field values on OAuth2Config with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -762,6 +1375,37 @@ func (m *OAuth2Config) validate(all bool) error {
 			return err
 		}
 		errors = append(errors, err)
+	}
+
+	// no validation rules for EndSessionEndpoint
+
+	if all {
+		switch v := interface{}(m.GetPostLogoutRedirectUri()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "PostLogoutRedirectUri",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "PostLogoutRedirectUri",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPostLogoutRedirectUri()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2ConfigValidationError{
+				field:  "PostLogoutRedirectUri",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
 	}
 
 	if m.GetCredentials() == nil {
@@ -896,6 +1540,35 @@ func (m *OAuth2Config) validate(all bool) error {
 	}
 
 	// no validation rules for ForwardBearerToken
+
+	if all {
+		switch v := interface{}(m.GetForwardIdToken()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "ForwardIdToken",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "ForwardIdToken",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetForwardIdToken()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2ConfigValidationError{
+				field:  "ForwardIdToken",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for PreserveAuthorizationHeader
 
@@ -1100,6 +1773,164 @@ func (m *OAuth2Config) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for StatPrefix
+
+	if all {
+		switch v := interface{}(m.GetCsrfTokenExpiresIn()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "CsrfTokenExpiresIn",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "CsrfTokenExpiresIn",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCsrfTokenExpiresIn()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2ConfigValidationError{
+				field:  "CsrfTokenExpiresIn",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetCodeVerifierTokenExpiresIn()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "CodeVerifierTokenExpiresIn",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "CodeVerifierTokenExpiresIn",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCodeVerifierTokenExpiresIn()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2ConfigValidationError{
+				field:  "CodeVerifierTokenExpiresIn",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for DisableTokenEncryption
+
+	for idx, item := range m.GetAllowFailedMatcher() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, OAuth2ConfigValidationError{
+						field:  fmt.Sprintf("AllowFailedMatcher[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, OAuth2ConfigValidationError{
+						field:  fmt.Sprintf("AllowFailedMatcher[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return OAuth2ConfigValidationError{
+					field:  fmt.Sprintf("AllowFailedMatcher[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for OriginalRequestUri
+
+	// no validation rules for UseAccessTokenExpiryForIdTokenCookie
+
+	if all {
+		switch v := interface{}(m.GetPrivateKeyJwtConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "PrivateKeyJwtConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "PrivateKeyJwtConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPrivateKeyJwtConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2ConfigValidationError{
+				field:  "PrivateKeyJwtConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetTokenCookieChunking()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "TokenCookieChunking",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2ConfigValidationError{
+					field:  "TokenCookieChunking",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTokenCookieChunking()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2ConfigValidationError{
+				field:  "TokenCookieChunking",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return OAuth2ConfigMultiError(errors)
 	}
@@ -1113,7 +1944,7 @@ type OAuth2ConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OAuth2ConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1176,6 +2007,146 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = OAuth2ConfigValidationError{}
+
+// Validate checks the field values on OAuth2PerRoute with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *OAuth2PerRoute) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OAuth2PerRoute with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in OAuth2PerRouteMultiError,
+// or nil if none found.
+func (m *OAuth2PerRoute) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OAuth2PerRoute) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetConfig() == nil {
+		err := OAuth2PerRouteValidationError{
+			field:  "Config",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OAuth2PerRouteValidationError{
+					field:  "Config",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OAuth2PerRouteValidationError{
+					field:  "Config",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OAuth2PerRouteValidationError{
+				field:  "Config",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return OAuth2PerRouteMultiError(errors)
+	}
+
+	return nil
+}
+
+// OAuth2PerRouteMultiError is an error wrapping multiple validation errors
+// returned by OAuth2PerRoute.ValidateAll() if the designated constraints
+// aren't met.
+type OAuth2PerRouteMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OAuth2PerRouteMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OAuth2PerRouteMultiError) AllErrors() []error { return m }
+
+// OAuth2PerRouteValidationError is the validation error returned by
+// OAuth2PerRoute.Validate if the designated constraints aren't met.
+type OAuth2PerRouteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OAuth2PerRouteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OAuth2PerRouteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OAuth2PerRouteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OAuth2PerRouteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OAuth2PerRouteValidationError) ErrorName() string { return "OAuth2PerRouteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OAuth2PerRouteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOAuth2PerRoute.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OAuth2PerRouteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OAuth2PerRouteValidationError{}
 
 // Validate checks the field values on OAuth2 with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -1240,7 +2211,7 @@ type OAuth2MultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OAuth2MultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1416,6 +2387,21 @@ func (m *OAuth2Credentials_CookieNames) validate(all bool) error {
 
 	}
 
+	if m.GetCodeVerifier() != "" {
+
+		if !_OAuth2Credentials_CookieNames_CodeVerifier_Pattern.MatchString(m.GetCodeVerifier()) {
+			err := OAuth2Credentials_CookieNamesValidationError{
+				field:  "CodeVerifier",
+				reason: "value does not match regex pattern \"^:?[0-9a-zA-Z!#$%&'*+-.^_|~`]+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return OAuth2Credentials_CookieNamesMultiError(errors)
 	}
@@ -1430,7 +2416,7 @@ type OAuth2Credentials_CookieNamesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m OAuth2Credentials_CookieNamesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1508,3 +2494,5 @@ var _OAuth2Credentials_CookieNames_IdToken_Pattern = regexp.MustCompile("^:?[0-9
 var _OAuth2Credentials_CookieNames_RefreshToken_Pattern = regexp.MustCompile("^:?[0-9a-zA-Z!#$%&'*+-.^_|~`]+$")
 
 var _OAuth2Credentials_CookieNames_OauthNonce_Pattern = regexp.MustCompile("^:?[0-9a-zA-Z!#$%&'*+-.^_|~`]+$")
+
+var _OAuth2Credentials_CookieNames_CodeVerifier_Pattern = regexp.MustCompile("^:?[0-9a-zA-Z!#$%&'*+-.^_|~`]+$")

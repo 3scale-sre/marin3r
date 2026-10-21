@@ -295,6 +295,17 @@ func (m *RedisProxy) validate(all bool) error {
 		}
 	}
 
+	if _, ok := RedisProxy_ProtocolVersion_name[int32(m.GetProtocolVersion())]; !ok {
+		err := RedisProxyValidationError{
+			field:  "ProtocolVersion",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return RedisProxyMultiError(errors)
 	}
@@ -308,7 +319,7 @@ type RedisProxyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -452,6 +463,69 @@ func (m *RedisProtocolOptions) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetAwsIam()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RedisProtocolOptionsValidationError{
+					field:  "AwsIam",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RedisProtocolOptionsValidationError{
+					field:  "AwsIam",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAwsIam()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RedisProtocolOptionsValidationError{
+				field:  "AwsIam",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetCredentials() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, RedisProtocolOptionsValidationError{
+						field:  fmt.Sprintf("Credentials[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, RedisProtocolOptionsValidationError{
+						field:  fmt.Sprintf("Credentials[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RedisProtocolOptionsValidationError{
+					field:  fmt.Sprintf("Credentials[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return RedisProtocolOptionsMultiError(errors)
 	}
@@ -466,7 +540,7 @@ type RedisProtocolOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProtocolOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -531,6 +605,179 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RedisProtocolOptionsValidationError{}
+
+// Validate checks the field values on AwsIam with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *AwsIam) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AwsIam with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in AwsIamMultiError, or nil if none found.
+func (m *AwsIam) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AwsIam) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCredentialProvider()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AwsIamValidationError{
+					field:  "CredentialProvider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AwsIamValidationError{
+					field:  "CredentialProvider",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCredentialProvider()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AwsIamValidationError{
+				field:  "CredentialProvider",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if utf8.RuneCountInString(m.GetCacheName()) < 1 {
+		err := AwsIamValidationError{
+			field:  "CacheName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for ServiceName
+
+	// no validation rules for Region
+
+	if d := m.GetExpirationTime(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AwsIamValidationError{
+				field:  "ExpirationTime",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			lte := time.Duration(900*time.Second + 0*time.Nanosecond)
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte || dur > lte {
+				err := AwsIamValidationError{
+					field:  "ExpirationTime",
+					reason: "value must be inside range [0s, 15m0s]",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if len(errors) > 0 {
+		return AwsIamMultiError(errors)
+	}
+
+	return nil
+}
+
+// AwsIamMultiError is an error wrapping multiple validation errors returned by
+// AwsIam.ValidateAll() if the designated constraints aren't met.
+type AwsIamMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AwsIamMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AwsIamMultiError) AllErrors() []error { return m }
+
+// AwsIamValidationError is the validation error returned by AwsIam.Validate if
+// the designated constraints aren't met.
+type AwsIamValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AwsIamValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AwsIamValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AwsIamValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AwsIamValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AwsIamValidationError) ErrorName() string { return "AwsIamValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AwsIamValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAwsIam.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AwsIamValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AwsIamValidationError{}
 
 // Validate checks the field values on RedisExternalAuthProvider with the rules
 // defined in the proto definition for this message. If any rules are
@@ -599,7 +846,7 @@ type RedisExternalAuthProviderMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisExternalAuthProviderMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -847,7 +1094,7 @@ type RedisProxy_ConnPoolSettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_ConnPoolSettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1015,7 +1262,7 @@ type RedisProxy_PrefixRoutesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_PrefixRoutesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1197,7 +1444,7 @@ type RedisProxy_RedisFaultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_RedisFaultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1310,7 +1557,7 @@ type RedisProxy_ConnectionRateLimitMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_ConnectionRateLimitMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1502,7 +1749,7 @@ type RedisProxy_PrefixRoutes_RouteMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_PrefixRoutes_RouteMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1650,7 +1897,7 @@ type RedisProxy_PrefixRoutes_Route_RequestMirrorPolicyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_PrefixRoutes_Route_RequestMirrorPolicyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1774,7 +2021,7 @@ type RedisProxy_PrefixRoutes_Route_ReadCommandPolicyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RedisProxy_PrefixRoutes_Route_ReadCommandPolicyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1845,3 +2092,193 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RedisProxy_PrefixRoutes_Route_ReadCommandPolicyValidationError{}
+
+// Validate checks the field values on RedisProtocolOptions_Credential with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RedisProtocolOptions_Credential) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RedisProtocolOptions_Credential with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// RedisProtocolOptions_CredentialMultiError, or nil if none found.
+func (m *RedisProtocolOptions_Credential) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RedisProtocolOptions_Credential) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetAddress()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RedisProtocolOptions_CredentialValidationError{
+					field:  "Address",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RedisProtocolOptions_CredentialValidationError{
+					field:  "Address",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAddress()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RedisProtocolOptions_CredentialValidationError{
+				field:  "Address",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetAuthPassword()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RedisProtocolOptions_CredentialValidationError{
+					field:  "AuthPassword",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RedisProtocolOptions_CredentialValidationError{
+					field:  "AuthPassword",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAuthPassword()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RedisProtocolOptions_CredentialValidationError{
+				field:  "AuthPassword",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetAuthUsername()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RedisProtocolOptions_CredentialValidationError{
+					field:  "AuthUsername",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RedisProtocolOptions_CredentialValidationError{
+					field:  "AuthUsername",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAuthUsername()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RedisProtocolOptions_CredentialValidationError{
+				field:  "AuthUsername",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RedisProtocolOptions_CredentialMultiError(errors)
+	}
+
+	return nil
+}
+
+// RedisProtocolOptions_CredentialMultiError is an error wrapping multiple
+// validation errors returned by RedisProtocolOptions_Credential.ValidateAll()
+// if the designated constraints aren't met.
+type RedisProtocolOptions_CredentialMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RedisProtocolOptions_CredentialMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RedisProtocolOptions_CredentialMultiError) AllErrors() []error { return m }
+
+// RedisProtocolOptions_CredentialValidationError is the validation error
+// returned by RedisProtocolOptions_Credential.Validate if the designated
+// constraints aren't met.
+type RedisProtocolOptions_CredentialValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RedisProtocolOptions_CredentialValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RedisProtocolOptions_CredentialValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RedisProtocolOptions_CredentialValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RedisProtocolOptions_CredentialValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RedisProtocolOptions_CredentialValidationError) ErrorName() string {
+	return "RedisProtocolOptions_CredentialValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RedisProtocolOptions_CredentialValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRedisProtocolOptions_Credential.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RedisProtocolOptions_CredentialValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RedisProtocolOptions_CredentialValidationError{}

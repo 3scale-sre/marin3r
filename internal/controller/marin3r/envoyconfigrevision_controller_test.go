@@ -48,7 +48,7 @@ func TestEnvoyConfigRevisionReconciler_taintSelf(t *testing.T) {
 			t.Errorf("EnvoyConfigRevisionReconciler.taintSelf() error = %v", err)
 		}
 
-		if err := r.Client.Get(context.TODO(), types.NamespacedName{Name: "ecr", Namespace: "default"}, ecr); err != nil {
+		if err := r.Get(context.TODO(), types.NamespacedName{Name: "ecr", Namespace: "default"}, ecr); err != nil {
 			t.Error(err)
 		}
 

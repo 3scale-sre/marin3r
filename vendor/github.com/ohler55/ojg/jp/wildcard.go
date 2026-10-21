@@ -271,9 +271,12 @@ func (f Wildcard) locate(pp Expr, data any, rest Expr, max int) (locs []Expr) {
 	case nil:
 		// no match
 	default:
+		if isNil(data) {
+			return
+		}
 		rd := reflect.ValueOf(data)
 		rt := rd.Type()
-		if rt.Kind() == reflect.Ptr {
+		if rt.Kind() == reflect.Pointer {
 			rt = rt.Elem()
 			rd = rd.Elem()
 		}
@@ -445,7 +448,10 @@ func wildWalk(rest, path Expr, nodes []any, cb func(path Expr, nodes []any), f F
 			rd := reflect.ValueOf(tv)
 		rwalk:
 			switch rt.Kind() {
-			case reflect.Ptr:
+			case reflect.Pointer:
+				if rd.IsNil() {
+					return
+				}
 				rt = rt.Elem()
 				rd = rd.Elem()
 				goto rwalk

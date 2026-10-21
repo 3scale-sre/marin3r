@@ -7,6 +7,7 @@ import (
 
 	"github.com/3scale-sre/basereconciler/config"
 	"github.com/3scale-sre/basereconciler/resource"
+	"github.com/3scale-sre/basereconciler/runtimeconfig"
 	"github.com/3scale-sre/basereconciler/util"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -136,6 +137,7 @@ type Reconciler struct {
 
 // NewFromManager returns a new Reconciler from a controller-runtime manager.Manager
 func NewFromManager(mgr manager.Manager) *Reconciler {
+	runtimeconfig.EnsureDefaultScheme(mgr.GetScheme())
 	return &Reconciler{Client: mgr.GetClient(), Scheme: mgr.GetScheme(), Log: logr.Discard(), mgr: mgr}
 }
 
@@ -299,9 +301,9 @@ func (r *Reconciler) ReconcileOwnedResources(
 	requeue := false
 
 	for _, template := range list {
-		ref, err := resource.CreateOrUpdate(ctx, r.Client, r.Scheme, owner, template)
+		ref, err := resource.CreateOrModify(ctx, r.Client, r.Scheme, owner, template)
 		if err != nil {
-			return Result{Error: fmt.Errorf("unable to CreateOrUpdate resource: %w", err)}
+			return Result{Error: fmt.Errorf("unable to CreateOrModify resource: %w", err)}
 		}
 		if ref != nil {
 			managedResources = append(managedResources, *ref)

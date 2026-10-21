@@ -11,13 +11,71 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// ObjectWithAppStatus is an interface that implements
+// both client.Object and AppStatus
+type ObjectWithAppStatus interface {
+	client.Object
+	// GetStatus must return an object that implements AppStatus. The functions returns "any"
+	// to allow for implicit implementation of this interface, without ever requiring the user API
+	// package to import basereconciler.
+	GetStatus() any
+}
+
+// AppStatus is an interface describing a custom resource with
+// an status that can be reconciled by the reconciler
+type AppStatus interface {
+	GetDeploymentStatus(types.NamespacedName) *appsv1.DeploymentStatus
+	SetDeploymentStatus(types.NamespacedName, *appsv1.DeploymentStatus)
+	GetStatefulSetStatus(types.NamespacedName) *appsv1.StatefulSetStatus
+	SetStatefulSetStatus(types.NamespacedName, *appsv1.StatefulSetStatus)
+}
+
+// AppStatusWithHealth is an interface describing a custom resource with
+// an status that includes health information for the workload
+type AppStatusWithHealth interface {
+	AppStatus
+	GetHealthStatus(types.NamespacedName) string
+	SetHealthStatus(types.NamespacedName, string)
+	GetHealthMessage(types.NamespacedName) string
+	SetHealthMessage(types.NamespacedName, string)
+}
+
+// AppStatusWithAggregatedHealth is an interface describing a custom resource with
+// an status that includes aggregated health information. This is useful only when the
+// custom resources managed several workloads.
+type AppStatusWithAggregatedHealth interface {
+	AppStatusWithHealth
+	GetAggregatedHealthStatus() string
+	SetAggregatedHealthStatus(string)
+}
+
+// UnimplementedDeploymentStatus type can be used for resources that doesn't use Deployments
+type UnimplementedDeploymentStatus struct{}
+
+func (u *UnimplementedDeploymentStatus) GetDeploymentStatus(types.NamespacedName) *appsv1.DeploymentStatus {
+	return nil
+}
+
+func (u *UnimplementedDeploymentStatus) SetDeploymentStatus(types.NamespacedName, *appsv1.DeploymentStatus) {
+}
+
+// UnimplementedStatefulSetStatus type can be used for resources that doesn't use StatefulSets
+type UnimplementedStatefulSetStatus struct{}
+
+func (u *UnimplementedStatefulSetStatus) GetStatefulSetStatus(types.NamespacedName) *appsv1.StatefulSetStatus {
+	return nil
+}
+
+func (u *UnimplementedStatefulSetStatus) SetStatefulSetStatus(types.NamespacedName, *appsv1.StatefulSetStatus) {
+}
+
 // ReconcileStatus can reconcile the status of a custom resource when the resource implements
 // the ObjectWithAppStatus interface. It is specifically targeted for the status of custom
 // resources that deploy Deployments/StatefulSets, as it can aggregate the status of those into the
 // status of the custom resource. It also accepts functions with signature "func() bool" that can
 // reconcile the status of the custom resource and detect whether status update is required or not.
 func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object,
-	deployments, statefulsets []types.NamespacedName, mutators ...func() bool) Result {
+	deployments, statefulsets []types.NamespacedName, mutators ...func() (bool, error)) Result {
 	logger := logr.FromContextOrDiscard(ctx)
 	update := false
 
@@ -43,6 +101,16 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 		)}
 	}
 
+	// check if the object's status implements AppStatusWithHealth
+	var implementsHealth bool
+	if _, ok := (obj.GetStatus()).(AppStatusWithHealth); ok {
+		implementsHealth = true
+		// set initial aggregated health if object also implements AppStatusWithAggregatedHealth
+		if o, ok := (obj.GetStatus()).(AppStatusWithAggregatedHealth); ok {
+			o.SetAggregatedHealthStatus(string(HealthStatusHealthy))
+		}
+	}
+
 	// Aggregate the status of all Deployments owned
 	// by this instance
 	for _, key := range deployments {
@@ -56,6 +124,18 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 			status.SetDeploymentStatus(key, &deployment.Status)
 			update = true
 		}
+
+		// health
+		if implementsHealth {
+			statusWithHealth := status.(AppStatusWithHealth)
+
+			var err error
+			if update, err = setWorkloadHealth(statusWithHealth, deployment); err != nil {
+				return Result{Error: err}
+			}
+
+		}
+
 	}
 
 	// Aggregate the status of all StatefulSets owned
@@ -71,13 +151,23 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 			status.SetStatefulSetStatus(key, &sts.Status)
 			update = true
 		}
-	}
 
-	// TODO: calculate health
+		// health
+		if implementsHealth {
+			statusWithHealth := status.(AppStatusWithHealth)
+
+			var err error
+			if update, err = setWorkloadHealth(statusWithHealth, sts); err != nil {
+				return Result{Error: err}
+			}
+		}
+	}
 
 	// call mutators
 	for _, fn := range mutators {
-		if fn() {
+		if result, err := fn(); err != nil {
+			return Result{Error: err}
+		} else if result {
 			update = true
 		}
 	}
@@ -92,59 +182,48 @@ func (r *Reconciler) ReconcileStatus(ctx context.Context, instance client.Object
 	return Result{Action: ContinueAction}
 }
 
-// ObjectWithAppStatus is an interface that implements
-// both client.Object and AppStatus
-type ObjectWithAppStatus interface {
-	client.Object
-	GetStatus() any
-}
+func setWorkloadHealth(status AppStatusWithHealth, obj client.Object) (bool, error) {
+	var observedHealth *HealthStatus
+	var err error
+	var update bool
 
-// Health not yet implemented
-type Health string
+	switch o := obj.(type) {
+	case *appsv1.Deployment:
+		observedHealth, err = GetDeploymentHealth(o)
+		if err != nil {
+			return false, err
+		}
 
-const (
-	Health_Healthy     Health = "Healthy"
-	Health_Progressing Health = "Progressing"
-	Health_Degraded    Health = "Degraded"
-	Health_Suspended   Health = "Suspended"
-	Health_Unknown     Health = "Unknown"
-)
+	case *appsv1.StatefulSet:
+		observedHealth, err = GetStatefulSetHealth(o)
+		if err != nil {
+			return false, err
+		}
 
-// AppStatus is an interface describing a custom resource with
-// an status that can be reconciled by the reconciler
-type AppStatus interface {
-	// GetHealth(types.NamespacedName) Health
-	// SetHealth(types.NamespacedName, Health)
-	GetDeploymentStatus(types.NamespacedName) *appsv1.DeploymentStatus
-	SetDeploymentStatus(types.NamespacedName, *appsv1.DeploymentStatus)
-	GetStatefulSetStatus(types.NamespacedName) *appsv1.StatefulSetStatus
-	SetStatefulSetStatus(types.NamespacedName, *appsv1.StatefulSetStatus)
-}
+	default:
+		return false, fmt.Errorf("unsupported workload type %T", o)
+	}
 
-// UnimplementedDeploymentStatus type can be used for resources that doesn't use Deployments
-type UnimplementedDeploymentStatus struct{}
+	key := client.ObjectKeyFromObject(obj)
+	storedHealth := HealthStatus{
+		Status:  HealthStatusCode(status.GetHealthStatus(key)),
+		Message: status.GetHealthMessage(key),
+	}
 
-func (u *UnimplementedDeploymentStatus) GetDeployments() []types.NamespacedName {
-	return nil
-}
+	if !equality.Semantic.DeepEqual(observedHealth, storedHealth) {
+		status.SetHealthStatus(key, string(observedHealth.Status))
+		status.SetHealthMessage(key, observedHealth.Message)
+		update = true
+	}
 
-func (u *UnimplementedDeploymentStatus) GetDeploymentStatus(types.NamespacedName) *appsv1.DeploymentStatus {
-	return nil
-}
+	// aggregate health if status implements AppStatusWithAggregatedHealth
+	o, ok := status.(AppStatusWithAggregatedHealth)
+	if ok && healthIsWorse(HealthStatusCode(o.GetAggregatedHealthStatus()),
+		HealthStatusCode(status.GetHealthStatus(key))) {
+		o.SetAggregatedHealthStatus(status.GetHealthStatus(key))
+		update = true
+	}
 
-func (u *UnimplementedDeploymentStatus) SetDeploymentStatus(types.NamespacedName, *appsv1.DeploymentStatus) {
-}
+	return update, nil
 
-// UnimplementedStatefulSetStatus type can be used for resources that doesn't use StatefulSets
-type UnimplementedStatefulSetStatus struct{}
-
-func (u *UnimplementedStatefulSetStatus) GetStatefulSets() []types.NamespacedName {
-	return nil
-}
-
-func (u *UnimplementedStatefulSetStatus) GetStatefulSetStatus(types.NamespacedName) *appsv1.StatefulSetStatus {
-	return nil
-}
-
-func (u *UnimplementedStatefulSetStatus) SetStatefulSetStatus(types.NamespacedName, *appsv1.StatefulSetStatus) {
 }

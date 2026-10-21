@@ -13,6 +13,7 @@ import (
 	ioutil "github.com/3scale-sre/marin3r/internal/pkg/util/io"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/model"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -258,7 +259,7 @@ func (mgr *Manager) getOpenConnections(ctx context.Context, log logr.Logger) (in
 
 // parseOpenConnections returns the sum of open connections from a Prometheus HTTP request
 func parseOpenConnections(stats io.Reader) (int, error) {
-	var parser expfmt.TextParser
+	parser := expfmt.NewTextParser(model.LegacyValidation)
 
 	openConnections := 0
 

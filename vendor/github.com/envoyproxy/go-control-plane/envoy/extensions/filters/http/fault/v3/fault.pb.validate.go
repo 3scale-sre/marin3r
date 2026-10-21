@@ -87,6 +87,8 @@ func (m *FaultAbort) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ResponseBody
+
 	oneofErrorTypePresent := false
 	switch v := m.ErrorType.(type) {
 	case *FaultAbort_HttpStatus:
@@ -195,7 +197,7 @@ type FaultAbortMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FaultAbortMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -491,7 +493,7 @@ type HTTPFaultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HTTPFaultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -591,7 +593,7 @@ type FaultAbort_HeaderAbortMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FaultAbort_HeaderAbortMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

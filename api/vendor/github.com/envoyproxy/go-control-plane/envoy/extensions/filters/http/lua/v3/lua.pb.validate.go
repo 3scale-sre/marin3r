@@ -136,6 +136,98 @@ func (m *Lua) validate(all bool) error {
 
 	// no validation rules for StatPrefix
 
+	if all {
+		switch v := interface{}(m.GetClearRouteCache()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LuaValidationError{
+					field:  "ClearRouteCache",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LuaValidationError{
+					field:  "ClearRouteCache",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetClearRouteCache()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LuaValidationError{
+				field:  "ClearRouteCache",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetFilterContext()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LuaValidationError{
+					field:  "FilterContext",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LuaValidationError{
+					field:  "FilterContext",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFilterContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LuaValidationError{
+				field:  "FilterContext",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetPackagePaths() {
+		_, _ = idx, item
+
+		if utf8.RuneCountInString(item) < 1 {
+			err := LuaValidationError{
+				field:  fmt.Sprintf("PackagePaths[%v]", idx),
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	for idx, item := range m.GetPackageCpaths() {
+		_, _ = idx, item
+
+		if utf8.RuneCountInString(item) < 1 {
+			err := LuaValidationError{
+				field:  fmt.Sprintf("PackageCpaths[%v]", idx),
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	// no validation rules for SharedVmId
+
 	if len(errors) > 0 {
 		return LuaMultiError(errors)
 	}
@@ -149,7 +241,7 @@ type LuaMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LuaMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -235,7 +327,69 @@ func (m *LuaPerRoute) validate(all bool) error {
 
 	var errors []error
 
-	oneofOverridePresent := false
+	if all {
+		switch v := interface{}(m.GetFilterContext()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LuaPerRouteValidationError{
+					field:  "FilterContext",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LuaPerRouteValidationError{
+					field:  "FilterContext",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFilterContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LuaPerRouteValidationError{
+				field:  "FilterContext",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetPackagePaths() {
+		_, _ = idx, item
+
+		if utf8.RuneCountInString(item) < 1 {
+			err := LuaPerRouteValidationError{
+				field:  fmt.Sprintf("PackagePaths[%v]", idx),
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	for idx, item := range m.GetPackageCpaths() {
+		_, _ = idx, item
+
+		if utf8.RuneCountInString(item) < 1 {
+			err := LuaPerRouteValidationError{
+				field:  fmt.Sprintf("PackageCpaths[%v]", idx),
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	// no validation rules for SharedVmId
+
 	switch v := m.Override.(type) {
 	case *LuaPerRoute_Disabled:
 		if v == nil {
@@ -248,7 +402,6 @@ func (m *LuaPerRoute) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-		oneofOverridePresent = true
 
 		if m.GetDisabled() != true {
 			err := LuaPerRouteValidationError{
@@ -272,7 +425,6 @@ func (m *LuaPerRoute) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-		oneofOverridePresent = true
 
 		if utf8.RuneCountInString(m.GetName()) < 1 {
 			err := LuaPerRouteValidationError{
@@ -296,7 +448,6 @@ func (m *LuaPerRoute) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-		oneofOverridePresent = true
 
 		if all {
 			switch v := interface{}(m.GetSourceCode()).(type) {
@@ -330,16 +481,6 @@ func (m *LuaPerRoute) validate(all bool) error {
 	default:
 		_ = v // ensures v is used
 	}
-	if !oneofOverridePresent {
-		err := LuaPerRouteValidationError{
-			field:  "Override",
-			reason: "value is required",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
 
 	if len(errors) > 0 {
 		return LuaPerRouteMultiError(errors)
@@ -354,7 +495,7 @@ type LuaPerRouteMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LuaPerRouteMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
